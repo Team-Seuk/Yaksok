@@ -1,0 +1,21 @@
+# CODEOWNERS — PR 시 자동 리뷰어 지정 + 위험구역 보호
+# 아래 @아이디 자리표시자를 실제 GitHub 아이디로 바꿀 것.
+# 규칙은 "마지막에 매치된 줄"이 이긴다 → 위험구역 블록을 맨 아래 둔다.
+
+# 기본: 모든 파일은 팀 리드가 본다
+*                                @bestcow
+
+# 담당 폴더 (각 기능 담당자)
+/backend/app/auth/               @bestcow
+/backend/app/pill/        @bestcow
+/frontend/src/pages/auth/        @bestcow
+/frontend/src/pages/pill/ @bestcow
+/frontend/src/                   @bestcow
+
+# ===== 위험 공용구역 — 팀 리드만 승인 가능 =====
+/backend/app/core/               @bestcow
+/.github/                        @bestcow
+*.yml                            @bestcow
+*.yaml                           @bestcow
+/backend/requirements.txt        @bestcow
+/frontend/package.json           @bestcow

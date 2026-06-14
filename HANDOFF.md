@@ -1,7 +1,7 @@
 ---
 status: 개발
 updated: 2026-06-14
-summary: Expo+expo-router 더미 UI 프로토타입(M0) 코드 완료 — 온보딩·스와이프 3탭·카메라·결과채팅·요약버전. 번들·타입체크 통과, 실기기 확인 대기
+summary: Expo 폐기 → FastAPI+React 협업 스캐폴드 적용(빈 스켈레톤+health/Hello 스텁+CI). 로컬 검증 통과, 팀 GitHub 셋업·아이디 placeholder 대기
 ---
 
 # pill_recognition — HANDOFF
@@ -9,22 +9,17 @@ summary: Expo+expo-router 더미 UI 프로토타입(M0) 코드 완료 — 온보
 > 작업 세션 끝낼 때마다 갱신. 위 frontmatter가 상태의 단일 원본. (CONVENTIONS §4·§5)
 
 ## 마지막 작업
-- Expo 프로젝트 스캐폴딩 (SDK 56, TypeScript, expo-router, `src/app` 라우팅).
-- 화면 전부 더미 데이터로 구현:
-  - 온보딩: 카메라 권한 요청 → 개인정보 입력 (최초 1회, 온보딩 여부 = 프로필 존재).
-  - 하단 3탭 좌우 스와이프: 알약사전 / 홈 / 기타 (초기 탭 = 홈).
-  - 홈: 카메라 + 정사각 뷰파인더 + 자동 인식(2.6초 더미, 탭하면 즉시) → "인식 완료" → 결과 채팅.
-  - 결과 채팅: 맞춤 안내 말풍선 + 답변마다 "요약 vN" 버튼 → 누적 요약문서(모달에서 이전/다음 버전 이동), 추가 질문 시 새 버전 생성.
-  - 알약사전: 기록 리스트 → 탭하면 채팅 재진입. 기타: 내 정보 수정 / 증상별 약 추천(OTC 한정 + 면책).
-- SDK 56에서 expo-router가 react-navigation과 비호환 → 스와이프 탭을 `expo-router/js-top-tabs`의 `TopTabs`로 구현(외부 `@react-navigation/material-top-tabs` 미사용).
-- 개인정보·기록은 AsyncStorage 로컬 저장. 인식/안내/요약/추천 로직은 `src/lib/mock.ts`의 목 함수 — 실연동 지점에 `TODO(M2~M4)` 주석.
-- 검증: `expo export`(Android 번들) 성공, `tsc --noEmit` 통과. 웹 미리보기(localhost)로 온보딩·알약사전·결과채팅·요약버전 렌더 확인.
-- 웹 미리보기용 플래그 `src/lib/devFlags.ts`의 `SKIP_CAMERA_GATE`(`Platform.OS==='web'`) 추가 — 웹은 카메라 권한이 거부돼 막히므로 권한 게이트를 건너뜀. **실기기(ios/android)는 정상 권한 요청, 영향 없음.**
+- **스택 전환**: Expo(RN) 폐기 → FastAPI(Python 3.11+) + React(TS·Vite) 웹. 기존 Expo M0는 `archive/expo-m0` 브랜치 + `expo-m0-final` 태그로 보존 후 main에서 제거. 기본 브랜치 `master`→`main` 개명.
+- **협업 스캐폴드 적용**(`_templates/repo-scaffold/`에서 복사): `.github/`(CODEOWNERS·PR템플릿·`check.yml`), `backend/`(FastAPI 골격 + `/health`), `frontend/`(Vite+React+TS 골격 + Hello), `docs/`, 통합 `.gitignore`, README, CONTRIBUTING. 빈 폴더는 `.gitkeep`, 기능 코드 없음.
+- **토큰 치환**: `{{PROJECT}}`→pill_recognition, `{{FEATURE}}`→pill. 담당자/REPO placeholder는 미치환(사람이 채움).
+- **로컬 검증 통과**: frontend `npm install`→typecheck·lint·`vite build`(dist 생성) 전부 clean. backend venv `pip install`(fastapi 0.115.14/uvicorn 0.32.1/ruff 0.7.4)→`ruff check` All passed→`uvicorn` `/health`={"status":"ok"}.
 
 ## 다음 할 일
-- 실기기/에뮬레이터에서 `npx expo start` 후 흐름·스와이프·카메라를 눈으로 확인해 M0 마무리.
-- M1: web-design 프레임워크로 디자인 토큰·시그니처 확정 → `.design/system.md` 생성.
-- 이후 M2(Claude 비전 인식) · M3(공공 API 3종) · M4(Claude 안내·요약) 실연동.
+- **(사람)** CODEOWNERS·CONTRIBUTING의 `{{TEAMLEAD}}`·`{{OWNER_*}}`·`{{REPO}}`를 실제 GitHub 아이디로 치환.
+- **(사람)** GitHub에 빈 repo `pill_recognition` 생성 → `main` + `archive/expo-m0` 브랜치 + `expo-m0-final` 태그 push → 팀원 4명 write 권한.
+- **(사람)** 테스트 PR 1개로 `check`(backend·frontend) 등록 → branch protection(승인1·Code Owners·status check·force push 차단) → Automatically delete head branches. 상세 [CONTRIBUTING.md](CONTRIBUTING.md) §5.
+- 이후 M1(디자인 토큰) → M2~M4(카메라·비전·공공API·LLM) 실연동.
+- frontend `npm audit`: vite/esbuild 관련 2건(dev-server 한정) — 데모엔 영향 적으나 추후 vite 메이저 업글로 정리 검토.
 
 ## 막힌 것
-_해당 없음_ — 단, 웹은 pager-view/카메라 제약이 있어 시각 확인은 모바일 권장. ESLint는 미설정(필요 시 `eslint-config-expo` 추가).
+_해당 없음_ — 단, branch protection은 GitHub 웹 수동 설정이라 팀원 아이디 확정 전까지 보류.
