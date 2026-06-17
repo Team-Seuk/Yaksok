@@ -2,6 +2,9 @@
 
 > 날짜별 굵직한 변경 한 줄. 세세한 커밋은 git log. (CONVENTIONS §3)
 
+## 2026-06-17
+- 백엔드 구조 전환: 단순 피처 폴더 → **헥사고날(Ports & Adapters)·도메인 기반**(`C:\titanic` 참고). `backend/apps/{auth,pill,guidance}/`에 domain·app·adapter·dependencies·tests·_docs 풀 골격, 공용 `backend/core/`, 진입점 `backend/main.py` + `run.py`·`pytest.ini`·`requirements-test.txt`. 구 `backend/app/` 제거. 프론트·repo·DB는 미변경.
+
 ## 2026-06-15
 - repo 공개 전환: private → **public**(커밋 이력 시크릿 스캔 클린 확인 후). free org Actions 분 제한 해소.
 - 시크릿 관리 정비: `backend/.env.example` + `app/core/config.py`(pydantic-settings) 추가, GitHub secret scanning + push protection 활성화, CONTRIBUTING에 키 규칙 한 줄.

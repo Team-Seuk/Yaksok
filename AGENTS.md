@@ -1,7 +1,7 @@
 # pill_recognition — 에이전트/기여자 노트
 
 ## 스택
-- **백엔드**: FastAPI (Python 3.11+). `backend/app/` — `auth/`(로그인·회원), `pill/`(핵심 기능), `core/`(DB·공통 설정, 위험 공용구역). 진입점 `app/main.py`.
+- **백엔드**: FastAPI (Python 3.11+). 헥사고날(Ports & Adapters)·도메인 기반 구조. `backend/apps/<도메인>/`(현재 `auth`·`pill`·`guidance`)가 각각 `domain/`(entities·value_objects) → `app/`(dtos·ports/{input,output}·use_cases) → `adapter/`(inbound/api/{schemas,v1}·outbound/{orm,mappers,repositories}) + `dependencies/`(DI) + `tests/` + `_docs/` 풀세트. **의존성 방향 adapter → app → domain**(역방향 임포트 금지, 타입 힌트는 `TYPE_CHECKING` 가드). 공용 설정·DB는 `backend/core/`. 진입점 `backend/main.py`(도메인 라우터를 `include_router`로 등록).
 - **프론트**: React + TypeScript + Vite. `frontend/src/` — `pages/{auth,pill}/`, `components/`(재사용), `api/`(백엔드 호출).
 - 공공 API·LLM(Claude) 호출은 **백엔드에서**. 인증키는 `backend/.env`(절대 커밋 금지).
 
@@ -11,7 +11,7 @@
 - 정확한 루틴·금지사항은 [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## 검증 (변경 후 실행)
-- backend: `cd backend && ruff check .` · `uvicorn app.main:app --reload` → `/health`
+- backend: `cd backend && ruff check .` · `uvicorn main:app --reload` → `/health` · `pytest`(도메인별 `apps/<도메인>/tests/`)
 - frontend: `cd frontend && npm run typecheck && npm run lint && npm run build`
 - 이 검사들은 PR에서 `.github/workflows/check.yml`로도 자동 실행되며 통과해야 merge 가능.
 
