@@ -34,32 +34,34 @@
 
 <!-- ===== legend ===== -->
 <g transform="translate(24,18)">
-  <rect x="0" y="0" width="510" height="156" rx="12" fill="#fcfcfd" stroke="#e5e7eb"/>
-  <text x="16" y="26" font-size="12.5" font-weight="700" fill="#374151">읽는 법 · Legend</text>
+  <rect x="0" y="0" width="540" height="178" rx="12" fill="#fcfcfd" stroke="#e5e7eb"/>
+  <text x="16" y="24" font-size="12.5" font-weight="700" fill="#374151">읽는 법 · How to read</text>
+  <line x1="16" y1="32" x2="524" y2="32" stroke="#eef0f3"/>
 
-  <text x="16" y="52" font-size="10.5" font-weight="700" fill="#6b7280">관계 (Cardinality)</text>
-  <line x1="124" y1="48" x2="164" y2="48" stroke="#64748b" stroke-width="1.5" marker-end="url(#one)"/>
-  <text x="174" y="52" font-size="10" fill="#4b5563">1 (하나)</text>
-  <line x1="258" y1="48" x2="298" y2="48" stroke="#64748b" stroke-width="1.5" marker-end="url(#many)"/>
-  <text x="308" y="52" font-size="10" fill="#4b5563">N (여럿)</text>
-  <line x1="392" y1="48" x2="432" y2="48" stroke="#64748b" stroke-width="1.5" marker-end="url(#manyOpt)"/>
-  <text x="442" y="52" font-size="10" fill="#4b5563">0..N (선택)</text>
+  <!-- 왼쪽: 관계 -->
+  <text x="16" y="50" font-size="10.5" font-weight="700" fill="#6b7280">관계 — 선 끝 모양이 '개수'</text>
+  <line x1="22" y1="66" x2="62" y2="66" stroke="#64748b" stroke-width="1.5" marker-end="url(#one)"/>
+  <text x="74" y="70" font-size="10" fill="#4b5563">1 — 정확히 하나</text>
+  <line x1="22" y1="88" x2="62" y2="88" stroke="#64748b" stroke-width="1.5" marker-end="url(#oneOpt)"/>
+  <text x="74" y="92" font-size="10" fill="#4b5563">0..1 — 없거나 하나</text>
+  <line x1="22" y1="110" x2="62" y2="110" stroke="#64748b" stroke-width="1.5" marker-end="url(#many)"/>
+  <text x="74" y="114" font-size="10" fill="#4b5563">N — 여럿</text>
+  <line x1="22" y1="132" x2="62" y2="132" stroke="#64748b" stroke-width="1.5" marker-end="url(#manyOpt)"/>
+  <text x="74" y="136" font-size="10" fill="#4b5563">0..N — 없거나 여럿</text>
+  <text x="22" y="161" font-size="9.5" fill="#9ca3af">예) 계정 1 → 인식 N : 한 명이 인식을 여러 번</text>
 
-  <text x="16" y="82" font-size="10.5" font-weight="700" fill="#6b7280">키 (Keys)</text>
-  <g transform="translate(124,72)"><rect width="20" height="13" rx="3" fill="#fde68a"/><text x="10" y="9.5" font-size="7.5" font-weight="700" text-anchor="middle" fill="#92400e">PK</text></g>
-  <text x="150" y="82" font-size="10" fill="#4b5563">기본키</text>
-  <g transform="translate(214,72)"><rect width="20" height="13" rx="3" fill="#dbeafe"/><text x="10" y="9.5" font-size="7.5" font-weight="700" text-anchor="middle" fill="#1e40af">FK</text></g>
-  <text x="240" y="82" font-size="10" fill="#4b5563">외래키</text>
-  <g transform="translate(304,72)"><rect width="26" height="13" rx="3" fill="#dbeafe"/><text x="13" y="9.5" font-size="7.5" font-weight="700" text-anchor="middle" fill="#1e40af">FK?</text></g>
-  <text x="336" y="82" font-size="10" fill="#4b5563">선택 외래키(null 허용)</text>
+  <!-- 오른쪽: 키 / 색·글자 -->
+  <text x="290" y="50" font-size="10.5" font-weight="700" fill="#6b7280">키 (Keys)</text>
+  <g transform="translate(290,57)"><rect width="20" height="13" rx="3" fill="#fde68a"/><text x="10" y="9.5" font-size="7.5" font-weight="700" text-anchor="middle" fill="#92400e">PK</text></g><text x="318" y="67" font-size="10" fill="#4b5563">기본키 — 고유 식별자</text>
+  <g transform="translate(290,75)"><rect width="20" height="13" rx="3" fill="#dbeafe"/><text x="10" y="9.5" font-size="7.5" font-weight="700" text-anchor="middle" fill="#1e40af">FK</text></g><text x="318" y="85" font-size="10" fill="#4b5563">외래키 — 다른 표를 가리킴</text>
+  <g transform="translate(290,93)"><rect width="26" height="13" rx="3" fill="#dbeafe"/><text x="13" y="9.5" font-size="7.5" font-weight="700" text-anchor="middle" fill="#1e40af">FK?</text></g><text x="324" y="103" font-size="10" fill="#4b5563">선택 외래키 — 빈값(null) 허용</text>
+  <g transform="translate(290,111)"><rect width="20" height="13" rx="3" fill="#e5e7eb"/><text x="10" y="9.5" font-size="7.5" font-weight="700" text-anchor="middle" fill="#374151">UQ</text></g><text x="318" y="121" font-size="10" fill="#4b5563">고유값 — 중복 불가</text>
 
-  <text x="16" y="110" font-size="10.5" font-weight="700" fill="#6b7280">색 (Group)</text>
-  <rect x="124" y="101" width="12" height="12" rx="3" fill="#3b5bdb"/><text x="142" y="111" font-size="10" fill="#4b5563">계정·건강</text>
-  <rect x="226" y="101" width="12" height="12" rx="3" fill="#0d9488"/><text x="244" y="111" font-size="10" fill="#4b5563">인식·대화</text>
-  <rect x="328" y="101" width="12" height="12" rx="3" fill="#475569"/><text x="346" y="111" font-size="10" fill="#4b5563">약(외부 참조)</text>
-
-  <text x="16" y="136" font-size="10" fill="#9ca3af">· 점선 박스 = 선택 기능 · 실선 = DB 외래키 관계</text>
-  <text x="16" y="150" font-size="10" fill="#9ca3af">· 한글 = 의미 / 회색 고정폭 = 실제 DB 컬럼명(english)</text>
+  <text x="290" y="143" font-size="10.5" font-weight="700" fill="#6b7280">색·글자</text>
+  <rect x="290" y="152" width="11" height="11" rx="2.5" fill="#3b5bdb"/><text x="305" y="161" font-size="9.5" fill="#4b5563">계정·건강</text>
+  <rect x="362" y="152" width="11" height="11" rx="2.5" fill="#0d9488"/><text x="377" y="161" font-size="9.5" fill="#4b5563">인식·대화</text>
+  <rect x="434" y="152" width="11" height="11" rx="2.5" fill="#475569"/><text x="449" y="161" font-size="9.5" fill="#4b5563">약(외부)</text>
+  <text x="290" y="174" font-size="8.5" fill="#9ca3af">검정=한글 뜻 · 회색=DB 컬럼명 · 점선 박스=선택 기능</text>
 </g>
 
 <!-- ===== connectors ===== -->
