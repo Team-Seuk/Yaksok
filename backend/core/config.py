@@ -25,5 +25,5 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    """앱 전역에서 재사용하는 설정 싱글턴. 사용 예: ``from app.core.config import get_settings``."""
+    """앱 전역에서 재사용하는 설정 싱글턴. 사용 예: ``from core.config import get_settings``."""
     return Settings()

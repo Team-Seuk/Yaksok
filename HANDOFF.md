@@ -1,7 +1,7 @@
 ---
 status: 개발
-updated: 2026-06-18
-summary: 프론트 프로토타입 UI 6화면(홈·내 기록·약품 상세·기타·내 정보 입력·증상별 추천) 라이트 테마+Pretendard로 구현 + 건강정보 localStorage 저장/온보딩(ERD를 lib/types.ts로). 더미 단계 — 내 기록·약품 상세·세션→대화·증상 결과는 미연결. ERD v1.1(summaries 제거→summary 흡수, title 제거)로 md·svg·png·PLAN 정합. 백엔드 정본 헥사고날은 여전히 main 미반영. feat/frontend-prototype push 완료.
+updated: 2026-06-19
+summary: ①ERD v1.2 — 기능 연결 5개 반영(알레르기↔약: allergens+pill_allergens, 약↔증상추천: symptom_recommendations, 증상추천↔대화세션/건강정보, 건강정보↔대화세션), 테이블 9→12, ERD.md·SVG·PNG 재작성(5색 그룹). ②백엔드 헥사고날 전환(backend/app/ → backend/apps/<도메인>+core/, 진입점 main.py, run.py·pytest.ini). 둘 다 이 브랜치(priceless-taussig)에 반영, 아직 커밋·PR 전. 프론트는 프로토타입 UI 6화면 + 건강정보 localStorage(나머지 더미·미연결) 유지.
 repo: TEAM-Cursor/pill_recognition
 ---
 
@@ -10,6 +10,8 @@ repo: TEAM-Cursor/pill_recognition
 > 작업 세션 끝낼 때마다 갱신. 위 frontmatter가 상태의 단일 원본. (CONVENTIONS §4·§5)
 
 ## 마지막 작업
+- **ERD v1.2 — 기능 연결 5개 (2026-06-19)**: 요청된 연결을 데이터 모델로 반영. ①알레르기↔약: 성분 마스터 `allergens`(id,name) + `pill_allergens`(약↔성분 M:N) 신설, `allergies.allergen_id`(FK?) 추가 → 사용자 알레르기 ∩ 약 성분으로 "못 먹는 약" 판정. ②약↔증상추천: `symptom_recommendations`(symptom_query_id, pill_item_seq, rank, reason) 신설. ③증상추천↔대화세션: `symptom_queries.conversation_id`(FK?). ④증상추천↔건강정보: `symptom_queries.profile_id`(FK?). ⑤건강정보↔대화세션: `conversations.profile_id`(FK?). 테이블 9→12. [docs/ERD.md](docs/ERD.md)(mermaid+DDL+관계표+설계메모)·[docs/ERD.svg](docs/ERD.svg) 전면 재작성(5색 기능 그룹: 계정·건강/인식·대화/약/**성분매칭**/**증상추천**, 직교 라우팅, viewBox 1560×1030)·[docs/ERD.png](docs/ERD.png) Edge 헤드리스 2x 재생성(4680×3090). **`frontend/src/lib/types.ts`는 미반영**(건강정보 화면만 쓰고 새 관계는 프론트 미사용 → 범위 밖, 서버 영속화 때 함께 정합).
+- **백엔드 헥사고날 구조 전환 (2026-06-19)**: 이 브랜치(`priceless-taussig`)의 `backend/app/`(계층형 빈 스캐폴드)를 `claude/pedantic-ritchie-149dd1` 정본으로 교체(`git rm -r backend` → `git checkout <정본> -- backend`). 결과 구조: `backend/apps/{auth,pill,guidance}/`(각 `adapter/`{inbound·outbound}·`app/`{use_cases·ports·dtos}·`domain/`{entities·value_objects}·`tests/`·`dependencies/`·`_docs/`) + `backend/core/`(config) + 진입점 `backend/main.py`(app/ 밖, CORS localhost:5173·라우터 등록 가이드) + `run.py`·`pytest.ini`·`requirements-test.txt`. 전부 빈 `__init__.py` 스캐폴드(로직 없음). `AGENTS.md` 스택/검증 섹션 정합(`uvicorn app.main:app`→`main:app`). `check.yml`은 `cd backend && ruff check .`라 무수정. 검증: `ruff check .` All passed · `pytest` 수집 0건(정상) · `uvicorn main:app`→`/health`={"status":"ok"}. **아직 커밋·push·PR 전.**
 - **라이트 테마 전환 + 증상별 추천 화면 + ERD v1.1 (2026-06-18)**: 5화면 다크→라이트 톤 전환(오프화이트+teal, 상단 teal 안개, 홈 뷰파인더 흰 카드), Pretendard 폰트. 증상별 약 추천 화면 신설(`pages/symptom`, 기타 진입, OTC 추천+면책). 약품 상세를 "요약+대화 세션 목록+＋새 대화"로 재구성. ERD v1.1 정리(`summaries` 제거→`conversations.summary`, `title` 제거, 테이블 10→9)를 `docs/ERD.md`·`ERD.svg`·`ERD.png`(Edge 래스터화)에 반영, PLAN 요약 정책 정합. 6관점 워크플로 평가 결과 대부분 프로토타입 단계상 의도적 생략으로 확인, valid 지적만 반영.
 - **프론트 프로토타입 UI + 건강정보 저장 (2026-06-18)**: `frontend/src`에 5화면 구현 — 홈(카메라 뷰파인더)·내 기록(`cabinet`)·약품 상세(`result`)·기타(`more`)·내 정보 입력(`profile`). 다크+teal 디자인 토큰(`styles/theme.css`), 하단 탭바, 알약 이미지(`components/PillImage.tsx`, 모양·색 SVG), 화면 전환은 라우터 없이 `App.tsx` `useState`. **건강정보만 실연결**: `lib/types.ts`(ERD→TS 타입)·`lib/storage.ts`(localStorage, 시드 dev 유저 id=1)로 내 정보 입력 저장/불러오기 + 온보딩 분기(정보 없으면 입력화면부터). 화면값↔ERD 매핑(나이↔birthYear·여성↔F·약 텍스트↔medications 1:N). typecheck·lint·build 통과. **나머지(내 기록·약품 상세·세션 카드·증상별 추천)는 더미·미연결.**
 - **ERD 다이어그램 시각화 (2026-06-17)**: [docs/ERD.svg](docs/ERD.svg)(벡터) + [docs/ERD.png](docs/ERD.png)(3800×2368, Edge 헤드리스로 래스터화) 추가. 한/영 컬럼 병기, 까마귀발 관계 표기(1·0..1·N·0..N), PK/FK/FK?/UQ 배지, 기능별 색 그룹(계정·건강 / 인식·대화 / 약), 범례 상세화. SVG 수정 시 동일 Edge 명령으로 PNG 재생성. 커밋 `b0da2aa`까지 로컬 main 머지(push 안 함).
@@ -29,7 +31,7 @@ repo: TEAM-Cursor/pill_recognition
 - **(사람)** 팀원 4명 GitHub 아이디 확정되면 CODEOWNERS의 `@bestcow`를 담당자별로 교체 + 4명 collaborator(write) 추가. (org Base permissions를 Write로 두면 collaborator 추가 없이도 push 가능)
 - **(사람)** 각 팀원: `backend/.env.example` → `backend/.env` 복사 후 키 채우기. 실제 키는 비번관리자/DM으로 공유(평문·커밋 금지).
 - **(사람)** 테스트 PR 1개로 `check`(backend·frontend) status check 등록 → `main` branch protection(승인1·Require Code Owners·status check·force push 차단) → Automatically delete head branches. 상세 [CONTRIBUTING.md](CONTRIBUTING.md) §5.
-- **백엔드 정본(헥사고날) main 반영**: `pedantic-ritchie`의 `backend/apps/<도메인>` 헥사고날 구조를 main으로 통합 + `AGENTS.md`(현재 `app/{auth,pill,core}` 서술)·구조 문서를 실제에 맞게 정합(CONVENTIONS §2).
+- **백엔드 헥사고날 — 커밋→PR→main 머지**: 구조 전환·`AGENTS.md` 정합은 이 브랜치에 완료(↑마지막 작업). 남은 건 커밋·push 후 `feat/` PR로 main 통합. 그 위에서 도메인 로직(엔티티·use_case·라우터) 구현 이어가기.
 - **ERD 후속 결정**: 건강정보(`health_profiles`/`medications`/`allergies`)를 `profile` 도메인으로 분리할지 / 헥사고날 도메인 경계 넘는 FK를 다이어그램에 점선(약결합)으로 표시할지.
 - **(사람)** 로컬 main 커밋들(`975bd26`~`b0da2aa`, ERD 문서·다이어그램) push 여부 결정 — 아직 GitHub 미반영.
 - ERD 확정됨 → 프로토타입은 [docs/ERD.md](docs/ERD.md) 구조를 프론트 임시 저장(localStorage 등)으로 흉내. 서버 영속화는 추후 같은 스키마로.

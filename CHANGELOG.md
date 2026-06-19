@@ -2,6 +2,10 @@
 
 > 날짜별 굵직한 변경 한 줄. 세세한 커밋은 git log. (CONVENTIONS §3)
 
+## 2026-06-19
+- **ERD v1.2**: 기능 연결 5개 반영 — ①알레르기↔약(성분 마스터 `allergens` + `pill_allergens` M:N, `allergies.allergen_id`로 "못 먹는 약" 판정) ②약↔증상추천(`symptom_recommendations` M:N) ③증상추천↔대화세션(`symptom_queries.conversation_id`) ④증상추천↔건강정보(`symptom_queries.profile_id`) ⑤건강정보↔대화세션(`conversations.profile_id`). 테이블 9→**12개**. `docs/ERD.md`·`ERD.svg`·`ERD.png` 재작성(5색 기능 그룹·직교 라우팅, Edge 2x 래스터화 4680×3090).
+- 백엔드를 **헥사고날 구조로 전환**: `backend/app/`(계층형 빈 스캐폴드) → `backend/apps/<도메인>/`(auth·pill·guidance, 각 `adapter`/`app`/`domain`/`tests`) + `backend/core/`. 진입점 `backend/main.py`(app/ 밖, CORS·라우터 등록 가이드 포함), `run.py`·`pytest.ini`·`requirements-test.txt` 추가. `pedantic-ritchie` 정본을 이 브랜치에 반영. `AGENTS.md` 정합, `ruff`/`pytest`/`uvicorn /health` 통과.
+
 ## 2026-06-18
 - 프론트 프로토타입 UI 6화면 구현(홈·내 기록·약품 상세·기타·내 정보 입력·증상별 추천): 라이트 테마 + Pretendard 폰트, 모바일 셸, 하단 탭바, 알약 이미지(SVG), `useState` 화면 전환. 더미 데이터.
 - 건강정보 `localStorage` 저장/불러오기 + 온보딩 분기. ERD를 `frontend/src/lib/types.ts` 타입으로 옮김, 화면값↔DB값 매핑(나이↔출생연도·약 텍스트↔`medications` 1:N).

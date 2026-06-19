@@ -1,7 +1,7 @@
 # pill_recognition — 에이전트/기여자 노트
 
 ## 스택
-- **백엔드**: FastAPI (Python 3.11+). `backend/app/` — `auth/`(로그인·회원), `pill/`(핵심 기능), `core/`(DB·공통 설정, 위험 공용구역). 진입점 `app/main.py`.
+- **백엔드**: FastAPI (Python 3.11+), 헥사고날 구조. `backend/apps/<도메인>/` — `auth/`(로그인·회원), `pill/`(핵심 기능), `guidance/`(복약 안내). 각 도메인은 `adapter/`(inbound·outbound) · `app/`(use_cases·ports·dtos) · `domain/`(entities·value_objects) · `tests/`. DB·공통 설정은 `backend/core/`(위험 공용구역). 진입점 `backend/main.py`.
 - **프론트**: React + TypeScript + Vite. `frontend/src/` — `pages/{auth,pill}/`, `components/`(재사용), `api/`(백엔드 호출).
 - 공공 API·LLM(Claude) 호출은 **백엔드에서**. 인증키는 `backend/.env`(절대 커밋 금지).
 
@@ -11,7 +11,7 @@
 - 정확한 루틴·금지사항은 [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## 검증 (변경 후 실행)
-- backend: `cd backend && ruff check .` · `uvicorn app.main:app --reload` → `/health`
+- backend: `cd backend && ruff check .` · `uvicorn main:app --reload` → `/health` (테스트: `pytest`)
 - frontend: `cd frontend && npm run typecheck && npm run lint && npm run build`
 - 이 검사들은 PR에서 `.github/workflows/check.yml`로도 자동 실행되며 통과해야 merge 가능.
 
