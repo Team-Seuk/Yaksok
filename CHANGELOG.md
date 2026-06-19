@@ -3,6 +3,7 @@
 > 날짜별 굵직한 변경 한 줄. 세세한 커밋은 git log. (CONVENTIONS §3)
 
 ## 2026-06-19
+- **ERD 다이어그램 관계 라벨 제거**: 선 위 설명 텍스트(건강정보 참고·못 먹는 약 판정 등) 전부 제거 — 까마귀발 마커로 충분히 읽힘. `ERD.svg`·`ERD.png` 재생성. (PR #4)
 - **ERD 다이어그램 가독성 개선**: 레이아웃 재배치(성분 매칭 `allergens`를 `allergies` 바로 아래로 → 매칭 선 단축), 선택적 약 참조(`pill_item_seq`·`matched_item_seq`)는 **점선**으로 핵심 관계와 분리, 그룹 라벨 겹침 제거. `ERD.svg`·`ERD.png` 재생성(4680×3120). (논리 모델 v1.2 동일, 시각만 개선)
 - **ERD v1.2**: 기능 연결 5개 반영 — ①알레르기↔약(성분 마스터 `allergens` + `pill_allergens` M:N, `allergies.allergen_id`로 "못 먹는 약" 판정) ②약↔증상추천(`symptom_recommendations` M:N) ③증상추천↔대화세션(`symptom_queries.conversation_id`) ④증상추천↔건강정보(`symptom_queries.profile_id`) ⑤건강정보↔대화세션(`conversations.profile_id`). 테이블 9→**12개**. `docs/ERD.md`·`ERD.svg`·`ERD.png` 재작성(5색 기능 그룹·직교 라우팅, Edge 2x 래스터화 4680×3090).
 - 백엔드를 **헥사고날 구조로 전환**: `backend/app/`(계층형 빈 스캐폴드) → `backend/apps/<도메인>/`(auth·pill·guidance, 각 `adapter`/`app`/`domain`/`tests`) + `backend/core/`. 진입점 `backend/main.py`(app/ 밖, CORS·라우터 등록 가이드 포함), `run.py`·`pytest.ini`·`requirements-test.txt` 추가. `pedantic-ritchie` 정본을 이 브랜치에 반영. `AGENTS.md` 정합, `ruff`/`pytest`/`uvicorn /health` 통과.
