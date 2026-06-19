@@ -21,8 +21,8 @@
 ## 문서 시스템 (작업할 때마다 갱신)
 이 repo의 md는 항상 "현재 상태"를 반영해야 한다. 규칙 전문·문서 지도는 [CONVENTIONS.md](CONVENTIONS.md).
 - **세션 시작**: [HANDOFF.md](HANDOFF.md) 먼저 읽어 상태·다음 할 일 파악.
-- **세션 종료 전**: HANDOFF.md 본문(마지막 작업/다음 할 일/막힌 것)과 frontmatter(`updated`·`summary`)를 갱신. 굵직한 변경이면 [CHANGELOG.md](CHANGELOG.md)에 한 줄 추가.
+- **세션 종료 전**: HANDOFF.md 본문(마지막 작업/다음 할 일/막힌 것)과 frontmatter(`updated`·`summary`)를 갱신. 굵직한 변경이면 [LOG.md](LOG.md)에 한 줄 추가.
 - **코드와 문서가 어긋나면 코드가 정답** — 발견 즉시 해당 문서 수정.
-- 역할 분리: HANDOFF=현재 상태 · CHANGELOG=변경 이력 · PLAN=목표/결정 · README=실행법. (세부는 CONVENTIONS §1~§6)
+- 역할 분리: HANDOFF=현재 상태 · LOG=변경 이력 · PLAN=목표/결정 · README=실행법. (세부는 CONVENTIONS §1~§6)
 
 > 이전 Expo(React Native) 프로토타입은 `archive/expo-m0` 브랜치 / `expo-m0-final` 태그에 보존. 현재 스택과 무관.
