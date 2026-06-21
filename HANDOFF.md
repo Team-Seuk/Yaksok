@@ -31,7 +31,7 @@ repo: Team-Seuk/pill_recognition
 ## 다음 할 일
 - **프론트 세부 구현(진행 중)**: ①세션→개별 대화 화면(말풍선+입력, `messages`) ②내 기록·약품 상세를 더미 대신 저장소 데이터로 연결 ③증상별 추천 결과를 `symptom_queries`로 저장.
 - **서버 영속화(M5) 때 챙길 ERD 항목**(평가에서 도출, 지금은 불필요): `sex/status/role` CHECK 제약, `conversations.updated_at` 자동 갱신 트리거, "사용자 데이터 조회는 user_id 필터 강제" 명문화, DUR 약물 상호작용 구조화.
-- **CODEOWNERS 역할 기반으로 교체 완료** (BE→@minahdev, FE→@cloverky, 위험·설정·문서→@bestcow; PO@suvisdev·SM@woojeongalex은 코드오너 제외). 남음: **(사람)** 팀원 push 권한 확인 — org Base permissions를 Write로 두거나 collaborator(write) 추가.
+- **CODEOWNERS 역할 기반으로 교체 완료** (BE→@minahdev, FE→@cloverky, 위험·설정·문서→@suvisdev(PL); PO@bestcow·SM@woojeongalex은 코드오너 제외). 남음: **(사람)** 팀원 push 권한 확인 — org Base permissions를 Write로 두거나 collaborator(write) 추가.
 - **(사람)** 각 팀원: `backend/.env.example` → `backend/.env` 복사 후 키 채우기. 실제 키는 비번관리자/DM으로 공유(평문·커밋 금지).
 - **(사람)** 테스트 PR 1개로 `check`(backend·frontend) status check 등록 → `main` branch protection(승인1·Require Code Owners·status check·force push 차단) → Automatically delete head branches. 상세 [CONTRIBUTING.md](CONTRIBUTING.md) §5.
 - **백엔드 도메인 로직 구현(헥사고날 위)**: main에 머지된 `apps/<도메인>` 빈 스캐폴드에 엔티티·value_object·use_case·port·adapter(라우터) 구현. ERD v1.2 기준, `pill` 도메인(핵심 식별·안내)부터.

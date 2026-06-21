@@ -2,28 +2,28 @@
 # (branch protection의 "Require review from Code Owners"를 켰을 때 발효).
 # 규칙은 "마지막에 매치된 줄"이 이긴다. 안 적힌 파일은 아무 팀원 1명 승인으로 머지.
 #
-# 역할: BE=민아(@minahdev) · FE=소연(@cloverky) · PL/리드=수택(@bestcow)
-#       PO=재우(@suvisdev) · SM=우정(@woojeongalex) → PO·SM은 코드오너 아님(일반 리뷰로 참여)
+# 역할: BE=김민아(@minahdev) · FE=박소연(@cloverky) · PL/테크리드=진수택(@suvisdev)
+#       PO=이재우(@bestcow) · SM=이우정(@woojeongalex) → PO·SM은 코드오너 아님(일반 리뷰로 참여)
 
 # ----- 영역별 담당 -----
 /backend/                        @minahdev   # 백엔드 전체 → BE
 /frontend/                       @cloverky   # 프론트 전체 → FE
 
-# ----- 위험 공용구역·설정·인프라 → 리드(PL) (아래일수록 우선) -----
-/backend/core/                   @bestcow    # 공통 설정·DB
-/backend/pyproject.toml          @bestcow    # 의존성·도구 설정
-/frontend/src/components/        @bestcow    # 재사용 공용 컴포넌트
-/frontend/src/api/               @bestcow    # 백엔드 호출 계약(공용)
-/frontend/package.json           @bestcow
-/.github/                        @bestcow
-*.yml                            @bestcow
-*.yaml                           @bestcow
+# ----- 위험 공용구역·설정·인프라 → PL/테크리드(진수택) (아래일수록 우선) -----
+/backend/core/                   @suvisdev   # 공통 설정·DB
+/backend/pyproject.toml          @suvisdev   # 의존성·도구 설정
+/frontend/src/components/        @suvisdev   # 재사용 공용 컴포넌트
+/frontend/src/api/               @suvisdev   # 백엔드 호출 계약(공용)
+/frontend/package.json           @suvisdev
+/.github/                        @suvisdev
+*.yml                            @suvisdev
+*.yaml                           @suvisdev
 
-# ----- 구조·규칙 문서 → 리드 (맨 아래 = 최우선) -----
-/CONVENTIONS.md                  @bestcow
-/CLAUDE.md                       @bestcow
-/AGENTS.md                       @bestcow
-/PLAN.md                         @bestcow
-/README.md                       @bestcow
-/CONTRIBUTING.md                 @bestcow
+# ----- 구조·규칙 문서 → PL/테크리드 (맨 아래 = 최우선) -----
+/CONVENTIONS.md                  @suvisdev
+/CLAUDE.md                       @suvisdev
+/AGENTS.md                       @suvisdev
+/PLAN.md                         @suvisdev
+/README.md                       @suvisdev
+/CONTRIBUTING.md                 @suvisdev
 # HANDOFF.md · LOG.md 는 미지정 → 팀원끼리 갱신·승인 가능 (doc 시스템 병목 방지)

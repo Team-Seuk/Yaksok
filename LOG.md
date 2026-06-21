@@ -4,7 +4,7 @@
 
 ## 2026-06-21
 - 백엔드 도구 **_template 표준 정렬**: pip→uv(`pyproject.toml`+`uv.lock`), Python 3.11→3.12, ruff 강화(UP·B·SIM)+format-check, mypy·import-linter(피처별 5계약) 추가, CI를 uv 파이프라인으로(+pytest 실행)·스모크 테스트 1개. 옛 `requirements*.txt`/`ruff.toml`/`pytest.ini` 제거, CODEOWNERS 죽은 경로 수정. 구조·프론트·문서 유지. 로컬 검증 그린.
-- **CODEOWNERS 역할 기반 재구성**: 기능별→역할별. `/backend/`→@minahdev(BE), `/frontend/`→@cloverky(FE), 위험·설정·문서→@bestcow(리드). PO(@suvisdev)·SM(@woojeongalex)은 코드오너 제외(일반 리뷰).
+- **CODEOWNERS 역할 기반 재구성**: 기능별→역할별. `/backend/`→@minahdev(BE), `/frontend/`→@cloverky(FE), 위험·설정·문서→@suvisdev(PL/진수택). PO(@bestcow)·SM(@woojeongalex)은 코드오너 제외(일반 리뷰).
 
 ## 2026-06-19
 - **ERD 다이어그램 관계 라벨 제거**: 선 위 설명 텍스트(건강정보 참고·못 먹는 약 판정 등) 전부 제거 — 까마귀발 마커로 충분히 읽힘. `ERD.svg`·`ERD.png` 재생성. (PR #4)
