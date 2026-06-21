@@ -1,32 +1,29 @@
-# CODEOWNERS — "잠글 경로"만 적는다.
-# 적힌 파일은 그 owner의 승인이 있어야 main 머지 가능 (branch protection의
-# "Require review from Code Owners"를 켰을 때 발효). 안 적힌 파일(일반 코드,
-# HANDOFF.md, CHANGELOG.md 등)은 코드오너가 없어 일반 승인(아무 팀원 1명)으로 머지 가능.
-# 규칙은 "마지막에 매치된 줄"이 이긴다.
+# CODEOWNERS — 역할 기반. 적힌 경로는 해당 owner 승인이 있어야 main 머지 가능
+# (branch protection의 "Require review from Code Owners"를 켰을 때 발효).
+# 규칙은 "마지막에 매치된 줄"이 이긴다. 안 적힌 파일은 아무 팀원 1명 승인으로 머지.
+#
+# 역할: BE=민아(@minahdev) · FE=소연(@cloverky) · PL/리드=수택(@bestcow)
+#       PO=재우(@suvisdev) · SM=우정(@woojeongalex) → PO·SM은 코드오너 아님(일반 리뷰로 참여)
 
-# ----- 기능별 담당 (세로 슬라이스) — 아래 @bestcow를 각 담당자 아이디로 교체 -----
-/backend/apps/pill/              @bestcow   # 알약 식별 (공공 API 활용) 
-/backend/apps/guidance/          @bestcow   # 복약 안내·요약        → 멤버1 아이디로 교체
-/frontend/src/pages/result/      @bestcow   # 결과·안내 표시        → 멤버1 아이디로 교체
-/frontend/src/pages/home/        @bestcow   # 카메라·캡처           → 멤버2 아이디로 교체
-/frontend/src/pages/profile/     @bestcow   # 내 정보·온보딩        → 멤버3 아이디로 교체
-/frontend/src/pages/cabinet/     @bestcow   # 알약사전              → 멤버4 아이디로 교체
+# ----- 영역별 담당 -----
+/backend/                        @minahdev   # 백엔드 전체 → BE
+/frontend/                       @cloverky   # 프론트 전체 → FE
 
-# ----- 위험 공용구역 — 리드만 승인 -----
-/backend/core/                   @bestcow
-/frontend/src/components/        @bestcow
-/frontend/src/api/               @bestcow   # 백엔드 호출 계약(공용)
+# ----- 위험 공용구역·설정·인프라 → 리드(PL) (아래일수록 우선) -----
+/backend/core/                   @bestcow    # 공통 설정·DB
+/backend/pyproject.toml          @bestcow    # 의존성·도구 설정
+/frontend/src/components/        @bestcow    # 재사용 공용 컴포넌트
+/frontend/src/api/               @bestcow    # 백엔드 호출 계약(공용)
+/frontend/package.json           @bestcow
 /.github/                        @bestcow
 *.yml                            @bestcow
 *.yaml                           @bestcow
-/backend/pyproject.toml          @bestcow
-/frontend/package.json           @bestcow
 
-# ----- 구조·규칙 문서 — 리드만 승인 (맨 아래 = 최우선) -----
+# ----- 구조·규칙 문서 → 리드 (맨 아래 = 최우선) -----
 /CONVENTIONS.md                  @bestcow
 /CLAUDE.md                       @bestcow
 /AGENTS.md                       @bestcow
 /PLAN.md                         @bestcow
 /README.md                       @bestcow
 /CONTRIBUTING.md                 @bestcow
-# HANDOFF.md · CHANGELOG.md 는 일부러 미지정 → 팀원끼리 갱신·승인 가능 (doc 시스템 병목 방지)
+# HANDOFF.md · LOG.md 는 미지정 → 팀원끼리 갱신·승인 가능 (doc 시스템 병목 방지)
