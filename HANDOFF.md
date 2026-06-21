@@ -1,8 +1,8 @@
 ---
 status: 개발
-updated: 2026-06-19
-summary: ①백엔드 헥사고날 전환(backend/app/ → backend/apps/<도메인>+core/, 진입점 main.py, run.py·pytest.ini) ②ERD v1.2(기능 연결 5개, 테이블 9→12: allergens+pill_allergens, symptom_recommendations 등) ③ERD 다이어그램 가독성 개선·관계 라벨 제거 — 모두 **PR #2~4로 main 머지 완료**. md 정합(README uvicorn 경로·PLAN 데이터모델·LOG) 갱신함. 프론트는 프로토타입 UI 6화면 + 건강정보 localStorage(나머지 더미·미연결) 유지. 다음: 프론트 세부 구현 또는 백엔드 도메인 로직.
-repo: TEAM-Cursor/pill_recognition
+updated: 2026-06-21
+summary: 백엔드 도구 _template 표준 정렬(pip→uv·py3.12·mypy·import-linter 피처별·CI pytest) 완료, 구조·프론트·문서 유지. 이전: ①백엔드 헥사고날 전환(backend/app/ → backend/apps/<도메인>+core/, 진입점 main.py, run.py·pytest.ini) ②ERD v1.2(기능 연결 5개, 테이블 9→12: allergens+pill_allergens, symptom_recommendations 등) ③ERD 다이어그램 가독성 개선·관계 라벨 제거 — 모두 **PR #2~4로 main 머지 완료**. md 정합(README uvicorn 경로·PLAN 데이터모델·LOG) 갱신함. 프론트는 프로토타입 UI 6화면 + 건강정보 localStorage(나머지 더미·미연결) 유지. 다음: 프론트 세부 구현 또는 백엔드 도메인 로직.
+repo: Team-Seuk/pill_recognition
 ---
 
 # pill_recognition — HANDOFF
@@ -10,6 +10,7 @@ repo: TEAM-Cursor/pill_recognition
 > 작업 세션 끝낼 때마다 갱신. 위 frontmatter가 상태의 단일 원본. (CONVENTIONS §4·§5)
 
 ## 마지막 작업
+- **백엔드 도구 _template 표준 정렬 (2026-06-21)**: pip→**uv**(`backend/pyproject.toml`+`uv.lock`, ruff를 런타임→dev로 이동), Python 3.11→**3.12**, ruff 규칙 강화(UP·B·SIM)+`ruff format --check`, **mypy**(strict-ish)·**import-linter** 추가 — THE ONE RULE을 단일 패키지가 아니라 **피처별 계약**(apps.{auth,guidance,pill} adapter→app→domain + 피처 독립 + core 격리, 5계약 KEPT)으로. CI(`check.yml`) backend 잡을 uv 파이프라인으로 교체(pytest 실제 실행, 잡 이름 `backend`/`frontend`는 유지 → branch protection 영향 없음), 스모크 테스트 1개(`apps/pill/tests/test_smoke.py`) 추가. 옛 `requirements*.txt`·`ruff.toml`·`pytest.ini` 제거. CODEOWNERS 죽은 경로 `/backend/app/`→`/backend/apps/`·`/backend/core/`·`pyproject.toml`로 수정. README·AGENTS 실행법 uv로 정합. **구조(feature-first)·프론트·문서 시스템은 그대로.** 검증: ruff·mypy(80파일)·lint-imports(5 KEPT)·pytest(1 passed) 로컬 그린. org도 Team-Seuk로 통일(remote 재지정 예정).
 - **md 문서 정합 (2026-06-19)**: 코드/ERD 변경 대비 stale 문서 수정 — `README.md` 백엔드 실행 `uvicorn app.main:app`→`main:app`(헥사고날 반영, 실행 깨짐 수정), `PLAN.md` 데이터모델 v1.2 반영(증상추천·성분매칭 테이블 추가, 총 12개), `LOG.md` 라벨 제거 한 줄 추가, 본 HANDOFF 머지 상태 갱신.
 - **ERD 다이어그램 가독성 개선·라벨 제거 (2026-06-19, PR #3·#4 머지)**: 레이아웃 재배치(성분 매칭 `allergens`를 `allergies` 바로 아래로 → 매칭 선 단축), 선택적 약 참조(`pill_item_seq`·`matched_item_seq`)는 **점선**으로 핵심 관계와 분리, 그룹 라벨 겹침 제거, 선 위 설명 텍스트 라벨 전부 제거. viewBox 1560×1040, [docs/ERD.png](docs/ERD.png) Edge 2x 재생성(4680×3120).
 - **ERD v1.2 — 기능 연결 5개 (2026-06-19, PR #2 머지)**: ①알레르기↔약: 성분 마스터 `allergens`(id,name) + `pill_allergens`(약↔성분 M:N) 신설, `allergies.allergen_id`(FK?) 추가 → 사용자 알레르기 ∩ 약 성분으로 "못 먹는 약" 판정. ②약↔증상추천: `symptom_recommendations`(symptom_query_id, pill_item_seq, rank, reason) 신설. ③증상추천↔대화세션: `symptom_queries.conversation_id`(FK?). ④증상추천↔건강정보: `symptom_queries.profile_id`(FK?). ⑤건강정보↔대화세션: `conversations.profile_id`(FK?). 테이블 9→12. [docs/ERD.md](docs/ERD.md)(mermaid+DDL+관계표+설계메모)·[docs/ERD.svg](docs/ERD.svg) 전면 재작성. **`frontend/src/lib/types.ts`는 미반영**(건강정보 화면만 쓰고 새 관계는 프론트 미사용 → 범위 밖, 서버 영속화 때 함께 정합).

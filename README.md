@@ -6,15 +6,15 @@
 
 ## 실행
 
-### Backend (FastAPI · Python 3.11+)
+### Backend (FastAPI · Python 3.12+ · uv)
 
 ```
 cd backend
-python -m venv .venv
-.venv\Scripts\activate          # macOS/Linux: source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --reload
+uv sync                          # .venv 자동 생성 + uv.lock의 잠긴 버전 설치 (모두 동일)
+uv run uvicorn main:app --reload
 ```
+
+> uv가 없으면 1회만: `powershell -c "irm https://astral.sh/uv/install.ps1 | iex"` 후 새 터미널.
 
 확인: http://127.0.0.1:8000/health → `{"status":"ok"}`
 

@@ -1,0 +1,76 @@
+[project]
+name = "pill-backend"
+version = "0.1.0"
+description = "pill_recognition 백엔드 (FastAPI · 헥사고날 feature-first)"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.115",
+    "pydantic-settings>=2.6",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pytest>=8.3",
+    "httpx>=0.27",
+    "import-linter>=2.1",
+]
+
+# 앱(서비스) 프로젝트: 패키지로 빌드/설치하지 않고 venv+의존성만 관리.
+# 기존 실행/임포트 모델(backend/ 에서 uvicorn main:app, sys.path 기반)을 그대로 유지한다.
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+plugins = ["pydantic.mypy"]
+files = ["apps", "core", "main.py"]
+disallow_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+
+[tool.pytest.ini_options]
+testpaths = ["apps"]
+python_files = "test_*.py"
+addopts = "-v"
+
+# THE ONE RULE — 피처별로 import는 안쪽으로만(adapter → app → domain).
+# 단일 패키지(app)가 아니라 feature-first(apps.<기능>)라서 피처마다 계약을 따로 둔다.
+[tool.importlinter]
+root_packages = ["apps", "core"]
+
+[[tool.importlinter.contracts]]
+name = "auth: adapter -> app -> domain"
+type = "layers"
+layers = ["apps.auth.adapter", "apps.auth.app", "apps.auth.domain"]
+
+[[tool.importlinter.contracts]]
+name = "guidance: adapter -> app -> domain"
+type = "layers"
+layers = ["apps.guidance.adapter", "apps.guidance.app", "apps.guidance.domain"]
+
+[[tool.importlinter.contracts]]
+name = "pill: adapter -> app -> domain"
+type = "layers"
+layers = ["apps.pill.adapter", "apps.pill.app", "apps.pill.domain"]
+
+[[tool.importlinter.contracts]]
+name = "features are independent (no cross-feature imports)"
+type = "independence"
+modules = ["apps.auth", "apps.guidance", "apps.pill"]
+
+[[tool.importlinter.contracts]]
+name = "core must not import features"
+type = "forbidden"
+source_modules = ["core"]
+forbidden_modules = ["apps"]
