@@ -5,7 +5,7 @@
 ## 0. 설치 (처음 한 번만)
 
 1. [GitHub Desktop](https://desktop.github.com/) 설치 → GitHub 계정으로 로그인.
-2. `File → Clone repository` → 우리 저장소(`bestcow/pill_recognition`) 선택 → `Clone`.
+2. `File → Clone repository` → 우리 저장소(`Team-Seuk/pill_recognition`) 선택 → `Clone`.
 3. 로컬 폴더가 생기면 준비 끝.
 
 ## 1. 매일 작업 루틴 (순서 그대로)
@@ -40,10 +40,14 @@
 
 ## 5. (팀 리드 전용) 저장소 1회 관리자 설정
 
-아래는 GitHub 웹에서 **사람이 직접** 해야 하는 설정이다. 코드로 안 된다. **순서 중요.**
+> ✅ **적용 완료 (2026-06-21):** CODEOWNERS 역할 기반 설정 + `main` 브랜치 보호 켜짐
+> (PR 필수 · 승인 1 · Code Owners 리뷰 · status check `backend`/`frontend` · force-push·삭제 차단).
+> 아래는 기록·참고용. 팀장(@bestcow)은 admin이라 필요시 우회 가능.
+
+아래는 처음 1회 설정이다. **순서 중요.**
 
 1. GitHub에서 빈 저장소 생성(자동 README 끄기). 팀원 전원 collaborator(write) 추가.
-2. `CODEOWNERS`와 문서의 `{{TEAMLEAD}}` `{{OWNER_*}}` `bestcow/pill_recognition` 자리표시자를 실제 아이디로 치환 후 push.
+2. `CODEOWNERS`를 역할 기반으로 채움: `/backend/`→@minahdev(BE) · `/frontend/`→@cloverky(FE) · 위험·설정·문서→@suvisdev(PL). PO(@bestcow)·SM(@woojeongalex)은 코드오너 아님.
 3. **버리는 테스트 PR을 1개 먼저 연다** → `check` 워크플로가 한 번 돌아야 status check 이름(`backend`, `frontend`)이 등록된다.
 4. `Settings → Branches → Add branch ruleset(또는 protection rule)` 로 `main` 보호:
    - ✅ Require a pull request before merging → **Required approvals: 1**
@@ -59,8 +63,9 @@
 - **저장소(repo) 자체 삭제**: 팀원 불가. 조직 관리자/팀 리드만 가능.
 - **파일·폴더 삭제·이동·이름변경**:
     - `main` 직접 push 불가 → 반드시 PR. (force push 차단)
-    - **남의 담당(CODEOWNERS) 폴더·공용·규칙 문서**를 바꾸거나 지우는 PR은 **팀 리드 승인 없이 머지 안 됨.**
-    - **자기 담당 슬라이스 폴더 안**에서는 자유롭게 추가·수정·삭제 가능 (자기 영역).
+    - **남의 담당(CODEOWNERS) 영역**을 바꾸는 PR은 **그 담당자 승인 없이 머지 안 됨** — 백엔드=@minahdev · 프론트=@cloverky · 위험·설정·문서=@suvisdev(PL).
+    - **자기 역할 영역**(BE=`/backend/`, FE=`/frontend/`) 안에서는 자유롭게 추가·수정 가능. 단 본인이 유일한 코드오너라 **본인 PR은 본인이 승인 못 함** → 다른 코드오너가 없으면 팀장(@bestcow·admin)이 머지하거나 규칙을 완화한다.
+    - 팀장(@bestcow, PO·admin)은 모든 영역을 수정할 수 있고 어떤 PR이든 우회 머지 가능(전권).
 - **큰 구조 변경(폴더 이동·이름변경·삭제)은 충돌 위험이 크다.** 순서를 지킬 것:
     1. 다른 사람들이 자기 작업을 commit/push해 **깨끗할 때** 한다.
     2. PR로 `main`에 머지한다.

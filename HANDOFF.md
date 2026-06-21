@@ -33,7 +33,7 @@ repo: Team-Seuk/pill_recognition
 - **서버 영속화(M5) 때 챙길 ERD 항목**(평가에서 도출, 지금은 불필요): `sex/status/role` CHECK 제약, `conversations.updated_at` 자동 갱신 트리거, "사용자 데이터 조회는 user_id 필터 강제" 명문화, DUR 약물 상호작용 구조화.
 - **CODEOWNERS 역할 기반으로 교체 완료** (BE→@minahdev, FE→@cloverky, 위험·설정·문서→@suvisdev(PL); PO@bestcow·SM@woojeongalex은 코드오너 제외). 남음: **(사람)** 팀원 push 권한 확인 — org Base permissions를 Write로 두거나 collaborator(write) 추가.
 - **(사람)** 각 팀원: `backend/.env.example` → `backend/.env` 복사 후 키 채우기. 실제 키는 비번관리자/DM으로 공유(평문·커밋 금지).
-- **(사람)** 테스트 PR 1개로 `check`(backend·frontend) status check 등록 → `main` branch protection(승인1·Require Code Owners·status check·force push 차단) → Automatically delete head branches. 상세 [CONTRIBUTING.md](CONTRIBUTING.md) §5.
+- **branch protection 적용 완료 (2026-06-21)**: `main`에 PR 필수·승인 1·Require Code Owners·status check(`backend`/`frontend`)·force-push·삭제 차단(enforce_admins=off → 팀장 우회 가능). 남음: **(사람)** Settings → General에서 "Automatically delete head branches" 체크.
 - **백엔드 도메인 로직 구현(헥사고날 위)**: main에 머지된 `apps/<도메인>` 빈 스캐폴드에 엔티티·value_object·use_case·port·adapter(라우터) 구현. ERD v1.2 기준, `pill` 도메인(핵심 식별·안내)부터.
 - **ERD 후속 결정**: 건강정보(`health_profiles`/`medications`/`allergies`)를 `profile` 도메인으로 분리할지 / 헥사고날 도메인 경계 넘는 FK를 다이어그램에 점선(약결합)으로 표시할지.
 - ERD 확정됨 → 프로토타입은 [docs/ERD.md](docs/ERD.md) 구조를 프론트 임시 저장(localStorage 등)으로 흉내. 서버 영속화는 추후 같은 스키마로.
