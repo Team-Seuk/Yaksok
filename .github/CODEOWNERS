@@ -5,21 +5,21 @@
 # 규칙은 "마지막에 매치된 줄"이 이긴다.
 
 # ----- 기능별 담당 (세로 슬라이스) — 아래 @bestcow를 각 담당자 아이디로 교체 -----
-/backend/app/pill/               @bestcow   # 알약 식별 (공공 API 활용) 
-/backend/app/guidance/           @bestcow   # 복약 안내·요약        → 멤버1 아이디로 교체
+/backend/apps/pill/              @bestcow   # 알약 식별 (공공 API 활용) 
+/backend/apps/guidance/          @bestcow   # 복약 안내·요약        → 멤버1 아이디로 교체
 /frontend/src/pages/result/      @bestcow   # 결과·안내 표시        → 멤버1 아이디로 교체
 /frontend/src/pages/home/        @bestcow   # 카메라·캡처           → 멤버2 아이디로 교체
 /frontend/src/pages/profile/     @bestcow   # 내 정보·온보딩        → 멤버3 아이디로 교체
 /frontend/src/pages/cabinet/     @bestcow   # 알약사전              → 멤버4 아이디로 교체
 
 # ----- 위험 공용구역 — 리드만 승인 -----
-/backend/app/core/               @bestcow
+/backend/core/                   @bestcow
 /frontend/src/components/        @bestcow
 /frontend/src/api/               @bestcow   # 백엔드 호출 계약(공용)
 /.github/                        @bestcow
 *.yml                            @bestcow
 *.yaml                           @bestcow
-/backend/requirements.txt        @bestcow
+/backend/pyproject.toml          @bestcow
 /frontend/package.json           @bestcow
 
 # ----- 구조·규칙 문서 — 리드만 승인 (맨 아래 = 최우선) -----

@@ -1,0 +1,2 @@
+# 모든 텍스트 파일 줄바꿈을 LF로 정규화 (Windows/mac/Linux 혼합 팀의 CRLF 충돌 방지)
+* text=auto eol=lf

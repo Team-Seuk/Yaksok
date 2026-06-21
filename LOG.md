@@ -2,6 +2,9 @@
 
 > 날짜별 굵직한 변경 한 줄. 세세한 커밋은 git log. (CONVENTIONS §3)
 
+## 2026-06-21
+- 백엔드 도구 **_template 표준 정렬**: pip→uv(`pyproject.toml`+`uv.lock`), Python 3.11→3.12, ruff 강화(UP·B·SIM)+format-check, mypy·import-linter(피처별 5계약) 추가, CI를 uv 파이프라인으로(+pytest 실행)·스모크 테스트 1개. 옛 `requirements*.txt`/`ruff.toml`/`pytest.ini` 제거, CODEOWNERS 죽은 경로 수정. 구조·프론트·문서 유지. 로컬 검증 그린.
+
 ## 2026-06-19
 - **ERD 다이어그램 관계 라벨 제거**: 선 위 설명 텍스트(건강정보 참고·못 먹는 약 판정 등) 전부 제거 — 까마귀발 마커로 충분히 읽힘. `ERD.svg`·`ERD.png` 재생성. (PR #4)
 - **ERD 다이어그램 가독성 개선**: 레이아웃 재배치(성분 매칭 `allergens`를 `allergies` 바로 아래로 → 매칭 선 단축), 선택적 약 참조(`pill_item_seq`·`matched_item_seq`)는 **점선**으로 핵심 관계와 분리, 그룹 라벨 겹침 제거. `ERD.svg`·`ERD.png` 재생성(4680×3120). (논리 모델 v1.2 동일, 시각만 개선)
