@@ -30,6 +30,10 @@
   /* ---- 반경 ---- */
   --radius-sm: 10px; --radius: 16px; --radius-lg: 18px; --radius-pill: 999px;
 
+  /* ---- 엘리베이션 (부드러운 카드 입체 — 디자인 키트 참고, 색차 우선 원칙상 약하게) ---- */
+  --shadow-card: 0 2px 10px rgba(20, 40, 38, 0.05), 0 1px 2px rgba(20, 40, 38, 0.04);
+  --shadow-pop: 0 10px 30px rgba(20, 40, 38, 0.10);
+
   /* ---- 타이포 ---- */
   --font-sans: 'Pretendard Variable', 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
@@ -156,7 +160,7 @@ button { font-family: inherit; }
 }
 
 /* ---- 카드 / 배지 / 아이콘 버튼 ---- */
-.card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--sp-lg); }
+.card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--sp-lg); box-shadow: var(--shadow-card); }
 .badge {
   display: inline-flex; align-items: center; gap: var(--sp-xs);
   padding: var(--sp-xs) var(--sp-sm); border-radius: var(--radius-sm);
@@ -332,7 +336,8 @@ button { font-family: inherit; }
   display: flex; align-items: center; gap: var(--sp-md);
   background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius);
   padding: var(--sp-md); cursor: pointer; width: 100%; text-align: left; color: inherit;
-  transition: border-color var(--duration-fast) var(--ease-out);
+  box-shadow: var(--shadow-card);
+  transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
 }
 .more-item:hover { border-color: var(--border-strong); }
 .more-icon {

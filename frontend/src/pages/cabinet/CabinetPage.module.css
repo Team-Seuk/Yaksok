@@ -15,6 +15,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: var(--sp-lg);
+  box-shadow: var(--shadow-card);
   width: 100%;
   text-align: left;
   color: inherit;
@@ -26,7 +27,8 @@
 }
 .card:hover {
   border-color: var(--accent-line);
-  box-shadow: 0 6px 22px var(--accent-fog);
+  box-shadow: var(--shadow-pop);
+  transform: translateY(-2px);
 }
 .card:active {
   transform: translateY(1px);

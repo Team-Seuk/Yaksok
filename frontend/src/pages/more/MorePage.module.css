@@ -16,7 +16,8 @@
     box-shadow var(--duration-fast) var(--ease-out);
 }
 .item:hover {
-  box-shadow: 0 6px 22px var(--accent-fog);
+  box-shadow: var(--shadow-pop);
+  transform: translateY(-2px);
 }
 .item:active {
   transform: translateY(1px);
