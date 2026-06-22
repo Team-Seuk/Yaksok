@@ -12,7 +12,7 @@
 - 결과 = LLM 텍스트 안내. 대화 내용은 **한 줄 요약**(`conversations.summary`)으로 저장돼 '내 기록' 목록에 표시된다.
 - 내비게이션: 알약사전(기록 열람·이어쓰기) / 홈(카메라) / 기타(내 정보, 증상별 약 추천).
 
-**현재 단계**: 협업 골격(M0) 완료. 더미/실연동 기능 코드는 다음 단계.
+**현재 단계**: M0(협업 골격)·M1(디자인 토큰/시그니처) 완료. 다음은 M2~(카메라·비전·공공 API·LLM 실연동).
 
 **범위 밖**: 실제 의료 진단·처방, 결제, 약 구매.
 
@@ -28,7 +28,7 @@
 - **개인 건강정보 저장**: 초기 프로토타입은 브라우저 `localStorage`(서버 미전송). 서버 영속화 시점의 목표 스키마는 [docs/ERD.md](docs/ERD.md).
 - **인증**: 목표는 이메일+비밀번호 자체 계정. 프로토타입에선 미구현 — 시드 dev 유저 1명에 데이터 연결, 로그인은 추후.
 - **촬영 이미지**: 서버 미저장. 비전 LLM 추출 속성(`scans.vision_attrs`)만 보관.
-- **UI 디자인**: 공유 자산 `C:\dev\docs\web-design` 프레임워크 적용.
+- **UI 디자인**: 상위 팀 디자인 지침 [`../DESIGN.md`](../DESIGN.md)(`C:\Team-Seuk\DESIGN.md`) 적용 — 인터뷰 선행·토큰(CSS 변수)·모션 medium. (구 `C:\dev\docs\web-design` 경로는 존재하지 않아 폐기.)
 - **협업 구조**: 프로젝트 1개 = GitHub repo 1개. GitHub Flow(rebase 없음) + GitHub Desktop. main 보호·CODEOWNERS·PR·CI(`.github/`)로 초보 실수 차단. 상세는 [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **UI 기본값 (확정, 변경 가능)**
@@ -36,7 +36,7 @@
 
 ## 마일스톤
 - [x] M0 — 협업 스캐폴드(FastAPI+React) + CI green. backend `/health`·frontend 빌드 검증 통과
-- [ ] M1 — 디자인 토큰/시그니처 확정 (web-design 프레임워크)
+- [x] M1 — 디자인 토큰/시그니처 확정 (Team-Seuk/DESIGN.md). 대개편 `feat/design-overhaul`, 상세 [docs/FRONTEND-OVERHAUL.md](docs/FRONTEND-OVERHAUL.md)
 - [ ] M2 — 카메라 캡처 + 비전 인식 파이프라인 (Claude vision → 속성 추출)
 - [ ] M3 — 공공 API 3종 연동 (백엔드, 인증키)
 - [ ] M4 — LLM 안내·요약 실연동

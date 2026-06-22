@@ -1,6 +1,17 @@
 import { useState } from 'react'
 import { ChevronLeft } from '../../components/icons'
 import { loadHealth, saveHealth, DEV_USER_ID, DEV_PROFILE_ID, type HealthBundle } from '../../lib/storage'
+import styles from './ProfilePage.module.css'
+
+/* 안심 배너 아이콘 — 주제(돌봄)에 맞는 하트. 인라인 SVG(icons.tsx 수정 금지). */
+function HeartGlyph() {
+  return (
+    <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 20s-7-4.6-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.4-7 10-7 10z" />
+    </svg>
+  )
+}
 
 const SEX = ['여성', '남성', '기타'] as const
 const PREG = ['해당 없음', '임신 중', '수유 중'] as const
@@ -84,38 +95,55 @@ export default function ProfilePage({ onDone, onBack }: { onDone: () => void; on
         </button>
       )}
       <h1 className="page-title">내 정보 입력</h1>
-      <p className="page-sub">나이·성별에 맞춰 안내해드려요. 한 번만 입력하면 돼요.</p>
+      <p className="page-sub">나이·성별에 맞춰 더 안전하게 안내해드려요.</p>
 
-      <div className="field">
-        <label className="field-label" htmlFor="age">나이</label>
-        <input id="age" className="input" inputMode="numeric" placeholder="예: 34"
-          value={age} onChange={(e) => setAge(e.target.value)} />
+      <div className={styles.reassure}>
+        <span className={styles.reassureIcon}><HeartGlyph /></span>
+        <span className={styles.reassureText}>
+          <strong>한 번만 입력하면 돼요.</strong>
+          <span className={styles.reassureSub}>입력한 정보로 복약 안내를 맞춤으로 챙겨드려요.</span>
+        </span>
       </div>
 
-      <div className="field">
-        <span className="field-label">성별</span>
-        <Segmented options={SEX} value={sex} onChange={setSex} />
+      <div className={styles.form}>
+        <div className={`field ${styles.field}`}>
+          <label className={`field-label ${styles.label}`} htmlFor="age">나이</label>
+          <input id="age" className={`input ${styles.input}`} inputMode="numeric" placeholder="예: 34"
+            value={age} onChange={(e) => setAge(e.target.value)} />
+        </div>
+
+        <div className={`field ${styles.field}`}>
+          <span className={`field-label ${styles.label}`}>성별</span>
+          <Segmented options={SEX} value={sex} onChange={setSex} />
+        </div>
+
+        <div className={`field ${styles.field}`}>
+          <span className={`field-label ${styles.label}`}>임신 / 수유</span>
+          <Segmented options={PREG} value={preg} onChange={setPreg} />
+        </div>
+
+        <div className={`field ${styles.field}`}>
+          <label className={`field-label ${styles.label}`} htmlFor="meds">
+            복용 중인 약<span className={styles.optional}>선택</span>
+          </label>
+          <input id="meds" className={`input ${styles.input}`} placeholder="예: 혈압약, 종합감기약"
+            value={meds} onChange={(e) => setMeds(e.target.value)} />
+          <p className={styles.hint}>여러 개는 쉼표로 구분해 적어주세요.</p>
+        </div>
+
+        <div className={`field ${styles.field}`}>
+          <label className={`field-label ${styles.label}`} htmlFor="allergy">
+            알레르기<span className={styles.optional}>선택</span>
+          </label>
+          <input id="allergy" className={`input ${styles.input}`} placeholder="예: 페니실린, 아스피린"
+            value={allergy} onChange={(e) => setAllergy(e.target.value)} />
+        </div>
       </div>
 
-      <div className="field">
-        <span className="field-label">임신 / 수유</span>
-        <Segmented options={PREG} value={preg} onChange={setPreg} />
+      <div className={styles.actions}>
+        <button className={`btn-primary ${styles.submit}`} onClick={handleDone}>완료하고 시작하기</button>
+        <p className={`page-foot ${styles.foot}`}>입력 정보는 이 기기에만 저장돼요.</p>
       </div>
-
-      <div className="field">
-        <label className="field-label" htmlFor="meds">복용 중인 약 (선택)</label>
-        <input id="meds" className="input" placeholder="예: 혈압약, 종합감기약"
-          value={meds} onChange={(e) => setMeds(e.target.value)} />
-      </div>
-
-      <div className="field">
-        <label className="field-label" htmlFor="allergy">알레르기 (선택)</label>
-        <input id="allergy" className="input" placeholder="예: 페니실린, 아스피린"
-          value={allergy} onChange={(e) => setAllergy(e.target.value)} />
-      </div>
-
-      <button className="btn-primary" onClick={handleDone}>완료하고 시작하기</button>
-      <p className="page-foot">입력 정보는 이 기기에만 저장돼요.</p>
     </div>
   )
 }

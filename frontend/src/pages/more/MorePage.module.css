@@ -1,0 +1,62 @@
+/* 기타(메뉴) 화면 — 전역 .more-* 프리미티브 위에 다정한 정제만 더한다. 값은 전부 토큰. */
+
+.intro {
+  margin-bottom: var(--sp-xs);
+}
+
+/* 메뉴 항목: 전역 .more-item 위에 탭 영역·아이콘 위계를 넉넉하게 보강 */
+.item {
+  align-items: flex-start;
+  gap: var(--sp-md);
+  padding: var(--sp-lg) var(--sp-md);
+  border-radius: var(--radius-lg);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+.item:hover {
+  box-shadow: 0 6px 22px var(--accent-fog);
+}
+.item:active {
+  transform: translateY(1px);
+}
+
+/* 아이콘 캡슐 — 부드러운 정사각, 시선 첫 닻 */
+.icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius);
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+  /* 제목·설명 세로 위계 */
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-xs);
+}
+
+.title {
+  font-size: var(--fs-lg);
+  line-height: var(--lh-snug);
+}
+
+.desc {
+  margin-top: 0;
+  line-height: var(--lh-snug);
+  text-wrap: pretty;
+}
+
+/* chevron 은 텍스트 첫 줄에 맞춰 살짝 내려 정렬 */
+.chev {
+  align-self: center;
+}
+.item:hover .chev {
+  color: var(--accent);
+  transform: translateX(2px);
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}

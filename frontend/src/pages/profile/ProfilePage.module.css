@@ -1,0 +1,88 @@
+/* 내 정보 입력(온보딩 겸용) — airy 폼 + 안심 카피. 값은 전부 토큰. */
+
+/* 안심 배너: "한 번만 입력하면 돼요" — 첫인상의 다정·신뢰 */
+.reassure {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-sm);
+  background: var(--accent-fog);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius);
+  padding: var(--sp-md);
+  margin: var(--sp-xs) 0 var(--sp-lg);
+}
+.reassureIcon {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev);
+  color: var(--accent-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.reassureText {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-sm);
+  color: var(--text);
+  line-height: var(--lh-snug);
+}
+.reassureText strong {
+  font-weight: var(--fw-bold);
+  color: var(--accent-deep);
+}
+.reassureSub {
+  display: block;
+  margin-top: var(--sp-xs);
+  font-size: var(--fs-cap);
+  color: var(--text-dim);
+  font-weight: var(--fw-regular);
+}
+
+/* 폼 본문 — airy: 필드 간격 넉넉, 라벨 또렷 */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-lg);
+}
+.field {
+  margin-bottom: 0; /* 전역 .field 의 하단 마진 제거 → .form gap 으로 일괄 통제 */
+}
+.label {
+  font-size: var(--fs-sm);
+  color: var(--text);
+  font-weight: var(--fw-semibold);
+  margin-bottom: var(--sp-sm);
+}
+.optional {
+  margin-left: var(--sp-xs);
+  font-size: var(--fs-cap);
+  color: var(--text-faint);
+  font-weight: var(--fw-regular);
+}
+.hint {
+  margin-top: var(--sp-sm);
+  font-size: var(--fs-cap);
+  color: var(--text-dim);
+  line-height: var(--lh-snug);
+}
+
+/* 고령 배려: 입력 글자 크게(본문 16px+) */
+.input {
+  font-size: var(--fs-body);
+  padding: var(--sp-md);
+}
+
+/* 액션 영역 — primary 버튼 위로 숨 트이게 */
+.actions {
+  margin-top: var(--sp-md);
+}
+.submit {
+  font-size: var(--fs-body);
+  padding: var(--sp-md);
+}
+.foot {
+  margin-top: var(--sp-md);
+}

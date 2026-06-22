@@ -1,0 +1,120 @@
+/* 개별 대화 화면 고유 스타일 — 전부 토큰. ResultPage와 같은 결: 부드러운 카드/민트/airy.
+   전역 .result / .topbar / .result-scroll / .composer / .send 위에 화면 고유 위계를 얹는다. */
+
+/* ---- 헤더: 약 이름 + 안심 부제 ---- */
+.headBody {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.headName {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.02em;
+  line-height: var(--lh-tight);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.headSub {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  margin-top: var(--sp-xs);
+}
+
+.scroll {
+  padding-top: var(--sp-md);
+}
+
+/* 첫 진입 안내 (다정한 톤) */
+.intro {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  justify-content: center;
+  margin: var(--sp-xs) auto var(--sp-lg);
+  padding: var(--sp-xs) var(--sp-md);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-pill);
+  color: var(--accent-deep);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  width: fit-content;
+}
+.introDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ---- 메시지 목록 ---- */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  max-width: 86%;
+  align-self: flex-start;
+  animation: pop var(--duration-normal) var(--ease-out) both;
+}
+.rowMe {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.who {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  font-weight: var(--fw-semibold);
+  margin: 0 var(--sp-sm) var(--sp-xs);
+}
+
+/* 말풍선 — 다정하고 부드럽게 */
+.bubble {
+  font-size: var(--fs-sm);
+  line-height: var(--lh-body);
+  white-space: pre-line;
+  padding: var(--sp-md);
+  border-radius: var(--radius);
+  text-wrap: pretty;
+}
+
+/* 봇: 흰 카드, 왼쪽 꼬리 */
+.bubbleBot {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-top-left-radius: var(--radius-sm);
+  box-shadow: 0 2px 10px var(--accent-fog);
+}
+
+/* 나: 민트, 오른쪽 꼬리 */
+.bubbleMe {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: #ffffff;
+  border-top-right-radius: var(--radius-sm);
+}
+
+/* ---- 입력창 (하단 고정) ---- */
+.composer {
+  position: sticky;
+  bottom: 0;
+  background: var(--bg);
+  z-index: var(--z-tabbar);
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .row { animation: none; }
+}

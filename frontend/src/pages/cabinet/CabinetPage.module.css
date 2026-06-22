@@ -1,0 +1,130 @@
+/* 내 기록(알약사전) 화면 — 다정·airy 정제. 값은 전부 토큰. */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+}
+
+/* ---- 기록 카드 ---- */
+.card {
+  display: flex;
+  gap: var(--sp-md);
+  align-items: flex-start;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-lg);
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+.card:hover {
+  border-color: var(--accent-line);
+  box-shadow: 0 6px 22px var(--accent-fog);
+}
+.card:active {
+  transform: translateY(1px);
+}
+
+/* ---- 알약 일러스트 썸네일 ---- */
+.thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius);
+  flex-shrink: 0;
+  background: var(--accent-fog);
+  border: 1px solid var(--accent-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---- 머리(이름 + 날짜) ---- */
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--sp-sm);
+}
+.name {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.01em;
+  line-height: var(--lh-tight);
+  word-break: keep-all;
+}
+.date {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 용법·용량 ---- */
+.dosage {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  line-height: var(--lh-snug);
+  margin-top: var(--sp-sm);
+}
+
+/* ---- 주의(안전정보) — 명료히 분리·강조 ---- */
+.caution {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-sm);
+  margin-top: var(--sp-md);
+  padding: var(--sp-sm) var(--sp-md);
+  background: var(--warn-soft);
+  border: 1px solid var(--warn-line);
+  border-radius: var(--radius-sm);
+  color: var(--warn);
+}
+.cautionIcon {
+  flex-shrink: 0;
+  display: flex;
+  margin-top: 1px;
+}
+.cautionBody {
+  min-width: 0;
+}
+.cautionLabel {
+  display: block;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.01em;
+}
+.cautionText {
+  display: block;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-snug);
+  margin-top: var(--sp-xs);
+}
+
+/* ---- 카드 꼬리(이어 묻기 안내) ---- */
+.foot {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-xs);
+  margin-top: var(--sp-md);
+  font-size: var(--fs-cap);
+  font-weight: var(--fw-semibold);
+  color: var(--accent-deep);
+}
+.footChev {
+  display: flex;
+  color: var(--accent);
+}

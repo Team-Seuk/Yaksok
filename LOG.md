@@ -3,6 +3,7 @@
 > 날짜별 굵직한 변경 한 줄. 세세한 커밋은 git log. (CONVENTIONS §3)
 
 ## 2026-06-22
+- **프론트엔드 대개편 (M1, `feat/design-overhaul`)**: 정체성=라이트·민트·Pretendard **유지·정제**(무드 다정/부드러운/안심, density airy). ①`theme.css` **토큰 시스템 완성** — 간격·타이포·모션·z·반경 토큰 신설, 하드코딩(24/13/11.5px·버튼 그라데이션) 제거, 솔리드 민트 버튼, `prefers-reduced-motion` 전역. ②**`react-router-dom` 도입** — `App.tsx` useState 화면전환 → 라우터(온보딩 가드·라우터 기반 탭바). ③**개별 대화 화면 신설**(`pages/conversation`). ④6화면 비주얼 폴리시(화면별 CSS Module 분리) + 빈/권한거부/로딩 등 상태 화면. ⑤알약 일러스트 시그니처 강화(`PillImage` 음영·각인·분할선, 하위호환). typecheck·lint·build 그린 + 실렌더 검증. 스펙 [docs/FRONTEND-OVERHAUL.md](docs/FRONTEND-OVERHAUL.md). (브랜치, 미머지)
 - **프로젝트 리네임 `pill_recognition` → `Yaksok`**: 로컬 폴더·GitHub 레포(`Team-Seuk/Yaksok`)·git remote + 코드/문서 표기 전반 통일(문서 제목·FastAPI title·pyproject·index.html·theme.css·`package`=`yaksok-frontend`·`storage.ts` 키 `yaksok:health`). HANDOFF·LOG의 과거 이력 기록은 보존. (PR #11)
 - **승인 게이트 위험도 기반 재편**: 기존 역할별(영역=담당자) → **위험도 기반**. 일반 기능 파일은 오너 미지정(아무 팀원 1명 승인), 위험 공용구역(`core`·의존성·CI·공용 컴포넌트/`api`·설정·문서)만 @suvisdev(PL)+@bestcow(PO) 2명 오너 → 담당자 셀프승인 데드락 제거. 온보딩(세팅·승인 흐름·역할)을 CONTRIBUTING에 통합. (PR #10)
 - **PO 전권 부여**: `protect-main` 룰셋 bypass에 Repository admin(=@bestcow) `always` 추가 → PO는 승인·CI 없이 머지·직접 push 가능. (다른 팀원은 게이트 적용 그대로)
