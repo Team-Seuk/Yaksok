@@ -1,4 +1,4 @@
-# pill_recognition — PLAN
+# Yaksok — PLAN
 
 > 목표·범위·의사결정. 실행법·환경변수는 README. (CONVENTIONS §6)
 

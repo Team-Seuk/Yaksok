@@ -1,5 +1,5 @@
 <svg width="2340" height="1560" viewBox="0 0 1560 1040" xmlns="http://www.w3.org/2000/svg" role="img" font-family="'Pretendard', 'Malgun Gothic', ui-sans-serif, system-ui, -apple-system, sans-serif">
-<title>pill_recognition 데이터 모델 v1.2 (한국어/영어)</title>
+<title>Yaksok 데이터 모델 v1.2 (한국어/영어)</title>
 <desc>계정·건강정보, 인식·대화 세션, 약(식약처 캐시), 성분 매칭, 증상 추천 12개 테이블 관계도. 까마귀발 표기.</desc>
 <rect x="0" y="0" width="1560" height="1040" fill="#ffffff"/>
 

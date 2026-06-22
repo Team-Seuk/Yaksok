@@ -1,4 +1,4 @@
-# pill_recognition
+# Yaksok
 
 > 소개·실행법·환경변수. 의사결정·범위는 PLAN. (CONVENTIONS §6)
 
