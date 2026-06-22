@@ -1,29 +1,29 @@
-# CODEOWNERS — 역할 기반. 적힌 경로는 해당 owner 승인이 있어야 main 머지 가능
+# CODEOWNERS — 위험도 기반 게이트. 적힌 경로는 해당 owner 승인이 있어야 main 머지 가능
 # (branch protection의 "Require review from Code Owners"를 켰을 때 발효).
-# 규칙은 "마지막에 매치된 줄"이 이긴다. 안 적힌 파일은 아무 팀원 1명 승인으로 머지.
+# 규칙은 "마지막에 매치된 줄"이 이긴다. 안 적힌 파일은 코드오너 없음 → 아무 팀원 1명 승인으로 머지.
+#
+# 설계: 일상 기능 작업(/backend/apps, /frontend/src 등)은 일부러 오너 미지정
+#       → 담당자도 본인 영역을 가볍게(아무 팀원 1명 승인). 셀프승인 데드락 없음.
+#       진짜 위험한 공용·설정·인프라·문서만 강한 게이트(오너 2명 → 작성자여도 다른 1명이 승인 가능).
 #
 # 역할: BE=김민아(@minahdev) · FE=박소연(@cloverky) · PL/테크리드=진수택(@suvisdev)
-#       PO=이재우(@bestcow) · SM=이우정(@woojeongalex) → PO·SM은 코드오너 아님(일반 리뷰로 참여)
+#       PO=이재우(@bestcow) · SM=이우정(@woojeongalex)
 
-# ----- 영역별 담당 -----
-/backend/                        @minahdev   # 백엔드 전체 → BE
-/frontend/                       @cloverky   # 프론트 전체 → FE
+# ----- 위험 공용구역·설정·인프라 → PL/테크리드(진수택), 백업 PO(이재우) (아래일수록 우선) -----
+/backend/core/                   @suvisdev @bestcow   # 공통 설정·DB
+/backend/pyproject.toml          @suvisdev @bestcow   # 의존성·도구 설정
+/frontend/src/components/        @suvisdev @bestcow   # 재사용 공용 컴포넌트
+/frontend/src/api/               @suvisdev @bestcow   # 백엔드 호출 계약(공용)
+/frontend/package.json           @suvisdev @bestcow
+/.github/                        @suvisdev @bestcow
+*.yml                            @suvisdev @bestcow
+*.yaml                           @suvisdev @bestcow
 
-# ----- 위험 공용구역·설정·인프라 → PL/테크리드(진수택) (아래일수록 우선) -----
-/backend/core/                   @suvisdev   # 공통 설정·DB
-/backend/pyproject.toml          @suvisdev   # 의존성·도구 설정
-/frontend/src/components/        @suvisdev   # 재사용 공용 컴포넌트
-/frontend/src/api/               @suvisdev   # 백엔드 호출 계약(공용)
-/frontend/package.json           @suvisdev
-/.github/                        @suvisdev
-*.yml                            @suvisdev
-*.yaml                           @suvisdev
-
-# ----- 구조·규칙 문서 → PL/테크리드 (맨 아래 = 최우선) -----
-/CONVENTIONS.md                  @suvisdev
-/CLAUDE.md                       @suvisdev
-/AGENTS.md                       @suvisdev
-/PLAN.md                         @suvisdev
-/README.md                       @suvisdev
-/CONTRIBUTING.md                 @suvisdev
+# ----- 구조·규칙 문서 → PL/테크리드, 백업 PO (맨 아래 = 최우선) -----
+/CONVENTIONS.md                  @suvisdev @bestcow
+/CLAUDE.md                       @suvisdev @bestcow
+/AGENTS.md                       @suvisdev @bestcow
+/PLAN.md                         @suvisdev @bestcow
+/README.md                       @suvisdev @bestcow
+/CONTRIBUTING.md                 @suvisdev @bestcow
 # HANDOFF.md · LOG.md 는 미지정 → 팀원끼리 갱신·승인 가능 (doc 시스템 병목 방지)
