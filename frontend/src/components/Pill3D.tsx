@@ -29,13 +29,13 @@ export default function Pill3D({ size = 208 }: { size?: number }) {
     // 캡슐 중앙(geometry y=0)을 경계로 위/아래 = 화이트/민트. per-fragment step으로 하드 경계.
     const mat = new THREE.MeshPhysicalMaterial({
       color: 0xffffff,
-      roughness: 0.36,
+      roughness: 0.3,
       metalness: 0.0,
       clearcoat: 0.7,
-      clearcoatRoughness: 0.3,
+      clearcoatRoughness: 0.28,
     })
-    const top = new THREE.Color('#eef1f1').convertSRGBToLinear()
-    const bot = new THREE.Color('#0fae97').convertSRGBToLinear()
+    const top = new THREE.Color('#f6f8f8').convertSRGBToLinear()
+    const bot = new THREE.Color('#1fd0b1').convertSRGBToLinear()
     mat.onBeforeCompile = (shader) => {
       shader.uniforms.uTop = { value: top }
       shader.uniforms.uBot = { value: bot }
@@ -66,11 +66,14 @@ export default function Pill3D({ size = 208 }: { size?: number }) {
     tiltGroup.add(spinGroup)
     scene.add(tiltGroup)
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.6))
-    const key = new THREE.DirectionalLight(0xffffff, 1.5)
+    scene.add(new THREE.AmbientLight(0xffffff, 0.95))
+    const key = new THREE.DirectionalLight(0xffffff, 1.75)
     key.position.set(4, 6, 5)
     scene.add(key)
-    const rim = new THREE.DirectionalLight(0xc4f0e7, 0.7)
+    const fill = new THREE.DirectionalLight(0xffffff, 0.6)
+    fill.position.set(0, 1, 7)
+    scene.add(fill)
+    const rim = new THREE.DirectionalLight(0xd6f5ee, 0.7)
     rim.position.set(-5, -2, -3)
     scene.add(rim)
 
