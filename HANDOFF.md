@@ -1,7 +1,7 @@
 ---
 status: 개발
-updated: 2026-06-21
-summary: 백엔드 도구 _template 표준 정렬(pip→uv·py3.12·mypy·import-linter 피처별·CI pytest) 완료, 구조·프론트·문서 유지. 이전: ①백엔드 헥사고날 전환(backend/app/ → backend/apps/<도메인>+core/, 진입점 main.py, run.py·pytest.ini) ②ERD v1.2(기능 연결 5개, 테이블 9→12: allergens+pill_allergens, symptom_recommendations 등) ③ERD 다이어그램 가독성 개선·관계 라벨 제거 — 모두 **PR #2~4로 main 머지 완료**. md 정합(README uvicorn 경로·PLAN 데이터모델·LOG) 갱신함. 프론트는 프로토타입 UI 6화면 + 건강정보 localStorage(나머지 더미·미연결) 유지. 다음: 프론트 세부 구현 또는 백엔드 도메인 로직.
+updated: 2026-06-22
+summary: repo·표기명 `pill_recognition`→**Yaksok** 통일(로컬·GitHub·remote·코드/문서, PR #11). 협업 게이트를 **위험도 기반**으로 재편(일반 파일 아무나 1명·위험구역만 PL+PO, 셀프승인 데드락 제거)+CONTRIBUTING에 온보딩(세팅·승인흐름·역할) 통합(PR #10), `protect-main` 룰셋에 PO(@bestcow) `always`-bypass 부여(전권). 코드·기능은 그대로: 백엔드 헥사고날 빈 스캐폴드(uv·py3.12·mypy·import-linter·CI pytest), 프론트 프로토타입 UI 6화면 + 건강정보 localStorage(나머지 더미·미연결). 다음: 백엔드 도메인 로직 또는 프론트 세부 구현.
 repo: Team-Seuk/Yaksok
 ---
 
@@ -10,6 +10,7 @@ repo: Team-Seuk/Yaksok
 > 작업 세션 끝낼 때마다 갱신. 위 frontmatter가 상태의 단일 원본. (CONVENTIONS §4·§5)
 
 ## 마지막 작업
+- **프로젝트 리네임 + 협업 게이트 개편 (2026-06-22)**: ①레포명 `pill_recognition`→**Yaksok** — 로컬 폴더·GitHub 레포(`Team-Seuk/Yaksok`)·git remote + 코드/문서 표기(README·AGENTS·CONVENTIONS·PLAN·LOG·HANDOFF·docs/ERD·FastAPI title·pyproject·index.html·theme.css·`package(.json/-lock)`=`yaksok-frontend`·`storage.ts` 키 `yaksok:health`) 통일, HANDOFF·LOG 과거 이력은 보존(PR #11). ②CODEOWNERS를 **위험도 기반**으로 재편 — 일반 기능 파일은 오너 미지정→아무 팀원 1명 승인, 위험 공용구역(`core`·의존성·CI·공용 컴포넌트/`api`·설정·문서)만 @suvisdev(PL)+@bestcow(PO) 2명 오너 → 셀프승인 데드락 제거. `프로젝트_시작.txt` 온보딩(세팅·PR 승인 흐름·역할)을 CONTRIBUTING에 통합(PR #10). ③`protect-main` 룰셋 bypass에 Repository admin(=@bestcow) `always` 추가 → PO 전권(승인·CI 없이 머지·직접 push). 두 PR CI(backend/frontend) 그린, admin 머지.
 - **백엔드 도구 _template 표준 정렬 (2026-06-21)**: pip→**uv**(`backend/pyproject.toml`+`uv.lock`, ruff를 런타임→dev로 이동), Python 3.11→**3.12**, ruff 규칙 강화(UP·B·SIM)+`ruff format --check`, **mypy**(strict-ish)·**import-linter** 추가 — THE ONE RULE을 단일 패키지가 아니라 **피처별 계약**(apps.{auth,guidance,pill} adapter→app→domain + 피처 독립 + core 격리, 5계약 KEPT)으로. CI(`check.yml`) backend 잡을 uv 파이프라인으로 교체(pytest 실제 실행, 잡 이름 `backend`/`frontend`는 유지 → branch protection 영향 없음), 스모크 테스트 1개(`apps/pill/tests/test_smoke.py`) 추가. 옛 `requirements*.txt`·`ruff.toml`·`pytest.ini` 제거. CODEOWNERS 죽은 경로 `/backend/app/`→`/backend/apps/`·`/backend/core/`·`pyproject.toml`로 수정. README·AGENTS 실행법 uv로 정합. **구조(feature-first)·프론트·문서 시스템은 그대로.** 검증: ruff·mypy(80파일)·lint-imports(5 KEPT)·pytest(1 passed) 로컬 그린. org도 Team-Seuk로 통일(remote 재지정 예정).
 - **md 문서 정합 (2026-06-19)**: 코드/ERD 변경 대비 stale 문서 수정 — `README.md` 백엔드 실행 `uvicorn app.main:app`→`main:app`(헥사고날 반영, 실행 깨짐 수정), `PLAN.md` 데이터모델 v1.2 반영(증상추천·성분매칭 테이블 추가, 총 12개), `LOG.md` 라벨 제거 한 줄 추가, 본 HANDOFF 머지 상태 갱신.
 - **ERD 다이어그램 가독성 개선·라벨 제거 (2026-06-19, PR #3·#4 머지)**: 레이아웃 재배치(성분 매칭 `allergens`를 `allergies` 바로 아래로 → 매칭 선 단축), 선택적 약 참조(`pill_item_seq`·`matched_item_seq`)는 **점선**으로 핵심 관계와 분리, 그룹 라벨 겹침 제거, 선 위 설명 텍스트 라벨 전부 제거. viewBox 1560×1040, [docs/ERD.png](docs/ERD.png) Edge 2x 재생성(4680×3120).
@@ -31,9 +32,9 @@ repo: Team-Seuk/Yaksok
 ## 다음 할 일
 - **프론트 세부 구현(진행 중)**: ①세션→개별 대화 화면(말풍선+입력, `messages`) ②내 기록·약품 상세를 더미 대신 저장소 데이터로 연결 ③증상별 추천 결과를 `symptom_queries`로 저장.
 - **서버 영속화(M5) 때 챙길 ERD 항목**(평가에서 도출, 지금은 불필요): `sex/status/role` CHECK 제약, `conversations.updated_at` 자동 갱신 트리거, "사용자 데이터 조회는 user_id 필터 강제" 명문화, DUR 약물 상호작용 구조화.
-- **CODEOWNERS 역할 기반으로 교체 완료** (BE→@minahdev, FE→@cloverky, 위험·설정·문서→@suvisdev(PL); PO@bestcow·SM@woojeongalex은 코드오너 제외). 남음: **(사람)** 팀원 push 권한 확인 — org Base permissions를 Write로 두거나 collaborator(write) 추가.
+- **CODEOWNERS 위험도 기반 전환 완료 (2026-06-22)**: 일반 기능 파일=오너 미지정(아무나 1명), 위험 공용구역=@suvisdev(PL)+@bestcow(PO). 남음: **(사람)** 팀원 push 권한 확인 — org Base permissions를 Write로 두거나 collaborator(write) 추가.
 - **(사람)** 각 팀원: `backend/.env.example` → `backend/.env` 복사 후 키 채우기. 실제 키는 비번관리자/DM으로 공유(평문·커밋 금지).
-- **branch protection 적용 완료 (2026-06-21)**: `main`에 PR 필수·승인 1·Require Code Owners·status check(`backend`/`frontend`)·force-push·삭제 차단(enforce_admins=off → 팀장 우회 가능). 남음: **(사람)** Settings → General에서 "Automatically delete head branches" 체크.
+- **main 보호 + PO 전권 적용 완료 (2026-06-22)**: `main`에 PR 필수·승인 1·Require Code Owners·status check(`backend`/`frontend`)·force-push·삭제 차단. `protect-main` 룰셋 bypass에 @bestcow(admin) `always` → PO는 승인·CI 없이 머지/직접 push 가능. 남음: **(사람)** Settings → General에서 "Automatically delete head branches" 체크.
 - **백엔드 도메인 로직 구현(헥사고날 위)**: main에 머지된 `apps/<도메인>` 빈 스캐폴드에 엔티티·value_object·use_case·port·adapter(라우터) 구현. ERD v1.2 기준, `pill` 도메인(핵심 식별·안내)부터.
 - **ERD 후속 결정**: 건강정보(`health_profiles`/`medications`/`allergies`)를 `profile` 도메인으로 분리할지 / 헥사고날 도메인 경계 넘는 FK를 다이어그램에 점선(약결합)으로 표시할지.
 - ERD 확정됨 → 프로토타입은 [docs/ERD.md](docs/ERD.md) 구조를 프론트 임시 저장(localStorage 등)으로 흉내. 서버 영속화는 추후 같은 스키마로.

@@ -2,6 +2,11 @@
 
 > 날짜별 굵직한 변경 한 줄. 세세한 커밋은 git log. (CONVENTIONS §3)
 
+## 2026-06-22
+- **프로젝트 리네임 `pill_recognition` → `Yaksok`**: 로컬 폴더·GitHub 레포(`Team-Seuk/Yaksok`)·git remote + 코드/문서 표기 전반 통일(문서 제목·FastAPI title·pyproject·index.html·theme.css·`package`=`yaksok-frontend`·`storage.ts` 키 `yaksok:health`). HANDOFF·LOG의 과거 이력 기록은 보존. (PR #11)
+- **승인 게이트 위험도 기반 재편**: 기존 역할별(영역=담당자) → **위험도 기반**. 일반 기능 파일은 오너 미지정(아무 팀원 1명 승인), 위험 공용구역(`core`·의존성·CI·공용 컴포넌트/`api`·설정·문서)만 @suvisdev(PL)+@bestcow(PO) 2명 오너 → 담당자 셀프승인 데드락 제거. 온보딩(세팅·승인 흐름·역할)을 CONTRIBUTING에 통합. (PR #10)
+- **PO 전권 부여**: `protect-main` 룰셋 bypass에 Repository admin(=@bestcow) `always` 추가 → PO는 승인·CI 없이 머지·직접 push 가능. (다른 팀원은 게이트 적용 그대로)
+
 ## 2026-06-21
 - 백엔드 도구 **_template 표준 정렬**: pip→uv(`pyproject.toml`+`uv.lock`), Python 3.11→3.12, ruff 강화(UP·B·SIM)+format-check, mypy·import-linter(피처별 5계약) 추가, CI를 uv 파이프라인으로(+pytest 실행)·스모크 테스트 1개. 옛 `requirements*.txt`/`ruff.toml`/`pytest.ini` 제거, CODEOWNERS 죽은 경로 수정. 구조·프론트·문서 유지. 로컬 검증 그린.
 - **CODEOWNERS 역할 기반 재구성**: 기능별→역할별. `/backend/`→@minahdev(BE), `/frontend/`→@cloverky(FE), 위험·설정·문서→@suvisdev(PL/진수택). PO(@bestcow)·SM(@woojeongalex)은 코드오너 제외(일반 리뷰).
