@@ -1,4 +1,4 @@
-# pill_recognition — ERD (데이터 모델)
+# Yaksok — ERD (데이터 모델)
 
 > 데이터 모델의 단일 출처. 목표/결정 맥락은 [PLAN.md](../PLAN.md), 문서 규칙은 [CONVENTIONS.md](../CONVENTIONS.md).
 > **상태**: v1.2 (2026-06-19) · 대상 DB **PostgreSQL**.

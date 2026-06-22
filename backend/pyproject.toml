@@ -1,7 +1,7 @@
 [project]
 name = "pill-backend"
 version = "0.1.0"
-description = "pill_recognition 백엔드 (FastAPI · 헥사고날 feature-first)"
+description = "Yaksok 백엔드 (FastAPI · 헥사고날 feature-first)"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.115",

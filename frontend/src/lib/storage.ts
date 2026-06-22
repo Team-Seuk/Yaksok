@@ -5,7 +5,7 @@ import type { HealthProfile, Medication, Allergy, ID } from './types'
 export const DEV_USER_ID: ID = 1
 export const DEV_PROFILE_ID: ID = 1
 
-const HEALTH_KEY = 'pill_recognition:health'
+const HEALTH_KEY = 'yaksok:health'
 
 /** 건강정보 한 묶음 (profile + 그에 속한 1:N 목록들) */
 export interface HealthBundle {

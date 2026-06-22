@@ -7,7 +7,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="pill_recognition")
+app = FastAPI(title="Yaksok")
 
 app.add_middleware(
     CORSMiddleware,

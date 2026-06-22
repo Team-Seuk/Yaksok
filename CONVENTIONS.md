@@ -1,4 +1,4 @@
-# pill_recognition — CONVENTIONS (문서 시스템 규칙)
+# Yaksok — CONVENTIONS (문서 시스템 규칙)
 
 > 이 repo의 md 문서들이 "작업할 때마다 알아서 최신 상태로 유지"되도록 하는 규칙.
 > 각 문서 헤더의 `(CONVENTIONS §N)`은 이 파일의 절 번호를 가리킨다.

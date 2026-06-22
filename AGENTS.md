@@ -1,4 +1,4 @@
-# pill_recognition — 에이전트/기여자 노트
+# Yaksok — 에이전트/기여자 노트
 
 ## 스택
 - **백엔드**: FastAPI (Python 3.12+, uv), 헥사고날 구조. `backend/apps/<도메인>/` — `auth/`(로그인·회원), `pill/`(핵심 기능), `guidance/`(복약 안내). 각 도메인은 `adapter/`(inbound·outbound) · `app/`(use_cases·ports·dtos) · `domain/`(entities·value_objects) · `tests/`. DB·공통 설정은 `backend/core/`(위험 공용구역). 진입점 `backend/main.py`.

@@ -2,10 +2,10 @@
 status: 개발
 updated: 2026-06-21
 summary: 백엔드 도구 _template 표준 정렬(pip→uv·py3.12·mypy·import-linter 피처별·CI pytest) 완료, 구조·프론트·문서 유지. 이전: ①백엔드 헥사고날 전환(backend/app/ → backend/apps/<도메인>+core/, 진입점 main.py, run.py·pytest.ini) ②ERD v1.2(기능 연결 5개, 테이블 9→12: allergens+pill_allergens, symptom_recommendations 등) ③ERD 다이어그램 가독성 개선·관계 라벨 제거 — 모두 **PR #2~4로 main 머지 완료**. md 정합(README uvicorn 경로·PLAN 데이터모델·LOG) 갱신함. 프론트는 프로토타입 UI 6화면 + 건강정보 localStorage(나머지 더미·미연결) 유지. 다음: 프론트 세부 구현 또는 백엔드 도메인 로직.
-repo: Team-Seuk/pill_recognition
+repo: Team-Seuk/Yaksok
 ---
 
-# pill_recognition — HANDOFF
+# Yaksok — HANDOFF
 
 > 작업 세션 끝낼 때마다 갱신. 위 frontmatter가 상태의 단일 원본. (CONVENTIONS §4·§5)
 
