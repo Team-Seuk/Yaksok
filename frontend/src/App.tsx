@@ -1,5 +1,11 @@
+import { useEffect, useRef, useState } from 'react'
 import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
+import Splash from './components/Splash'
 import TabBar from './components/TabBar'
+import styles from './App.module.css'
+
+/* 탭 순서(좌→우) — 슬라이드 방향 판단용 */
+const TAB_ORDER = ['/cabinet', '/', '/more']
 import CabinetPage from './pages/cabinet/CabinetPage'
 import HomePage from './pages/home/HomePage'
 import MorePage from './pages/more/MorePage'
@@ -20,11 +26,20 @@ function RootLayout() {
   )
 }
 
-/* 탭 화면(홈·내 기록·기타)에만 하단 탭바를 붙인다. */
+/* 탭 화면(홈·내 기록·기타)에만 하단 탭바를 붙이고, 탭 전환 시 좌우 슬라이드. */
 function TabLayout() {
+  const location = useLocation()
+  const idx = TAB_ORDER.indexOf(location.pathname)
+  const prev = useRef(idx)
+  const dir = idx > prev.current ? styles.fromRight : idx < prev.current ? styles.fromLeft : ''
+  useEffect(() => {
+    prev.current = idx
+  })
   return (
     <>
-      <Outlet />
+      <div className={`${styles.slide} ${dir}`} key={location.pathname}>
+        <Outlet />
+      </div>
       <TabBar />
     </>
   )
@@ -80,8 +95,10 @@ function ProfileRoute() {
 }
 
 export default function App() {
+  const [splashing, setSplashing] = useState(true)
   return (
     <BrowserRouter>
+      {splashing && <Splash onDone={() => setSplashing(false)} />}
       <Routes>
         <Route element={<RootLayout />}>
           <Route element={<TabLayout />}>
