@@ -41,6 +41,75 @@
   font-weight: var(--fw-regular);
 }
 
+/* 문서 자동 채우기 — 건강검진·검사 결과 촬영(데모). 점선 테두리로 '얹는 동작' 암시 */
+.docScan {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  background: var(--bg-elev);
+  border: 1.5px dashed var(--accent-line);
+  border-radius: var(--radius);
+  padding: var(--sp-md);
+  margin-bottom: var(--sp-lg);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+.docScan:hover { border-color: var(--accent); background: var(--accent-fog); }
+.docScan:active { transform: translateY(1px); }
+.docScan:disabled { cursor: default; opacity: 0.85; }
+.docIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.docSpinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid var(--accent-soft);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: docspin 0.9s linear infinite;
+}
+@keyframes docspin { to { transform: rotate(360deg); } }
+.docBody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--sp-xs); }
+.docTitle { font-size: var(--fs-sm); font-weight: var(--fw-bold); color: var(--accent-deep); }
+.docDesc { font-size: var(--fs-cap); color: var(--text-dim); line-height: var(--lh-snug); text-wrap: pretty; }
+.filledNote {
+  margin: calc(-1 * var(--sp-sm)) 0 var(--sp-lg);
+  font-size: var(--fs-cap);
+  color: var(--accent-deep);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-snug);
+}
+
+/* 섹션 제목 (필수/선택 구분) */
+.sectionTitle {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-sm);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--sp-md);
+}
+.sectionTitle:not(:first-of-type) { margin-top: var(--sp-xl); }
+.sectionTag {
+  font-size: var(--fs-cap);
+  font-weight: var(--fw-regular);
+  color: var(--text-faint);
+}
+
 /* 폼 본문 — airy: 필드 간격 넉넉, 라벨 또렷 */
 .form {
   display: flex;
@@ -56,17 +125,24 @@
   font-weight: var(--fw-semibold);
   margin-bottom: var(--sp-sm);
 }
-.optional {
-  margin-left: var(--sp-xs);
-  font-size: var(--fs-cap);
-  color: var(--text-faint);
-  font-weight: var(--fw-regular);
+.required {
+  margin-left: 2px;
+  color: var(--accent-deep);
+  font-weight: var(--fw-bold);
 }
 .hint {
   margin-top: var(--sp-sm);
   font-size: var(--fs-cap);
   color: var(--text-dim);
   line-height: var(--lh-snug);
+}
+/* 출생연도 → "○○년생" 즉시 확인 */
+.yearHint {
+  margin-top: var(--sp-sm);
+  font-size: var(--fs-cap);
+  color: var(--accent-deep);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
 }
 
 /* 고령 배려: 입력 글자 크게(본문 16px+) */
@@ -82,6 +158,12 @@
 .submit {
   font-size: var(--fs-body);
   padding: var(--sp-md);
+}
+.requiredHint {
+  margin: var(--sp-sm) 0 0;
+  text-align: center;
+  font-size: var(--fs-cap);
+  color: var(--text-dim);
 }
 .foot {
   margin-top: var(--sp-md);

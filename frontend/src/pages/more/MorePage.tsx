@@ -1,8 +1,16 @@
-import { PersonIcon, MedKitIcon, ChevronRight } from '../../components/icons'
+import { PersonIcon, MedKitIcon, BookIcon, ChevronRight } from '../../components/icons'
 import styles from './MorePage.module.css'
 
-/* 기타 = 메뉴 (내 정보 입력 / 증상별 약 추천) */
-export default function MorePage({ onProfile, onSymptom }: { onProfile: () => void; onSymptom: () => void }) {
+/* 기타 = 메뉴 (내 정보 입력 / 증상별 약 추천 / 전체 알약 사전) */
+export default function MorePage({
+  onProfile,
+  onSymptom,
+  onAllPills,
+}: {
+  onProfile: () => void
+  onSymptom: () => void
+  onAllPills: () => void
+}) {
   return (
     <div className="screen screen--scroll">
       <h1 className="page-title">기타</h1>
@@ -23,6 +31,15 @@ export default function MorePage({ onProfile, onSymptom }: { onProfile: () => vo
           <span className={styles.body}>
             <span className={`more-title ${styles.title}`}>증상별 약 추천</span>
             <span className={`more-desc ${styles.desc}`}>증상을 입력하면 일반의약품을 추천</span>
+          </span>
+          <span className={`more-chev ${styles.chev}`}><ChevronRight /></span>
+        </button>
+
+        <button className={`more-item ${styles.item}`} onClick={onAllPills}>
+          <span className={`more-icon ${styles.icon}`}><BookIcon size={24} /></span>
+          <span className={styles.body}>
+            <span className={`more-title ${styles.title}`}>전체 알약 사전</span>
+            <span className={`more-desc ${styles.desc}`}>데이터셋에 등록된 모든 약을 검색·열람</span>
           </span>
           <span className={`more-chev ${styles.chev}`}><ChevronRight /></span>
         </button>

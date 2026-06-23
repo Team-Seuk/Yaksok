@@ -23,16 +23,21 @@
   flex-direction: column;
 }
 
-/* ---- 빈 상태 — 스크롤 영역 중앙 ---- */
+/* ---- 빈 상태 — 안내 인트로 + 최근 대화 기록 ---- */
 .empty {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: var(--sp-xl);
+  padding: var(--sp-xl) var(--sp-sm) var(--sp-lg);
+}
+.intro {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: var(--sp-lg);
   text-align: center;
-  padding: var(--sp-2xl) var(--sp-sm);
+  padding: var(--sp-md) 0 var(--sp-sm);
 }
 .emptyAvatar {
   width: 56px;
@@ -90,6 +95,69 @@
 .exampleChip:hover {
   background: var(--accent-fog);
 }
+
+/* ---- 최근 대화 기록 ---- */
+.recent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+.recentHead {
+  font-size: var(--fs-cap);
+  color: var(--text-dim);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.01em;
+  margin: 0 var(--sp-xs);
+}
+.recentList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.recentCard {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-md);
+  box-shadow: var(--shadow-card);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+.recentCard:hover { border-color: var(--accent-line); }
+.recentCard:active { transform: translateY(1px); }
+.recentBody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--sp-xs); }
+.recentTitle {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recentPreview {
+  font-size: var(--fs-cap);
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recentWhen {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.recentChev { display: flex; color: var(--text-faint); flex-shrink: 0; }
 
 /* ---- 말풍선 ---- */
 .list {

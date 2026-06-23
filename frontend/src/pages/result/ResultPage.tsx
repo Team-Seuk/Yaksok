@@ -18,13 +18,6 @@ const CAUTIONS = [
   '증상이 3일 넘게 이어지면 약사·의사와 상담하세요.',
 ]
 
-type Session = { id: number; question: string; date: string }
-const SESSIONS: Session[] = [
-  { id: 1, question: '공복에 먹어도 되나요?', date: '6/14 17:03' },
-  { id: 2, question: '두통에 몇 알이 적당해요?', date: '6/14 09:20' },
-  { id: 3, question: '감기약이랑 같이 먹어도 되나요?', date: '6/11 22:15' },
-]
-
 /* 화면 내 인라인 SVG (icons.tsx 미보유 아이콘) */
 function ClockIcon() {
   return (
@@ -61,25 +54,14 @@ function ShieldIcon() {
     </svg>
   )
 }
-function QuoteIcon() {
-  return (
-    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M5.5 19.5l1.6-3.5A7 7 0 1 1 12 19a7 7 0 0 1-3-.7z" />
-    </svg>
-  )
-}
-
 const FACT_ICONS = [<ClockIcon />, <DropIcon />, <CalendarIcon />]
 
 export default function ResultPage({
   onBack,
   onNewSession,
-  onOpenSession,
 }: {
   onBack: () => void
   onNewSession?: () => void
-  onOpenSession?: (id: number) => void
 }) {
   return (
     <div className="result">
@@ -134,29 +116,17 @@ export default function ResultPage({
           </ul>
         </section>
 
-        {/* 대화 세션 목록 — 새 대화 강조 */}
-        <h2 className={`${styles.sectionHead} ${styles.sessHead}`}>
-          대화 목록
-          <span className={styles.sessCount}>{SESSIONS.length}개</span>
-        </h2>
+        {/* 이 약에 대해 물어보기 — 대화 기록은 '대화' 탭으로 분리, 여기선 새 대화만 */}
+        <h2 className={`${styles.sectionHead} ${styles.sessHead}`}>더 궁금한 점이 있나요?</h2>
         <div className={styles.sessList}>
           <button className={styles.newCard} onClick={onNewSession}>
             <span className={styles.newIcon}><PlusIcon /></span>
             <span className={styles.newBody}>
-              <span className={styles.newTitle}>새 대화 시작하기</span>
-              <span className={styles.newDesc}>이 약에 대해 무엇이든 물어보세요</span>
+              <span className={styles.newTitle}>이 약에 대해 물어보기</span>
+              <span className={styles.newDesc}>복용 시간·주의사항 등 무엇이든 편하게</span>
             </span>
+            <span className={styles.newChev}><ChevronRight /></span>
           </button>
-          {SESSIONS.map((s) => (
-            <button key={s.id} className={styles.sessCard} onClick={() => onOpenSession?.(s.id)}>
-              <span className={styles.sessQuoteIcon}><QuoteIcon /></span>
-              <span className={styles.sessBody}>
-                <span className={styles.sessQ}>{s.question}</span>
-                <span className={styles.sessDate}>{s.date}</span>
-              </span>
-              <span className={styles.sessChev}><ChevronRight /></span>
-            </button>
-          ))}
         </div>
       </div>
     </div>

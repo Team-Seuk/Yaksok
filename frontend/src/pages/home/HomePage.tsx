@@ -1,9 +1,18 @@
 /* 홈 = AI가 정리해주는 맞춤 대시보드 (스텁).
    상단 '오늘의 한마디'(LLM 한 줄)가 주인공, 그 아래 복약·이번 주 요약 카드.
    본격 대시보드(실데이터/통계)는 후속 스펙. 지금은 더미 + 건강정보로 가볍게 개인화. */
+import { useNavigate } from 'react-router-dom'
 import PillImage from '../../components/PillImage'
+import { ChevronRight } from '../../components/icons'
 import { loadHealth } from '../../lib/storage'
 import styles from './HomePage.module.css'
+
+/* 최근 대화 — 마지막 세션을 한 줄로 요약(프로토타입: 더미). 실제론 LLM이 세션 종료 시 생성. */
+const RECENT_CHAT = {
+  when: '어제',
+  summary:
+    '이지엔6프로를 빈속에 먹어도 되는지 물어봤고, 위가 예민하면 식후 30분 복용을 권하며 야간 복용 시 가벼운 음식과 함께 들라고 안내했어요.',
+}
 
 /* 오늘 날짜 — "6월 22일 일요일" */
 function todayLabel(): string {
@@ -31,6 +40,7 @@ function buildDoses(): Dose[] {
 }
 
 export default function HomePage() {
+  const navigate = useNavigate()
   const doses = buildDoses()
   const takenCount = doses.filter((d) => d.taken).length
 
@@ -51,6 +61,19 @@ export default function HomePage() {
           오후엔 수분을 충분히 드세요. 지금 복용 중인 약은 공복 자극이 적은 편이라 식후가 아니어도 괜찮아요.
         </p>
       </section>
+
+      {/* 최근 대화 — 마지막 세션 한 줄 요약 */}
+      <button className={styles.recent} onClick={() => navigate('/chat')} aria-label="최근 대화 이어보기">
+        <div className={styles.recentHead}>
+          <span className={styles.recentLabel}>최근 대화</span>
+          <span className={styles.recentWhen}>{RECENT_CHAT.when}</span>
+        </div>
+        <p className={styles.recentBody}>{RECENT_CHAT.summary}</p>
+        <span className={styles.recentMore}>
+          대화 이어보기
+          <ChevronRight size={16} />
+        </span>
+      </button>
 
       {/* 오늘의 복약 */}
       <section className={`card ${styles.block}`} aria-labelledby="home-dose">

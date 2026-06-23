@@ -1,63 +1,4 @@
-/* 내 기록(알약사전) 화면 — 다정·airy 정제. 값은 전부 토큰. */
-
-/* ---- 이번 주 복약 요약 (디자인 키트 '진행률 링 + 통계' 패턴, 민트 테마) ---- */
-.summary {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-lg);
-  background: linear-gradient(180deg, var(--accent-soft), var(--bg-elev) 62%);
-  border: 1px solid var(--accent-line);
-  border-radius: var(--radius-lg);
-  padding: var(--sp-lg);
-  box-shadow: var(--shadow-card);
-  margin-bottom: var(--sp-md);
-}
-.ring {
-  position: relative;
-  width: 84px;
-  height: 84px;
-  flex-shrink: 0;
-}
-.ringSvg { width: 100%; height: 100%; display: block; }
-.ringTrack { fill: none; stroke: var(--accent-soft); stroke-width: 8; }
-.ringFill { fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; }
-.ringPct {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--fs-lg);
-  font-weight: var(--fw-bold);
-  color: var(--accent-deep);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-}
-.ringUnit { font-size: var(--fs-xs); font-weight: var(--fw-semibold); margin-left: 1px; }
-.summaryBody {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-.summaryEyebrow { font-size: var(--fs-cap); color: var(--text-dim); font-weight: var(--fw-semibold); }
-.summaryLead {
-  font-size: var(--fs-h2);
-  font-weight: var(--fw-bold);
-  letter-spacing: -0.01em;
-  line-height: var(--lh-tight);
-  margin-top: var(--sp-xs);
-}
-.summaryStats {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-sm);
-  margin-top: var(--sp-sm);
-  font-size: var(--fs-cap);
-  color: var(--text-dim);
-}
-.summaryStats b { color: var(--text); font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
-.statDot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-faint); flex-shrink: 0; }
+/* 알약사전 화면 — 대화 중 만난 약을 사전 항목으로. 다정·airy. 값은 전부 토큰. */
 
 .list {
   display: flex;
@@ -65,7 +6,7 @@
   gap: var(--sp-md);
 }
 
-/* ---- 기록 카드 ---- */
+/* ---- 사전 항목 카드 ---- */
 .card {
   display: flex;
   gap: var(--sp-md);
@@ -111,11 +52,11 @@
   min-width: 0;
 }
 
-/* ---- 머리(이름 + 날짜) ---- */
+/* ---- 머리(이름 + chevron) ---- */
 .head {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: flex-start;
   gap: var(--sp-sm);
 }
 .name {
@@ -125,67 +66,44 @@
   line-height: var(--lh-tight);
   word-break: keep-all;
 }
-.date {
-  font-size: var(--fs-xs);
+.chev {
+  display: flex;
   color: var(--text-faint);
   flex-shrink: 0;
-  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+}
+.card:hover .chev {
+  color: var(--accent);
 }
 
-/* ---- 용법·용량 ---- */
-.dosage {
-  display: block;
+/* ---- 성분·분류 태그 ---- */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-xs) var(--sp-sm);
+  margin-top: var(--sp-sm);
+}
+.ingredient {
+  font-size: var(--fs-cap);
+  color: var(--text-dim);
+  font-weight: var(--fw-medium);
+}
+.category {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--accent-deep);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-pill);
+  padding: 2px var(--sp-sm);
+}
+
+/* ---- 한 줄 설명 ---- */
+.summary {
+  margin: var(--sp-sm) 0 0;
   font-size: var(--fs-sm);
   color: var(--text-dim);
   line-height: var(--lh-snug);
-  margin-top: var(--sp-sm);
-}
-
-/* ---- 주의(안전정보) — 명료히 분리·강조 ---- */
-.caution {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--sp-sm);
-  margin-top: var(--sp-md);
-  padding: var(--sp-sm) var(--sp-md);
-  background: var(--warn-soft);
-  border: 1px solid var(--warn-line);
-  border-radius: var(--radius-sm);
-  color: var(--warn);
-}
-.cautionIcon {
-  flex-shrink: 0;
-  display: flex;
-  margin-top: 1px;
-}
-.cautionBody {
-  min-width: 0;
-}
-.cautionLabel {
-  display: block;
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-bold);
-  letter-spacing: 0.01em;
-}
-.cautionText {
-  display: block;
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-medium);
-  line-height: var(--lh-snug);
-  margin-top: var(--sp-xs);
-}
-
-/* ---- 카드 꼬리(이어 묻기 안내) ---- */
-.foot {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-xs);
-  margin-top: var(--sp-md);
-  font-size: var(--fs-cap);
-  font-weight: var(--fw-semibold);
-  color: var(--accent-deep);
-}
-.footChev {
-  display: flex;
-  color: var(--accent);
+  text-wrap: pretty;
 }

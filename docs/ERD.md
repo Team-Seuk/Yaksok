@@ -1,7 +1,8 @@
 # Yaksok — ERD (데이터 모델)
 
 > 데이터 모델의 단일 출처. 목표/결정 맥락은 [PLAN.md](../PLAN.md), 문서 규칙은 [CONVENTIONS.md](../CONVENTIONS.md).
-> **상태**: v1.3 (2026-06-22) · 대상 DB **PostgreSQL**.
+> **상태**: v1.4 (2026-06-23) · 대상 DB **PostgreSQL**.
+> **v1.4 변경**: `health_profiles`에 선택 입력 3개 컬럼 추가 — `blood_pressure`(혈압, 예 "120/80")·`medical_history`(병력)·`bmi`. 모두 nullable(선택). 출생연도·성별·임신/수유는 필수, 나머지는 건강검진/검사 결과 문서 촬영으로 자동 채우거나 사용자가 직접 입력.
 > **v1.3 변경**: 실제 화면 의도와의 정합 정제(테이블 12개 유지). ①`conversations` 약 참조 정본화(약=`pill_item_seq`, `scan_id`=출처 기록용 → 이중 도출 제거). ②`symptom_queries.conversation_id` 제거(증상 추천은 독립 원샷 플로우라 미사용). ③`symptom_recommendations`: `pill_item_seq` nullable + `item_name` 스냅샷(추천 OTC가 `pills` 캐시에 없어도 보존). ④cross-domain 참조를 논리참조(`FK?`)로 일관화, `sex`/`role`/`status` CHECK·`updated_at` 트리거 명시. ⑤`pill_allergens` 성분 데이터 소스 미확인 caveat.
 > **v1.2 변경**: 기능 연결 5개 반영. ①알레르기↔약: 성분 마스터 `allergens` + `pill_allergens`(약↔성분 M:N) 신설, `allergies`가 `allergen_id`로 성분 참조 → "못 먹는 약" 판정. ②약↔증상추천: `symptom_recommendations`(증상추천↔약 M:N) 신설. ③증상추천↔대화세션: `symptom_queries.conversation_id`. ④증상추천↔건강정보: `symptom_queries.profile_id`. ⑤건강정보↔대화세션: `conversations.profile_id`. 테이블 9 → **12개**.
 > **v1.1 변경**: `summaries`(버전 누적 요약) 테이블 제거 → `conversations.summary`(한 줄 요약)로 흡수. `conversations.title` 제거(요약으로 목록 표시 통일). `conversations`를 "대화 세션"(클로드 채팅처럼 세션 단위로 저장)으로 정리. 테이블 10 → 9개.
@@ -54,6 +55,9 @@ erDiagram
     text sex "M|F|other"
     boolean is_pregnant
     boolean is_breastfeeding
+    text blood_pressure "선택 · 예 120/80"
+    text medical_history "선택 · 병력"
+    numeric bmi "선택"
     timestamptz updated_at
   }
   medications {
@@ -154,10 +158,13 @@ users
 health_profiles                          -- users 1:1
   id               bigserial PK
   user_id          bigint FK->users UNIQUE NOT NULL
-  birth_year       int
-  sex              text                  -- CHECK 'M' | 'F' | 'other'
-  is_pregnant      boolean DEFAULT false
-  is_breastfeeding boolean DEFAULT false
+  birth_year       int                   -- 필수
+  sex              text                  -- 필수, CHECK 'M' | 'F' | 'other'
+  is_pregnant      boolean DEFAULT false -- 필수
+  is_breastfeeding boolean DEFAULT false -- 필수
+  blood_pressure   text                  -- 선택, 예 '120/80'
+  medical_history  text                  -- 선택, 병력(자유 입력)
+  bmi              numeric               -- 선택
   updated_at       timestamptz DEFAULT now()
 
 medications                              -- health_profiles 1:N (복용약)

@@ -49,7 +49,24 @@
 
   /* ---- z-index 고정 스케일 ---- */
   --z-base: 0; --z-tabbar: 100; --z-overlay: 200; --z-modal: 300; --z-toast: 400;
+
+  /* ---- 스크롤바 (앱용: 가늘고, 평소 투명 · 스크롤 중에만 노출) ---- */
+  --scrollbar-thumb: rgba(20, 40, 38, 0.28);
 }
+
+/* 데스크톱 기본 스크롤바(두꺼운 PC 바)를 앱처럼 가늘게 + 평소 투명하게.
+   .is-scrolling(스크롤 중)일 때만 thumb가 보인다. main.tsx의 initScrollbarAutohide가 토글. */
+:root { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+.is-scrolling { scrollbar-color: var(--scrollbar-thumb) transparent; }
+
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: var(--radius-pill);
+  transition: background var(--duration-normal) var(--ease-out);
+}
+.is-scrolling::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); }
 
 * { box-sizing: border-box; }
 html, body, #root { margin: 0; height: 100%; }

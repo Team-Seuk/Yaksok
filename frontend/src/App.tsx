@@ -15,6 +15,7 @@ import ResultPage from './pages/result/ResultPage'
 import ConversationPage from './pages/conversation/ConversationPage'
 import ProfilePage from './pages/profile/ProfilePage'
 import SymptomPage from './pages/symptom/SymptomPage'
+import AllPillsPage from './pages/allpills/AllPillsPage'
 import { hasHealth } from './lib/storage'
 
 /* 앱 셸 + 온보딩 가드: 건강정보가 없으면 내 정보 입력(/profile)으로 보낸다. */
@@ -58,8 +59,14 @@ function MoreRoute() {
     <MorePage
       onProfile={() => navigate('/profile', { state: { from: 'more' } })}
       onSymptom={() => navigate('/symptom')}
+      onAllPills={() => navigate('/all-pills')}
     />
   )
+}
+
+function AllPillsRoute() {
+  const navigate = useNavigate()
+  return <AllPillsPage onBack={() => navigate(-1)} />
 }
 
 function ResultRoute() {
@@ -69,7 +76,6 @@ function ResultRoute() {
     <ResultPage
       onBack={() => navigate(-1)}
       onNewSession={() => navigate(`/conversation/new?pill=${id ?? ''}`)}
-      onOpenSession={(sid) => navigate(`/conversation/${sid}`)}
     />
   )
 }
@@ -113,6 +119,7 @@ export default function App() {
           <Route path="/pill/:id" element={<ResultRoute />} />
           <Route path="/conversation/:id" element={<ConversationRoute />} />
           <Route path="/symptom" element={<SymptomRoute />} />
+          <Route path="/all-pills" element={<AllPillsRoute />} />
           <Route path="/profile" element={<ProfileRoute />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

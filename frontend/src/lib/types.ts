@@ -11,7 +11,9 @@ export interface User {
   nickname: string | null
 }
 
-/** health_profiles — users 1:1 (한 유저당 건강정보 1개) */
+/** health_profiles — users 1:1 (한 유저당 건강정보 1개)
+   birthYear·sex·임신/수유는 필수 입력. 아래 3개(혈압·병력·BMI)는 선택 입력으로,
+   건강검진 등 문서 촬영으로 자동 채우거나 사용자가 직접 입력한다. */
 export interface HealthProfile {
   id: ID
   userId: ID // FK → User.id
@@ -19,6 +21,9 @@ export interface HealthProfile {
   sex: 'M' | 'F' | 'other'
   isPregnant: boolean
   isBreastfeeding: boolean
+  bloodPressure: string | null // 선택 · 예: "120/80"
+  medicalHistory: string | null // 선택 · 병력(자유 입력)
+  bmi: number | null // 선택
 }
 
 /** medications — health_profiles 1:N (복용약 목록) */

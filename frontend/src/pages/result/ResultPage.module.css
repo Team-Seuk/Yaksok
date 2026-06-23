@@ -178,16 +178,11 @@
   background: var(--warn);
 }
 
-/* ---- 대화 세션 목록 ---- */
+/* ---- 이 약에 대해 물어보기 (대화 기록은 '대화' 탭으로 분리) ---- */
 .sessHead {
   display: flex;
   align-items: baseline;
   gap: var(--sp-sm);
-}
-.sessCount {
-  font-size: var(--fs-xs);
-  color: var(--text-faint);
-  font-weight: var(--fw-regular);
 }
 
 .sessList {
@@ -235,55 +230,7 @@
   color: rgba(255, 255, 255, 0.85);
   margin-top: var(--sp-xs);
 }
-
-/* 지난 세션 카드 */
-.sessCard {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-md);
-  width: 100%;
-  text-align: left;
-  color: inherit;
-  cursor: pointer;
-  background: var(--bg-elev);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--sp-md);
-  min-height: 44px;
-  transition: border-color var(--duration-fast) var(--ease-out),
-    transform var(--duration-fast) var(--ease-out);
-}
-.sessCard:hover { border-color: var(--border-strong); }
-.sessCard:active { transform: translateY(1px); }
-
-.sessQuoteIcon {
-  width: 34px;
-  height: 34px;
-  border-radius: var(--radius-sm);
-  flex-shrink: 0;
-  background: var(--accent-soft);
-  color: var(--accent-deep);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sessBody { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.sessQ {
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-semibold);
-  line-height: var(--lh-snug);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.sessDate {
-  font-size: var(--fs-xs);
-  color: var(--text-faint);
-  margin-top: var(--sp-xs);
-  font-variant-numeric: tabular-nums;
-}
-.sessChev { color: var(--text-faint); flex-shrink: 0; display: flex; }
+.newChev { display: flex; flex-shrink: 0; color: rgba(255, 255, 255, 0.85); }
 
 @keyframes rise {
   from { opacity: 0; transform: translateY(8px); }
