@@ -39,9 +39,9 @@ export default function Splash({ onDone }: { onDone: () => void }) {
 
         <div className={styles.capsule} aria-hidden="true">
           <span className={`${styles.half} ${phase >= 1 ? styles.splitL : ''}`}>
-            <svg width="82" height="52" viewBox="0 0 82 52" fill="none">
-              <rect x="0" y="0" width="82" height="52" rx="26" fill="var(--accent)" />
-              <rect x="0" y="0" width="82" height="52" rx="26" fill="url(#splashGlossL)" />
+            <svg width="64" height="52" viewBox="0 0 64 52" fill="none">
+              <path d="M64 0 H26 A26 26 0 0 0 26 52 H64 Z" fill="var(--accent)" />
+              <path d="M64 0 H26 A26 26 0 0 0 26 52 H64 Z" fill="url(#splashGlossL)" />
               <defs>
                 <radialGradient id="splashGlossL" cx="35%" cy="22%" r="65%">
                   <stop offset="0%" stopColor="#ffffff" stopOpacity="0.40" />
@@ -51,21 +51,17 @@ export default function Splash({ onDone }: { onDone: () => void }) {
             </svg>
           </span>
           <span className={`${styles.half} ${styles.halfR} ${phase >= 1 ? styles.splitR : ''}`}>
-            <svg width="82" height="52" viewBox="0 0 82 52" fill="none">
-              <rect x="0" y="0" width="82" height="52" rx="26" fill="var(--bg-elev)" />
-              <rect
-                x="0.5"
-                y="0.5"
-                width="81"
-                height="51"
-                rx="25.5"
+            <svg width="64" height="52" viewBox="0 0 64 52" fill="none">
+              <path d="M0 0 H38 A26 26 0 0 1 38 52 H0 Z" fill="var(--bg-elev)" />
+              <path
+                d="M0.5 0.5 H38 A25.5 25.5 0 0 1 38 51.5 H0.5 Z"
                 fill="none"
                 stroke="var(--accent)"
                 strokeWidth="1"
                 strokeOpacity="0.3"
               />
-              <rect x="0" y="0" width="82" height="52" rx="26" fill="url(#splashGlossR)" />
-              <line x1="2" y1="8" x2="2" y2="44" stroke="var(--accent)" strokeWidth="1.5" strokeOpacity="0.5" />
+              <path d="M0 0 H38 A26 26 0 0 1 38 52 H0 Z" fill="url(#splashGlossR)" />
+              <line x1="1" y1="8" x2="1" y2="44" stroke="var(--accent)" strokeWidth="1.5" strokeOpacity="0.5" />
               <defs>
                 <radialGradient id="splashGlossR" cx="60%" cy="22%" r="55%">
                   <stop offset="0%" stopColor="#ffffff" stopOpacity="0.70" />
