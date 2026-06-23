@@ -17,8 +17,8 @@ export default function Splash({ onDone }: { onDone: () => void }) {
     const timers = [
       setTimeout(() => setPhase(1), 500),
       setTimeout(() => setPhase(2), 950),
-      setTimeout(() => setLeaving(true), 1600),
-      setTimeout(onDone, 1950),
+      setTimeout(() => setLeaving(true), 2000),
+      setTimeout(onDone, 2350),
     ]
     return () => timers.forEach(clearTimeout)
   }, [onDone])
@@ -61,7 +61,6 @@ export default function Splash({ onDone }: { onDone: () => void }) {
                 strokeOpacity="0.3"
               />
               <path d="M0 0 H38 A26 26 0 0 1 38 52 H0 Z" fill="url(#splashGlossR)" />
-              <line x1="1" y1="8" x2="1" y2="44" stroke="var(--accent)" strokeWidth="1.5" strokeOpacity="0.5" />
               <defs>
                 <radialGradient id="splashGlossR" cx="60%" cy="22%" r="55%">
                   <stop offset="0%" stopColor="#ffffff" stopOpacity="0.70" />

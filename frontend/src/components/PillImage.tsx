@@ -121,7 +121,6 @@ export default function PillImage({ look, size = 56 }: { look: PillLook; size?: 
           <path d="M17 25h15v14H17a7 7 0 0 1 0-14z" fill={color} />
           {/* 이음새: 좌측 캡이 우측을 살짝 덮는 결합부 */}
           <path d="M30 25h2v14h-2z" fill={color} />
-          <line x1="32" y1="25.4" x2="32" y2="38.6" stroke={EDGE} strokeWidth="1" />
           {/* 전체 음영 + 외곽선 */}
           <rect x="10" y="25" width="44" height="14" rx="7" fill={`url(#${shadeId})`} />
           <rect x="10" y="25" width="44" height="14" rx="7" fill="none" stroke={EDGE} strokeWidth="1" />
