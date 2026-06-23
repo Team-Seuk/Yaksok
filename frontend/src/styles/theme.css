@@ -3,6 +3,28 @@
    모바일 폭(440px) 중앙 정렬 앱 셸. 값은 전부 토큰 — 하드코딩 금지. */
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
 
+/* 제목용 디스플레이 폰트 — Nanum Square (정적 4종) */
+@font-face {
+  font-family: 'Nanum Square';
+  src: url('/fonts/NanumSquareL.ttf') format('truetype');
+  font-weight: 300; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Nanum Square';
+  src: url('/fonts/NanumSquareR.ttf') format('truetype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Nanum Square';
+  src: url('/fonts/NanumSquareB.ttf') format('truetype');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Nanum Square';
+  src: url('/fonts/NanumSquareEB.ttf') format('truetype');
+  font-weight: 800; font-style: normal; font-display: swap;
+}
+
 :root {
   /* ---- 색 (화면당 강조 1개: 민트) ---- */
   --bg: #eef2f3;
@@ -36,10 +58,11 @@
 
   /* ---- 타이포 ---- */
   --font-sans: 'Pretendard Variable', 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  --font-display: 'Nanum Square', var(--font-sans);
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
   --fs-display: 26px; --fs-h1: 22px; --fs-h2: 18px; --fs-lg: 17px;
   --fs-body: 16px; --fs-sm: 15px; --fs-cap: 13px; --fs-xs: 12px;
-  --fw-regular: 450; --fw-medium: 550; --fw-semibold: 650; --fw-bold: 800;
+  --fw-regular: 400; --fw-medium: 500; --fw-semibold: 650; --fw-bold: 800;
   --lh-tight: 1.2; --lh-snug: 1.4; --lh-body: 1.65;
 
   /* ---- 모션 (medium) ---- */
@@ -76,11 +99,13 @@ body {
   color: var(--text);
   font-family: var(--font-sans);
   font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 button { font-family: inherit; }
+h1, h2 { font-family: var(--font-display); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) {
