@@ -117,7 +117,7 @@ button { font-family: inherit; }
 }
 
 /* ---- 타이포 / 페이지 헬퍼 ---- */
-.back-row { margin: calc(-1 * var(--sp-xs)) 0 var(--sp-xs) calc(-1 * var(--sp-xs)); }
+.back-row { margin: calc(-1 * var(--sp-xs)) 0 var(--sp-xs) calc(-1 * var(--sp-xs)); align-self: flex-start; }
 .page-title {
   font-size: var(--fs-h1); font-weight: var(--fw-bold);
   letter-spacing: -0.02em; line-height: var(--lh-tight);
