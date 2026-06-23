@@ -92,10 +92,10 @@
   opacity: 0;
 }
 .brandOn .name {
-  animation: wordmarkRise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: wordmarkRise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .brandOn .tagline {
-  animation: taglineFade 0.5s var(--ease-out) 0.15s both;
+  animation: taglineFade 0.9s var(--ease-out) 0.25s both;
 }
 
 .skip {
@@ -110,11 +110,11 @@
   to { opacity: 1; transform: scale(1); }
 }
 @keyframes wordmarkRise {
-  from { clip-path: inset(100% 0 0 0); opacity: 0; transform: translateY(8px); }
+  from { clip-path: inset(0 0 100% 0); opacity: 0; transform: translateY(-8px); }
   to { clip-path: inset(0 0 0 0); opacity: 1; transform: translateY(0); }
 }
 @keyframes taglineFade {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(-6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
