@@ -1,0 +1,258 @@
+/* 카메라 모드 = 카메라 뷰파인더가 주인공. 다정·안심 무드, airy. 값 전부 토큰. */
+
+.home {
+  flex: 1;
+  min-height: 0;            /* flex 자식이 줄어들어 overflow 스크롤이 동작하도록 */
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-lg) var(--sp-md) var(--sp-xl);
+  gap: var(--sp-lg);
+  overflow-y: auto;
+}
+
+/* ---- 인사 헤더 ---- */
+.greeting {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-xs);
+}
+.greetingTitle {
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.02em;
+  line-height: var(--lh-tight);
+  text-wrap: balance;
+  margin: 0;
+}
+.greetingSub {
+  font-size: var(--fs-cap);
+  color: var(--text-dim);
+  line-height: var(--lh-snug);
+  text-wrap: pretty;
+  margin: 0;
+}
+
+/* ---- 뷰파인더 무대 ---- */
+.stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-lg);
+  min-height: 0;
+}
+
+.viewfinder {
+  position: relative;
+  width: 264px;
+  height: 264px;
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(120% 120% at 50% 28%, var(--accent-fog), transparent 62%),
+    var(--bg-elev);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 32px var(--accent-fog);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* 코너 프레임 가이드 */
+.corner {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 2.4px solid var(--accent);
+  border-radius: var(--radius-sm);
+}
+.cornerTL { top: var(--sp-md); left: var(--sp-md); border-right: none; border-bottom: none; }
+.cornerTR { top: var(--sp-md); right: var(--sp-md); border-left: none; border-bottom: none; }
+.cornerBL { bottom: var(--sp-md); left: var(--sp-md); border-right: none; border-top: none; }
+.cornerBR { bottom: var(--sp-md); right: var(--sp-md); border-left: none; border-top: none; }
+
+/* 알약 가이드 실루엣 — 은은하게 */
+.silhouette {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+  animation: breathe 3.6s var(--ease-out) infinite;
+}
+@keyframes breathe {
+  0%, 100% { opacity: 0.34; transform: scale(0.98); }
+  50% { opacity: 0.58; transform: scale(1); }
+}
+
+/* 인식 중 스캔 라인 */
+.scanline {
+  position: absolute;
+  left: var(--sp-lg);
+  right: var(--sp-lg);
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  box-shadow: 0 0 12px var(--accent-line);
+  animation: sweep 1.8s var(--ease-out) infinite;
+}
+@keyframes sweep {
+  0% { transform: translateY(-94px); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateY(94px); opacity: 0; }
+}
+
+.spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--accent-soft);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 권한 거부 상태 — 뷰파인더 안 메시지 */
+.denied {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-sm);
+  text-align: center;
+  padding: 0 var(--sp-lg);
+}
+.deniedIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius);
+  background: var(--warn-soft);
+  color: var(--warn);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.deniedTitle {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-bold);
+  color: var(--text);
+}
+.deniedDesc {
+  font-size: var(--fs-cap);
+  color: var(--text-dim);
+  line-height: var(--lh-body);
+  max-width: 24ch;
+  text-wrap: pretty;
+}
+
+/* ---- 무대 캡션 + 안심 카피 ---- */
+.caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-xs);
+  text-align: center;
+}
+.captionMain {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+}
+.captionSub {
+  font-size: var(--fs-cap);
+  color: var(--text-dim);
+  line-height: var(--lh-snug);
+  text-wrap: pretty;
+}
+
+/* ---- 주 동작 영역 ---- */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+.shutter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-sm);
+}
+
+/* ---- 안심 도움말 카드 ---- */
+.tips {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+  padding: var(--sp-lg);
+}
+.tipsHead {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+}
+.tipsTitle {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  color: var(--text);
+}
+.tipList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tipItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-sm);
+  font-size: var(--fs-cap);
+  color: var(--text-dim);
+  line-height: var(--lh-snug);
+}
+.tipMark {
+  flex-shrink: 0;
+  color: var(--accent-deep);
+  display: flex;
+  margin-top: 1px;
+}
+
+/* ---- 데모 상태 토글 (프로토타입 전용) ---- */
+.demoBar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  flex-wrap: wrap;
+}
+.demoLabel {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  font-weight: var(--fw-medium);
+}
+.demoToggle {
+  display: flex;
+  gap: var(--sp-xs);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-xs);
+}
+.demoBtn {
+  padding: var(--sp-xs) var(--sp-sm);
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+}
+.demoBtnOn {
+  background: var(--bg-elev-2);
+  color: var(--text);
+  border-color: var(--border-strong);
+  font-weight: var(--fw-bold);
+}

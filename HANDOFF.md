@@ -1,7 +1,7 @@
 ---
 status: 개발
 updated: 2026-06-22
-summary: repo·표기명 `pill_recognition`→**Yaksok** 통일(로컬·GitHub·remote·코드/문서, PR #11). 협업 게이트를 **위험도 기반**으로 재편(일반 파일 아무나 1명·위험구역만 PL+PO, 셀프승인 데드락 제거)+CONTRIBUTING에 온보딩(세팅·승인흐름·역할) 통합(PR #10), `protect-main` 룰셋에 PO(@bestcow) `always`-bypass 부여(전권). 코드·기능은 그대로: 백엔드 헥사고날 빈 스캐폴드(uv·py3.12·mypy·import-linter·CI pytest), 프론트 프로토타입 UI 6화면 + 건강정보 localStorage(나머지 더미·미연결). 다음: 백엔드 도메인 로직 또는 프론트 세부 구현.
+summary: **프론트엔드 대개편(M1) 구현 완료** — `feat/design-overhaul` 브랜치(미머지): 디자인 토큰 시스템 완성(`theme.css`)·`react-router-dom` 도입(useState→라우터·온보딩 가드·라우터 탭바)·개별 대화 화면 신설·6화면 폴리시(화면별 CSS Module)+상태 화면·알약 일러스트 시그니처 강화. 정체성=라이트·민트·Pretendard 유지·정제(무드 다정/부드러운/안심·density airy). typecheck/lint/build 그린 + 실렌더 검증, 다음은 리뷰→머지. ／직전: repo·표기명 `pill_recognition`→**Yaksok** 통일(로컬·GitHub·remote·코드/문서, PR #11). 협업 게이트를 **위험도 기반**으로 재편(일반 파일 아무나 1명·위험구역만 PL+PO, 셀프승인 데드락 제거)+CONTRIBUTING에 온보딩(세팅·승인흐름·역할) 통합(PR #10), `protect-main` 룰셋에 PO(@bestcow) `always`-bypass 부여(전권). 코드·기능은 그대로: 백엔드 헥사고날 빈 스캐폴드(uv·py3.12·mypy·import-linter·CI pytest), 프론트 프로토타입 UI 6화면 + 건강정보 localStorage(나머지 더미·미연결). 다음: 백엔드 도메인 로직 또는 프론트 세부 구현.
 repo: Team-Seuk/Yaksok
 ---
 
@@ -10,6 +10,7 @@ repo: Team-Seuk/Yaksok
 > 작업 세션 끝낼 때마다 갱신. 위 frontmatter가 상태의 단일 원본. (CONVENTIONS §4·§5)
 
 ## 마지막 작업
+- **프론트엔드 대개편 = M1 (2026-06-22, `feat/design-overhaul` 브랜치, 미머지)**: 디자인 인터뷰(상위 [`../DESIGN.md`](../DESIGN.md))로 정체성 확정 — **라이트·민트(#0fae97)·Pretendard 유지·정제**, 무드 다정/부드러운/안심, density airy, signature=알약 일러스트. ①**토큰 시스템 완성** `frontend/src/styles/theme.css`: 간격·타이포·모션·z·반경 토큰 신설 + 하드코딩(24/13/11.5px·버튼 그라데이션) 제거 + 솔리드 민트 버튼 + `prefers-reduced-motion` 전역 + 상태(.state)·대화 말풍선 프리미티브. ②**라우터 도입** `react-router-dom@7`: `App.tsx`의 `useState` 화면 전환을 라우트(RootLayout 온보딩 가드 + TabLayout)로 교체, `TabBar` 라우터 기반, route 래퍼가 `useNavigate` 콜백 주입(페이지 props 시그니처 보존). ③**개별 대화 화면 신설** `pages/conversation/ConversationPage`(말풍선+composer). ④**6화면 비주얼 폴리시**(home·cabinet·result·symptom·more·profile, 병렬 에이전트 6기, 화면별 `*.module.css` 격리) + **상태 화면**(홈 카메라 권한거부·인식중, 기록 빈 상태, 증상 빈 상태) + 안전정보(주의사항)를 warn 톤+아이콘+라벨로 분리 강조. ⑤**시그니처 강화** `components/PillImage.tsx`(음영·하이라이트·각인`imprint?`·분할선`scored?`, 하위호환). `vite-env.d.ts` 추가(CSS Module 타입). 검증: `npm run typecheck && lint && build` 그린 + Playwright 7화면 실렌더 확인. 스펙 [docs/FRONTEND-OVERHAUL.md](docs/FRONTEND-OVERHAUL.md). **아직 커밋 안 함** — 변경 파일은 작업트리에 있음.
 - **프로젝트 리네임 + 협업 게이트 개편 (2026-06-22)**: ①레포명 `pill_recognition`→**Yaksok** — 로컬 폴더·GitHub 레포(`Team-Seuk/Yaksok`)·git remote + 코드/문서 표기(README·AGENTS·CONVENTIONS·PLAN·LOG·HANDOFF·docs/ERD·FastAPI title·pyproject·index.html·theme.css·`package(.json/-lock)`=`yaksok-frontend`·`storage.ts` 키 `yaksok:health`) 통일, HANDOFF·LOG 과거 이력은 보존(PR #11). ②CODEOWNERS를 **위험도 기반**으로 재편 — 일반 기능 파일은 오너 미지정→아무 팀원 1명 승인, 위험 공용구역(`core`·의존성·CI·공용 컴포넌트/`api`·설정·문서)만 @suvisdev(PL)+@bestcow(PO) 2명 오너 → 셀프승인 데드락 제거. `프로젝트_시작.txt` 온보딩(세팅·PR 승인 흐름·역할)을 CONTRIBUTING에 통합(PR #10). ③`protect-main` 룰셋 bypass에 Repository admin(=@bestcow) `always` 추가 → PO 전권(승인·CI 없이 머지·직접 push). 두 PR CI(backend/frontend) 그린, admin 머지.
 - **백엔드 도구 _template 표준 정렬 (2026-06-21)**: pip→**uv**(`backend/pyproject.toml`+`uv.lock`, ruff를 런타임→dev로 이동), Python 3.11→**3.12**, ruff 규칙 강화(UP·B·SIM)+`ruff format --check`, **mypy**(strict-ish)·**import-linter** 추가 — THE ONE RULE을 단일 패키지가 아니라 **피처별 계약**(apps.{auth,guidance,pill} adapter→app→domain + 피처 독립 + core 격리, 5계약 KEPT)으로. CI(`check.yml`) backend 잡을 uv 파이프라인으로 교체(pytest 실제 실행, 잡 이름 `backend`/`frontend`는 유지 → branch protection 영향 없음), 스모크 테스트 1개(`apps/pill/tests/test_smoke.py`) 추가. 옛 `requirements*.txt`·`ruff.toml`·`pytest.ini` 제거. CODEOWNERS 죽은 경로 `/backend/app/`→`/backend/apps/`·`/backend/core/`·`pyproject.toml`로 수정. README·AGENTS 실행법 uv로 정합. **구조(feature-first)·프론트·문서 시스템은 그대로.** 검증: ruff·mypy(80파일)·lint-imports(5 KEPT)·pytest(1 passed) 로컬 그린. org도 Team-Seuk로 통일(remote 재지정 예정).
 - **md 문서 정합 (2026-06-19)**: 코드/ERD 변경 대비 stale 문서 수정 — `README.md` 백엔드 실행 `uvicorn app.main:app`→`main:app`(헥사고날 반영, 실행 깨짐 수정), `PLAN.md` 데이터모델 v1.2 반영(증상추천·성분매칭 테이블 추가, 총 12개), `LOG.md` 라벨 제거 한 줄 추가, 본 HANDOFF 머지 상태 갱신.
@@ -30,7 +31,8 @@ repo: Team-Seuk/Yaksok
 - **GitHub push 완료**: private repo `bestcow/pill_recognition` 생성, `main`+`archive/expo-m0`+`expo-m0-final` push. CODEOWNERS는 팀원 아이디 미정이라 전부 `@bestcow`로 임시.
 
 ## 다음 할 일
-- **프론트 세부 구현(진행 중)**: ①세션→개별 대화 화면(말풍선+입력, `messages`) ②내 기록·약품 상세를 더미 대신 저장소 데이터로 연결 ③증상별 추천 결과를 `symptom_queries`로 저장.
+- **대개편 브랜치 처리 (먼저)**: `feat/design-overhaul`를 커밋 → PR. `theme.css`·공용 컴포넌트·`package.json`·문서는 **위험 공용구역**이라 PL(@suvisdev)+PO(@bestcow) 승인 필요(PO 전권 bypass 가능). CI(frontend) 그린 확인 후 머지. **(사람)** 커밋/PR 여부 결정.
+- **프론트 세부 구현(진행 중)**: ①세션→개별 대화 화면 — **대개편에서 골격 신설 완료**(`pages/conversation`), 남은 건 `messages` 실데이터 연결. ②내 기록·약품 상세를 더미 대신 저장소 데이터로 연결 ③증상별 추천 결과를 `symptom_queries`로 저장.
 - **서버 영속화(M5) 때 챙길 ERD 항목**(평가에서 도출, 지금은 불필요): `sex/status/role` CHECK 제약, `conversations.updated_at` 자동 갱신 트리거, "사용자 데이터 조회는 user_id 필터 강제" 명문화, DUR 약물 상호작용 구조화.
 - **CODEOWNERS 위험도 기반 전환 완료 (2026-06-22)**: 일반 기능 파일=오너 미지정(아무나 1명), 위험 공용구역=@suvisdev(PL)+@bestcow(PO). 남음: **(사람)** 팀원 push 권한 확인 — org Base permissions를 Write로 두거나 collaborator(write) 추가.
 - **(사람)** 각 팀원: `backend/.env.example` → `backend/.env` 복사 후 키 채우기. 실제 키는 비번관리자/DM으로 공유(평문·커밋 금지).

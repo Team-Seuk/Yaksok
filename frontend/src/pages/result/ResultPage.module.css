@@ -1,0 +1,241 @@
+/* 약품 상세(결과) 화면 고유 스타일 — 전부 토큰. 무드: 다정/부드러움/안심.
+   전역 .result / .topbar / .result-scroll 위에 화면 고유 위계를 얹는다. */
+
+.scroll {
+  padding-top: var(--sp-md);
+}
+
+/* ---- 약 카드: 알약 일러스트를 시그니처로 크게 ---- */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-md);
+  text-align: center;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-xl) var(--sp-lg) var(--sp-lg);
+  box-shadow: 0 6px 26px var(--accent-fog);
+  animation: rise var(--duration-normal) var(--ease-out) both;
+}
+
+.heroThumb {
+  width: 116px;
+  height: 116px;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+  background: radial-gradient(circle at 50% 40%, var(--accent-soft), var(--accent-fog) 70%, transparent);
+  border: 1px solid var(--accent-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heroName {
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.02em;
+  line-height: var(--lh-tight);
+  text-wrap: balance;
+}
+
+.heroSub {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-xs);
+  margin-top: calc(-1 * var(--sp-xs));
+}
+
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-xs) var(--sp-sm);
+  margin-top: var(--sp-xs);
+}
+
+.metaChip {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: var(--sp-xs) var(--sp-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 섹션 제목 ---- */
+.sectionHead {
+  font-size: var(--fs-cap);
+  color: var(--text-dim);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.01em;
+  margin: var(--sp-xl) var(--sp-xs) var(--sp-md);
+}
+.sectionHead:first-of-type { margin-top: var(--sp-lg); }
+
+/* ---- 요약: 용법·용량은 부드럽게, 주의는 안전정보로 분리·강조 ---- */
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+
+.fact {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-md);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-md);
+}
+
+.factIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.factBody { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+.factLabel {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-faint);
+  letter-spacing: -0.01em;
+}
+
+.factValue {
+  font-size: var(--fs-sm);
+  color: var(--text);
+  line-height: var(--lh-snug);
+  margin-top: var(--sp-xs);
+}
+.factValue strong { font-weight: var(--fw-bold); }
+
+/* 주의 — 안전정보: 경고 톤 + 아이콘 + 라벨로 분리 강조 (색만 X) */
+.caution {
+  background: var(--warn-soft);
+  border: 1px solid var(--warn-line);
+  border-radius: var(--radius);
+  padding: var(--sp-md);
+  margin-top: var(--sp-sm);
+}
+
+.cautionHead {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  color: var(--warn);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+}
+
+.cautionIcon {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+  background: var(--warn);
+  color: var(--bg-elev);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cautionList {
+  list-style: none;
+  margin: var(--sp-sm) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-xs);
+}
+
+.cautionItem {
+  position: relative;
+  padding-left: var(--sp-md);
+  font-size: var(--fs-sm);
+  color: var(--text);
+  line-height: var(--lh-snug);
+}
+.cautionItem::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--warn);
+}
+
+/* ---- 이 약에 대해 물어보기 (대화 기록은 '대화' 탭으로 분리) ---- */
+.sessHead {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-sm);
+}
+
+.sessList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+
+/* 새 대화 — 눈에 띄게: 민트 채움 카드 (대화 추가 동작) */
+.newCard {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius);
+  padding: var(--sp-md);
+  color: #ffffff;
+  min-height: 44px;
+  box-shadow: 0 6px 18px var(--accent-fog);
+  transition: background var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+.newCard:hover { background: var(--accent-deep); }
+.newCard:active { transform: translateY(1px); }
+
+.newIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.20);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.newBody { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.newTitle { font-size: var(--fs-sm); font-weight: var(--fw-bold); }
+.newDesc {
+  font-size: var(--fs-xs);
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: var(--sp-xs);
+}
+.newChev { display: flex; flex-shrink: 0; color: rgba(255, 255, 255, 0.85); }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero { animation: none; }
+}

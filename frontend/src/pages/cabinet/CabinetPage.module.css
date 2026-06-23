@@ -1,0 +1,109 @@
+/* 알약사전 화면 — 대화 중 만난 약을 사전 항목으로. 다정·airy. 값은 전부 토큰. */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+}
+
+/* ---- 사전 항목 카드 ---- */
+.card {
+  display: flex;
+  gap: var(--sp-md);
+  align-items: flex-start;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-lg);
+  box-shadow: var(--shadow-card);
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+.card:hover {
+  border-color: var(--accent-line);
+  box-shadow: var(--shadow-pop);
+  transform: translateY(-2px);
+}
+.card:active {
+  transform: translateY(1px);
+}
+
+/* ---- 알약 일러스트 썸네일 ---- */
+.thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius);
+  flex-shrink: 0;
+  background: var(--accent-fog);
+  border: 1px solid var(--accent-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---- 머리(이름 + chevron) ---- */
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--sp-sm);
+}
+.name {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.01em;
+  line-height: var(--lh-tight);
+  word-break: keep-all;
+}
+.chev {
+  display: flex;
+  color: var(--text-faint);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.card:hover .chev {
+  color: var(--accent);
+}
+
+/* ---- 성분·분류 태그 ---- */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-xs) var(--sp-sm);
+  margin-top: var(--sp-sm);
+}
+.ingredient {
+  font-size: var(--fs-cap);
+  color: var(--text-dim);
+  font-weight: var(--fw-medium);
+}
+.category {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--accent-deep);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-pill);
+  padding: 2px var(--sp-sm);
+}
+
+/* ---- 한 줄 설명 ---- */
+.summary {
+  margin: var(--sp-sm) 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  line-height: var(--lh-snug);
+  text-wrap: pretty;
+}

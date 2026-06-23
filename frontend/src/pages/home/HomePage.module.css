@@ -1,0 +1,261 @@
+/* 홈 대시보드 — '오늘의 한마디'(LLM)가 시그니처. 나머지는 조용하게. 값 전부 토큰. */
+
+.home {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-lg) var(--sp-md) var(--sp-xl);
+  gap: var(--sp-lg);
+  overflow-y: auto;
+}
+
+/* ---- 인사 헤더 ---- */
+.greeting {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-xs);
+}
+.date {
+  font-size: var(--fs-cap);
+  color: var(--text-dim);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.greetingTitle {
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.02em;
+  line-height: var(--lh-tight);
+  text-wrap: balance;
+  margin: 0;
+}
+
+/* ---- 시그니처: 오늘의 한마디 ---- */
+.spotlight {
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-lg);
+  background:
+    radial-gradient(140% 120% at 0% 0%, var(--accent-soft), transparent 60%),
+    var(--bg-elev);
+  box-shadow: 0 10px 30px var(--accent-fog);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+.spotlightHead {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+}
+.spotlightDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+  animation: pulse 2.4s var(--ease-out) infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 3px var(--accent-soft); }
+  50% { box-shadow: 0 0 0 6px var(--accent-fog); }
+}
+.spotlightLabel {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  color: var(--accent-deep);
+  letter-spacing: 0.02em;
+}
+.spotlightBody {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-snug);
+  color: var(--text);
+  text-wrap: pretty;
+  margin: 0;
+}
+
+/* ---- 최근 대화 (마지막 세션 한 줄 요약) ---- */
+.recent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-lg);
+  box-shadow: var(--shadow-card);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+.recent:hover {
+  border-color: var(--accent-line);
+  box-shadow: var(--shadow-pop);
+  transform: translateY(-2px);
+}
+.recent:active { transform: translateY(1px); }
+.recentHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-sm);
+}
+.recentLabel {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  color: var(--accent-deep);
+  letter-spacing: 0.02em;
+}
+.recentWhen {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  flex-shrink: 0;
+}
+.recentBody {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
+  color: var(--text);
+  text-wrap: pretty;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.recentMore {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-xs);
+  font-size: var(--fs-cap);
+  font-weight: var(--fw-semibold);
+  color: var(--accent-deep);
+}
+
+/* ---- 일반 블록 카드 ---- */
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+}
+.blockHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-sm);
+}
+.blockTitle {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-bold);
+  margin: 0;
+}
+.blockMeta {
+  font-size: var(--fs-cap);
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+/* ---- 복약 리스트 ---- */
+.doseList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.doseItem {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+}
+.doseThumb {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.doseBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.doseName {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.doseTime {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+}
+.doseState {
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-faint);
+  padding: var(--sp-xs) var(--sp-sm);
+  border-radius: var(--radius-pill);
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+}
+.doseStateOn {
+  color: var(--accent-deep);
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+}
+
+/* ---- 이번 주 요약 ---- */
+.stats {
+  display: flex;
+  gap: var(--sp-md);
+}
+.stat {
+  flex: 1;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-xs);
+  box-shadow: var(--shadow-card);
+}
+.statNum {
+  font-size: var(--fs-display);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--accent-deep);
+  font-variant-numeric: tabular-nums;
+}
+.statSub {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+}
+.statLabel {
+  font-size: var(--fs-cap);
+  color: var(--text-dim);
+  font-weight: var(--fw-medium);
+}
+
+.note {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  text-align: center;
+  margin: 0;
+  text-wrap: pretty;
+}

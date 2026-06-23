@@ -44,6 +44,40 @@ export function GridIcon({ size = 22 }: IconProps) {
   )
 }
 
+export function PillIcon({ size = 22 }: IconProps) {
+  return (
+    <svg {...base(size)}>
+      <rect x="3.5" y="8" width="17" height="8" rx="4" transform="rotate(45 12 12)" />
+      <path d="M9.2 14.8 14.8 9.2" />
+    </svg>
+  )
+}
+
+export function HomeIcon({ size = 22 }: IconProps) {
+  return (
+    <svg {...base(size)}>
+      <path d="M3 11 12 4l9 7" />
+      <path d="M5 10v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9" />
+    </svg>
+  )
+}
+
+export function ChatIcon({ size = 22 }: IconProps) {
+  return (
+    <svg {...base(size)}>
+      <path d="M20 4H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h3v3l4-3h9a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1z" />
+    </svg>
+  )
+}
+
+export function MenuIcon({ size = 22 }: IconProps) {
+  return (
+    <svg {...base(size)}>
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
+  )
+}
+
 export function PersonIcon({ size = 22 }: IconProps) {
   return (
     <svg {...base(size)}>

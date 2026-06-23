@@ -1,0 +1,22 @@
+/* 탭 전환 좌우 슬라이드 — 탭 순서(알약사전 < 카메라 < 홈 < 대화 < 기타)로 방향 결정. 값 전부 토큰. */
+.slide {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.fromRight {
+  animation: slideFromRight var(--duration-normal) var(--ease-out) both;
+}
+.fromLeft {
+  animation: slideFromLeft var(--duration-normal) var(--ease-out) both;
+}
+
+@keyframes slideFromRight {
+  from { opacity: 0; transform: translateX(22%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideFromLeft {
+  from { opacity: 0; transform: translateX(-22%); }
+  to { opacity: 1; transform: translateX(0); }
+}

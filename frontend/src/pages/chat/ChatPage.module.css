@@ -1,0 +1,205 @@
+/* 대화 모드 — 헤더 + 빈 상태(아바타·칩) + 말풍선. 값 전부 토큰. */
+
+/* ---- 헤더 ---- */
+.head {
+  flex-shrink: 0;
+  padding: var(--sp-xl) var(--sp-md) var(--sp-md);
+  border-bottom: 1px solid var(--border);
+}
+.headTitle {
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.headSub {
+  font-size: var(--fs-cap);
+  color: var(--text-faint);
+  margin: var(--sp-xs) 0 0;
+}
+
+.scroll {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- 빈 상태 — 안내 인트로 + 최근 대화 기록 ---- */
+.empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-xl);
+  padding: var(--sp-xl) var(--sp-sm) var(--sp-lg);
+}
+.intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-lg);
+  text-align: center;
+  padding: var(--sp-md) 0 var(--sp-sm);
+}
+.emptyAvatar {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.emptyText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+.emptyTitle {
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.02em;
+  line-height: var(--lh-tight);
+  text-wrap: balance;
+  margin: 0;
+}
+.emptySub {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  line-height: var(--lh-snug);
+  max-width: 30ch;
+  text-wrap: pretty;
+  margin: 0;
+}
+
+/* 예시 질문 칩 */
+.examples {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.exampleChip {
+  min-height: 44px;
+  padding: var(--sp-sm) var(--sp-md);
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  color: var(--accent-deep);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+.exampleChip:hover {
+  background: var(--accent-fog);
+}
+
+/* ---- 최근 대화 기록 ---- */
+.recent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+.recentHead {
+  font-size: var(--fs-cap);
+  color: var(--text-dim);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.01em;
+  margin: 0 var(--sp-xs);
+}
+.recentList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.recentCard {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-md);
+  box-shadow: var(--shadow-card);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+.recentCard:hover { border-color: var(--accent-line); }
+.recentCard:active { transform: translateY(1px); }
+.recentBody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--sp-xs); }
+.recentTitle {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recentPreview {
+  font-size: var(--fs-cap);
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recentWhen {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.recentChev { display: flex; color: var(--text-faint); flex-shrink: 0; }
+
+/* ---- 말풍선 ---- */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+}
+.row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sp-sm);
+}
+.rowMe {
+  justify-content: flex-end;
+}
+.avatar {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bubble {
+  max-width: 78%;
+  padding: var(--sp-sm) var(--sp-md);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-body);
+  white-space: pre-line;
+  border-radius: var(--radius-lg);
+}
+.bubbleMe {
+  background: var(--accent);
+  color: #ffffff;
+  border-bottom-right-radius: var(--radius-sm);
+}
+.bubbleBot {
+  background: var(--bg-elev);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  border-bottom-left-radius: var(--radius-sm);
+}
