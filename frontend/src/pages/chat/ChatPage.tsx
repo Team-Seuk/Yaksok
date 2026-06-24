@@ -10,7 +10,7 @@ import styles from './ChatPage.module.css'
 type Msg = { id: number; role: 'me' | 'bot'; text?: string; image?: string }
 
 const DEMO_PHOTO = '/demo/pill.jpg'
-/* 연출용 — 사진 속 약(타이레놀 500mg)에 대한 프로미 답변(성인 기준). */
+/* 연출용 — 사진 속 약(타이레놀 500mg)에 대한 약속 도우미 답변(성인 기준). */
 const DEMO_ANSWER =
   '보내주신 약은 타이레놀정 500mg (성분: 아세트아미노펜 500mg)으로 보여요. 발열·두통·생리통·근육통 등에 두루 쓰는 해열진통제예요.\n\n' +
   '성인은 보통 1회 1~2정(500~1,000mg)을 4~6시간 간격으로, 필요할 때 복용해요. 하루 최대 4,000mg(8정)을 넘기지 마세요.\n\n' +
@@ -26,15 +26,15 @@ const RECENT_SESSIONS: RecentSession[] = [
   { id: 3, title: '감기약 같이 먹기', preview: '진통제랑 같이 먹어도 되나요?', when: '6/11' },
 ]
 
-/* 프로미 아바타 — 브랜드 알약을 작은 민트 원 안에 */
+/* 약속 도우미 아바타 — 브랜드 알약을 작은 민트 원 안에 */
 const ASSISTANT_LOOK = { kind: 'capsule', color: 'var(--accent)', color2: 'var(--bg-elev)' } as const
 
 export default function ChatPage() {
   const navigate = useNavigate()
-  /* 캡처용 스테이징 — 프로미가 응답을 준비하는 타이핑 인디케이터가 고정으로 떠 있다.
+  /* 캡처용 스테이징 — 약속 도우미가 응답을 준비하는 타이핑 인디케이터가 고정으로 떠 있다.
        /chat?stage=typing : 증상 텍스트를 보낸 직후 (응답 준비중)
        /chat?stage=photo  : 알약 사진을 첨부해 보낸 직후 (응답 준비중)
-       /chat?stage=answer : 사진 첨부 → 프로미가 답변까지 완료 */
+       /chat?stage=answer : 사진 첨부 → 약속 도우미가 답변까지 완료 */
   const location = useLocation()
   const stage = new URLSearchParams(location.search).get('stage')
   const stageTyping = stage === 'typing'
@@ -90,7 +90,7 @@ export default function ChatPage() {
     <div className="result">
       <header className={styles.head}>
         <h1 className={styles.headTitle}>대화</h1>
-        <p className={styles.headSub}>채팅으로 알아보기</p>
+        <p className={styles.headSub}>저는 약속 도우미에요!</p>
       </header>
 
       <div
@@ -152,7 +152,7 @@ export default function ChatPage() {
                   key={m.id}
                   className={`${styles.row}${me ? ` ${styles.rowMe}` : ''}`}
                   role="article"
-                  aria-label={me ? '내 메시지' : '프로미의 메시지'}
+                  aria-label={me ? '내 메시지' : '약속 도우미의 메시지'}
                 >
                   {!me && (
                     <span className={styles.avatar} aria-hidden="true">
@@ -168,7 +168,7 @@ export default function ChatPage() {
               )
             })}
             {typing && (
-              <div className={styles.row} role="status" aria-label="프로미가 입력 중입니다">
+              <div className={styles.row} role="status" aria-label="약속 도우미가 입력 중입니다">
                 <span className={styles.avatar} aria-hidden="true">
                   <PillImage look={ASSISTANT_LOOK} size={20} />
                 </span>
@@ -193,7 +193,7 @@ export default function ChatPage() {
       >
         <input
           className="input"
-          placeholder="프로미에게 물어보기"
+          placeholder="약속 도우미에게 물어보기"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           aria-label="메시지 입력"
