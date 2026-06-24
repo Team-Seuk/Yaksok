@@ -24,17 +24,17 @@ _MIN_CONFIDENCE = 0.3  # 이 미만이면 재촬영 안내
 
 @router.post("/identify", response_model=IdentifyResponse)
 async def identify_pill(
-    image: Annotated[UploadFile, File(description="알약 사진 1장 (jpeg/png/webp, ≤8MB)")],
+    file: Annotated[UploadFile, File(description="알약 사진 1장 (jpeg/png/webp, ≤8MB)")],
     use_case: Annotated[IdentifyPillPort, Depends(get_identify_use_case)],
 ) -> IdentifyResponse:
-    mime = image.content_type or ""
+    mime = file.content_type or ""
     if mime not in _ALLOWED_MIME:
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
             detail=f"지원하지 않는 이미지 형식입니다: {mime or '알 수 없음'} (jpeg/png/webp만 허용)",
         )
 
-    image_bytes = await image.read()
+    image_bytes = await file.read()
     if not image_bytes:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="빈 이미지입니다.")
     if len(image_bytes) > _MAX_BYTES:

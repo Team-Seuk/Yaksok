@@ -13,28 +13,29 @@
 
 ## 작업 체크리스트
 ### 1. 업로드 엔드포인트
-- [ ] `POST /api/pill/identify` (multipart 이미지 1장). 요청/응답 스키마.
-- [ ] 이미지 검증(용량·포맷). **사진은 식별에만, 서버 저장 안 함**(ERD 결정: vision 속성만).
+- [x] `POST /api/pill/identify` (multipart 이미지 1장, 필드명 `file`). 요청/응답 스키마.
+- [x] 이미지 검증(용량 ≤8MB·포맷 jpeg/png/webp, 415/400/413). **사진은 식별에만, 서버 저장 안 함**(ERD 결정: vision 속성만).
 
 ### 2. Gemini Vision 프롬프트 (핵심)
-- [ ] 사진 → **구조화 JSON** 추출: `{shape, colorFront, colorBack, printFront, printBack, line}`.
-- [ ] 자유서술 말고 **정해진 enum 값**으로 뽑게: 한국 낱알식별 분류(모양/색)를 프롬프트에 명시 + `response_schema`로 강제.
+- [x] 사진 → **구조화 JSON** 추출: `{shape, color_front, color_back, imprint_front, imprint_back, score_line, form}`.
+- [x] 자유서술 말고 **정해진 enum 값**으로 뽑게: 한국 낱알식별 분류(모양/색)를 프롬프트에 명시 + `response_schema`로 강제.
   ```python
   from core import gemini
   from google.genai import types
   cfg = types.GenerateContentConfig(response_mime_type="application/json", response_schema=PillAttrsSchema)
   raw = gemini.generate(["이 알약 속성을 추출해", gemini.image_part(buf, "image/jpeg")], config=cfg)
   ```
-- [ ] outbound adapter(`vision_gemini.py`)가 위 호출을 감싸 `app/ports/output`의 Vision port 구현.
+- [x] outbound adapter(`gemini_vision_adapter.py`)가 위 호출을 감싸 `app/ports/output`의 Vision port 구현.
 
 ### 3. use_case
-- [ ] `IdentifyPill`: Vision port로 속성 추출 → P2 매칭 port로 후보 조회 → 응답 조립. 두 port를 **주입**(README의 DI 패턴).
+- [x] `IdentifyPillUseCase`: Vision port로 속성 추출 → P2 매칭 port로 후보 조회 → 응답 조립. 두 port를 **주입**(`dependencies/__init__.py`, 키 있으면 실제 Gemini·없으면 fake).
 
 ### 4. 응답
-- [ ] 추출 속성 + 후보 약(이름·제조사·이미지URL·신뢰도). 후보 0개/저신뢰 → 재촬영 안내.
+- [x] 추출 속성 + 후보 약(이름·제조사·이미지URL·신뢰도). 후보 0개/저신뢰 → `needs_retry`로 재촬영 안내.
 
 ## 산출물
-- 동작하는 `POST /api/pill/identify` — 사진 넣으면 후보 약 반환(키 있으면 e2e).
+- [x] 동작하는 `POST /api/pill/identify` — 사진 넣으면 후보 약 반환(키 있으면 실제 Gemini e2e, 없으면 fake). 검증 ruff·mypy·lint-imports(5 KEPT)·pytest(11) 그린.
+- **남음**: ① `main.py` 라우터 등록 2줄 해제(**P1/공용구역**) ② 매칭 fake → **P2** 실제 어댑터로 교체.
 
 ## 검증
 ```bash

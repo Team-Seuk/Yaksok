@@ -1,24 +1,23 @@
-"""Gemini Vision 어댑터 — 사진을 P1 공용 Gemini 클라이언트로 보내 속성을 추출.
+"""Gemini Vision 어댑터 — P1 공용 래퍼(`core.gemini`)로 사진→속성 추출, VisionPort 구현.
 
-설계 의도(P3):
-- 외부 SDK(google-genai) 호출은 P1 의 **공용 클라이언트**가 담당한다. 이 어댑터는
-  그 클라이언트를 ``GeminiVisionClient`` Protocol 로 감싸 ``VisionPort`` 를 구현한다.
-  → 이 파일은 google-genai 를 직접 import 하지 않으므로, P1 이 SDK·키를 추가하기
-  전에도 타입체크/임포트가 깨지지 않는다(스펙: P3 는 블록되지 말 것).
-- 프롬프트는 식약처 낱알식별 분류(모양/색 enum)를 명시해 **자유서술이 아니라
-  정해진 값**으로 뽑게 하고, JSON 구조화 출력을 강제한다.
-
-P1 통합 지점:
-  P1 의 공용 Gemini 클라이언트가 아래 ``GeminiVisionClient`` 시그니처(prompt+이미지
-  → JSON 문자열)를 제공하거나, 얇은 래퍼로 맞춰 주입하면 그대로 실연동된다.
+설계(P3):
+- 외부 SDK(google-genai) 호출은 **P1 공용 래퍼 `core.gemini`** 한 곳을 거친다(계약).
+  이 어댑터는 그 래퍼를 감싸 ``VisionPort`` 를 구현한다.
+- 프롬프트에 식약처 낱알식별 분류(모양/색 enum)를 명시 + ``response_schema`` 로
+  **구조화 JSON 출력**을 강제해 자유서술이 아니라 정해진 값으로 뽑는다.
+- 파싱은 관대하게(없거나 허용 외 값은 None) — 모델 오차에 견딘다.
 """
 
 from __future__ import annotations
 
 import json
 from enum import Enum
-from typing import Any, Protocol
+from typing import Any
 
+from google.genai import types
+from pydantic import BaseModel
+
+from apps.pill.app.ports.output.vision_port import VisionPort
 from apps.pill.domain.value_objects.pill_attributes import (
     Color,
     Form,
@@ -26,17 +25,7 @@ from apps.pill.domain.value_objects.pill_attributes import (
     ScoreLine,
     Shape,
 )
-
-
-class GeminiVisionClient(Protocol):
-    """P1 공용 Gemini 클라이언트에 요구하는 최소 계약.
-
-    멀티모달 1회 호출(텍스트 프롬프트 + 이미지) → JSON 문자열 반환.
-    response_mime_type="application/json" 등 구조화 출력 설정은 클라이언트가 담당.
-    """
-
-    def generate_json(self, *, prompt: str, image_bytes: bytes, mime_type: str) -> str: ...
-
+from core import gemini
 
 # 모델에 허용하는 enum 값을 프롬프트에 그대로 노출(자유서술 방지).
 _SHAPES = " · ".join(s.value for s in Shape)
@@ -54,17 +43,19 @@ VISION_PROMPT = f"""당신은 한국 의약품 낱알식별 보조원입니다.
 - form(제형 추정): {_FORMS}
 - imprint_front / imprint_back(각인, 앞/뒤): 알약에 새겨진 글자·숫자·기호를 그대로. 없으면 null.
 
-한쪽 면만 보이면 보이는 면을 front 로, 반대 면은 null 로 두세요.
-다음 JSON 스키마로만 답하세요(설명·코드펜스 없이 JSON 객체 하나):
-{{
-  "shape": string|null,
-  "color_front": string|null,
-  "color_back": string|null,
-  "imprint_front": string|null,
-  "imprint_back": string|null,
-  "score_line": string|null,
-  "form": string|null
-}}"""
+한쪽 면만 보이면 보이는 면을 front 로, 반대 면은 null 로 두세요."""
+
+
+class _VisionAttrsSchema(BaseModel):
+    """Gemini 구조화 출력 강제용 응답 스키마(전부 선택)."""
+
+    shape: str | None = None
+    color_front: str | None = None
+    color_back: str | None = None
+    imprint_front: str | None = None
+    imprint_back: str | None = None
+    score_line: str | None = None
+    form: str | None = None
 
 
 def _to_enum[E: Enum](enum_cls: type[E], raw: Any) -> E | None:
@@ -103,14 +94,16 @@ def parse_attributes(raw_json: str) -> PillAttributes:
     )
 
 
-class GeminiVisionAdapter:
-    """``VisionPort`` 구현 — P1 클라이언트로 Gemini 호출 후 속성 파싱."""
-
-    def __init__(self, client: GeminiVisionClient) -> None:
-        self._client = client
+class GeminiVisionAdapter(VisionPort):
+    """``VisionPort`` 구현 — `core.gemini` 멀티모달 호출 후 속성 파싱."""
 
     def extract(self, image_bytes: bytes, mime_type: str) -> PillAttributes:
-        raw = self._client.generate_json(
-            prompt=VISION_PROMPT, image_bytes=image_bytes, mime_type=mime_type
+        config = types.GenerateContentConfig(
+            response_mime_type="application/json",
+            response_schema=_VisionAttrsSchema,
+        )
+        raw = gemini.generate(
+            [VISION_PROMPT, gemini.image_part(image_bytes, mime_type)],
+            config=config,
         )
         return parse_attributes(raw)
