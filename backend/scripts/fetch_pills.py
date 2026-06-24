@@ -124,7 +124,10 @@ def save_to_db(records: list[dict[str, Any]]) -> None:
     """수집한 레코드를 pills 테이블에 upsert."""
     sys.path.insert(0, str(BACKEND_DIR))
     from apps.pill.adapter.outbound.repositories.pill_repository import PillRepository
-    from core.db import SessionLocal
+    from core.db import Base, SessionLocal, engine
+
+    # PillRepository import 로 pill_orm 이 Base.metadata 에 등록됨 → 없으면 생성.
+    Base.metadata.create_all(engine)
 
     pills = [_to_pill(r) for r in records if r.get("itemSeq")]
     with SessionLocal() as db:

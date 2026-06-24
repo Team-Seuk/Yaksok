@@ -4,10 +4,36 @@
 여기서 ``app.include_router(...)`` 로 등록한다(의존성 방향 adapter → app → domain).
 """
 
+import logging
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="Yaksok")
+from core.db import Base, engine
+
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    """기동 시 테이블을 보장한다(Alembic 도입 전 임시).
+
+    ORM 모델 모듈을 import 해야 ``Base.metadata`` 에 테이블이 등록된다.
+    DB 미기동이어도 서버는 뜨고(쿼리 시점에 실패), 연결되면 자동 생성된다.
+    """
+    from apps.guidance.adapter.outbound.orm import models as _guidance_orm  # noqa: F401
+    from apps.pill.adapter.outbound.orm import pill_orm as _pill_orm  # noqa: F401
+
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as exc:  # noqa: BLE001 — DB 없이도 기동 보장
+        logger.warning("DB 테이블 생성 건너뜀 (DB 미연결?): %s", exc)
+    yield
+
+
+app = FastAPI(title="Yaksok", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
