@@ -1,22 +1,8 @@
+import { useParams } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, PlusIcon } from '../../components/icons'
 import PillImage from '../../components/PillImage'
+import { getPillById } from '../../lib/pillData'
 import styles from './ResultPage.module.css'
-
-/* 약품 상세 = 약 정보 + 요약(진입 시 바로) + 이 약에 대한 개별 세션 목록 (프로토타입: 더미) */
-
-/* 용법·용량 등 기본 안내 (안심되는 톤) */
-const SUMMARY_LINES = [
-  { label: '용법', value: '1회 1~2정 · 4~6시간 간격으로' },
-  { label: '용량', value: '하루 최대 4g 이하로 지켜 주세요' },
-  { label: '복용 시점', value: '식후 30분에 드시면 편해요' },
-]
-
-/* 주의 = 안전정보. 색만 아니라 라벨·아이콘으로 분리 강조 */
-const CAUTIONS = [
-  '위장이 예민하면 빈속 복용을 피해 주세요.',
-  '다른 소염진통제와 함께 먹지 마세요.',
-  '증상이 3일 넘게 이어지면 약사·의사와 상담하세요.',
-]
 
 /* 화면 내 인라인 SVG (icons.tsx 미보유 아이콘) */
 function ClockIcon() {
@@ -63,6 +49,25 @@ export default function ResultPage({
   onBack: () => void
   onNewSession?: () => void
 }) {
+  const { id } = useParams()
+  const pill = getPillById(Number(id))
+
+  if (!pill) {
+    return (
+      <div className="result">
+        <div className="topbar">
+          <button className="iconbtn" onClick={onBack} aria-label="뒤로">
+            <ChevronLeft />
+          </button>
+        </div>
+        <div className="state">
+          <p className="state-title">약을 찾을 수 없어요</p>
+          <p className="state-desc">다시 시도해 주세요.</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="result">
       <div className="topbar">
@@ -75,24 +80,23 @@ export default function ResultPage({
         {/* 약 카드 — 알약 일러스트를 시그니처로 크게, 이름>성분>제조사 위계 */}
         <section className={styles.hero}>
           <div className={styles.heroThumb}>
-            <PillImage look={{ kind: 'oval', color: '#d6464f' }} size={92} />
+            <PillImage look={pill.look} size={92} />
           </div>
           <div>
-            <h1 className={styles.heroName}>이지엔6프로연질캡슐</h1>
-            <span className={`badge ${styles.heroSub}`}>덱시부프로펜 300mg</span>
+            <h1 className={styles.heroName}>{pill.name}</h1>
+            <span className={`badge ${styles.heroSub}`}>{pill.ingredient}</span>
           </div>
           <div className={styles.heroMeta}>
-            <span className={styles.metaChip}>대웅제약</span>
-            <span className={styles.metaChip}>타원형</span>
-            <span className={styles.metaChip}>빨강</span>
-            <span className={styles.metaChip}>식별 -</span>
+            <span className={styles.metaChip}>{pill.manufacturer}</span>
+            <span className={styles.metaChip}>{pill.shape}</span>
+            <span className={styles.metaChip}>{pill.color}</span>
           </div>
         </section>
 
         {/* 요약 — 용법·용량은 부드럽게 */}
         <h2 className={styles.sectionHead}>복약 요약</h2>
         <div className={styles.summary}>
-          {SUMMARY_LINES.map((line, i) => (
+          {pill.summary.map((line, i) => (
             <div key={line.label} className={styles.fact}>
               <span className={styles.factIcon}>{FACT_ICONS[i]}</span>
               <span className={styles.factBody}>
@@ -110,13 +114,13 @@ export default function ResultPage({
             복용 주의
           </div>
           <ul className={styles.cautionList}>
-            {CAUTIONS.map((c) => (
+            {pill.cautions.map((c) => (
               <li key={c} className={styles.cautionItem}>{c}</li>
             ))}
           </ul>
         </section>
 
-        {/* 이 약에 대해 물어보기 — 대화 기록은 '대화' 탭으로 분리, 여기선 새 대화만 */}
+        {/* 이 약에 대해 물어보기 */}
         <h2 className={`${styles.sectionHead} ${styles.sessHead}`}>더 궁금한 점이 있나요?</h2>
         <div className={styles.sessList}>
           <button className={styles.newCard} onClick={onNewSession}>

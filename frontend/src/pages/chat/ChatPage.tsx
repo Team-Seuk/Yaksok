@@ -48,7 +48,7 @@ export default function ChatPage() {
     <div className="result">
       <header className={styles.head}>
         <h1 className={styles.headTitle}>대화</h1>
-        <p className={styles.headSub}>약속 도우미</p>
+        <p className={styles.headSub}>저는 약속 도우미에요!</p>
       </header>
 
       <div className={`result-scroll ${styles.scroll}`}>

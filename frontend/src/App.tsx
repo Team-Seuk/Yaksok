@@ -66,7 +66,7 @@ function MoreRoute() {
 
 function AllPillsRoute() {
   const navigate = useNavigate()
-  return <AllPillsPage onBack={() => navigate(-1)} />
+  return <AllPillsPage onBack={() => navigate(-1)} onSelect={(id) => navigate(`/pill/${id}`)} />
 }
 
 function ResultRoute() {

@@ -48,14 +48,14 @@ export default function HomePage() {
     <div className={styles.home}>
       <header className={styles.greeting}>
         <p className={styles.date}>{todayLabel()}</p>
-        <h1 className={styles.greetingTitle}>오늘도 안녕하세요</h1>
+        <h1 className={styles.greetingTitle}>오늘도 건강하세요</h1>
       </header>
 
       {/* 시그니처 — 오늘의 한마디 (LLM 한 줄) */}
       <section className={styles.spotlight} aria-labelledby="home-spotlight">
         <div className={styles.spotlightHead}>
           <span className={styles.spotlightDot} aria-hidden="true" />
-          <span id="home-spotlight" className={styles.spotlightLabel}>오늘의 한마디</span>
+          <span id="home-spotlight" className={styles.spotlightLabel}>약속의 한마디</span>
         </div>
         <p className={styles.spotlightBody}>
           오후엔 수분을 충분히 드세요. 지금 복용 중인 약은 공복 자극이 적은 편이라 식후가 아니어도 괜찮아요.
@@ -78,7 +78,7 @@ export default function HomePage() {
       {/* 오늘의 복약 */}
       <section className={`card ${styles.block}`} aria-labelledby="home-dose">
         <div className={styles.blockHead}>
-          <h2 id="home-dose" className={styles.blockTitle}>오늘의 복약</h2>
+          <h2 id="home-dose" className={styles.blockTitle}>오늘의 약속 💊</h2>
           <span className={styles.blockMeta}>
             {takenCount}/{doses.length} 챙김
           </span>
