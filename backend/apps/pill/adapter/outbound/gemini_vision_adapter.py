@@ -39,7 +39,7 @@ VISION_PROMPT = f"""당신은 한국 의약품 낱알식별 보조원입니다.
 반드시 아래 정해진 값 중에서만 고르고, 알아볼 수 없으면 null 을 쓰세요(추측 금지).
 - shape(모양): {_SHAPES}
 - color_front / color_back(색, 앞/뒤): {_COLORS}
-- score_line(분할선): {_LINES}
+- line_front / line_back(분할선, 앞/뒤): {_LINES} (가로 분할선=`-`, 십자=`+`). 분할선이 없으면 null.
 - form(제형 추정): {_FORMS}
 - imprint_front / imprint_back(각인, 앞/뒤): 알약에 새겨진 글자·숫자·기호를 그대로. 없으면 null.
 
@@ -54,7 +54,8 @@ class _VisionAttrsSchema(BaseModel):
     color_back: str | None = None
     imprint_front: str | None = None
     imprint_back: str | None = None
-    score_line: str | None = None
+    line_front: str | None = None
+    line_back: str | None = None
     form: str | None = None
 
 
@@ -89,7 +90,8 @@ def parse_attributes(raw_json: str) -> PillAttributes:
         color_back=_to_enum(Color, data.get("color_back")),
         imprint_front=_to_imprint(data.get("imprint_front")),
         imprint_back=_to_imprint(data.get("imprint_back")),
-        score_line=_to_enum(ScoreLine, data.get("score_line")),
+        line_front=_to_enum(ScoreLine, data.get("line_front")),
+        line_back=_to_enum(ScoreLine, data.get("line_back")),
         form=_to_enum(Form, data.get("form")),
     )
 

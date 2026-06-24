@@ -19,7 +19,7 @@ _DEFAULT = PillAttributes(
     shape=Shape.ROUND,
     color_front=Color.WHITE,
     imprint_front="T",
-    score_line=ScoreLine.LINE,
+    line_front=ScoreLine.LINE,
     form=Form.TABLET,
 )
 

@@ -15,14 +15,15 @@ from apps.pill.domain.value_objects.pill_attributes import Color, ScoreLine, Sha
 def test_parses_valid_json() -> None:
     raw = (
         '{"shape":"원형","color_front":"하양","color_back":null,'
-        '"imprint_front":"T","imprint_back":null,"score_line":"-","form":"정제"}'
+        '"imprint_front":"T","imprint_back":null,"line_front":"-","line_back":null,"form":"정제"}'
     )
     attrs = parse_attributes(raw)
     assert attrs.shape is Shape.ROUND
     assert attrs.color_front is Color.WHITE
     assert attrs.color_back is None
     assert attrs.imprint_front == "T"
-    assert attrs.score_line is ScoreLine.LINE
+    assert attrs.line_front is ScoreLine.LINE
+    assert attrs.line_back is None
 
 
 def test_unknown_enum_value_becomes_none() -> None:

@@ -2,7 +2,7 @@
 
 main.py 등록은 P1(공용구역) 담당이라, 여기선 라우터를 자체 앱에 마운트해
 P3 단독으로 동작을 검증한다(통합 시 main 의 include_router 와 동일 경로).
-Vision/매칭은 fake 로 **명시 주입**(dependency_overrides)해 키 유무와 무관하게 결정적.
+Vision·매칭을 fake 로 **명시 주입**(dependency_overrides)해 키·DB 없이 결정적.
 """
 
 from __future__ import annotations
@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from apps.pill.adapter.inbound.api.v1 import router as pill_router
-from apps.pill.adapter.outbound.fake_matching_adapter import FakeMatchingAdapter
+from apps.pill.adapter.outbound.fake_matching_adapter import FakePillRepository
 from apps.pill.adapter.outbound.fake_vision_adapter import FakeVisionAdapter
 from apps.pill.app.use_cases.identify_pill import IdentifyPillUseCase
 from apps.pill.dependencies import get_identify_use_case
@@ -21,7 +21,7 @@ def _client() -> TestClient:
     app = FastAPI()
     app.include_router(pill_router, prefix="/api")
     app.dependency_overrides[get_identify_use_case] = lambda: IdentifyPillUseCase(
-        FakeVisionAdapter(), FakeMatchingAdapter()
+        FakeVisionAdapter(), FakePillRepository()
     )
     return TestClient(app)
 
@@ -33,8 +33,10 @@ def test_identify_happy_path() -> None:
     assert res.status_code == 200
     body = res.json()
     assert body["attributes"]["shape"] == "원형"
+    assert body["attributes"]["line_front"] == "-"
     assert len(body["candidates"]) >= 1
-    assert body["candidates"][0]["name"]
+    assert body["candidates"][0]["item_name"]
+    assert body["candidates"][0]["score"] >= body["candidates"][-1]["score"]
     assert body["needs_retry"] is False
 
 

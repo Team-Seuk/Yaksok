@@ -1,35 +1,58 @@
-"""가짜 매칭 어댑터 (P2 스텁) — 속성과 무관하게 더미 후보를 돌려준다.
+"""가짜 매칭 리포지토리 — DB 없이 P3 흐름을 e2e로 돌리기 위한 `PillRepositoryPort` 더블.
 
-스펙: P3 는 P2 매칭을 스텁으로 두고 시작한다. P2 의 낱알식별 리포지토리·매칭이
-완성되면 DI 에서 실제 ``PillMatchingPort`` 구현으로 교체한다(이 파일은 그때 폐기).
+실제 매칭은 P2 `PillRepository`(SQLAlchemy)가 담당한다. 이 더블은 DB 없는
+테스트·오프라인 데모에서 고정 더미 후보를 돌려준다. 식별 외 메서드는 최소 구현.
 """
 
 from __future__ import annotations
 
-from apps.pill.app.dtos.identify import PillCandidate
-from apps.pill.app.ports.output.matching_port import PillMatchingPort
-from apps.pill.domain.value_objects.pill_attributes import PillAttributes
+from apps.pill.app.ports.output.pill_repository import PillRepositoryPort
+from apps.pill.domain.entities.pill import Pill, PillAttrs, PillCandidate
 
 _DUMMY = [
     PillCandidate(
-        item_seq="200000000",
-        name="타이레놀정500밀리그램",
-        entp="한국얀센",
+        item_seq="200000001",
+        item_name="타이레놀정500밀리그램",
+        entp_name="한국얀센",
+        shape="원형",
+        color_front="하양",
+        color_back=None,
+        print_front="T",
+        print_back=None,
         image_url=None,
-        confidence=0.82,
+        is_otc=True,
+        score=5.0,
     ),
     PillCandidate(
-        item_seq="200000001",
-        name="게보린정",
-        entp="삼진제약",
+        item_seq="200000002",
+        item_name="게보린정",
+        entp_name="삼진제약",
+        shape="원형",
+        color_front="하양",
+        color_back=None,
+        print_front="G",
+        print_back=None,
         image_url=None,
-        confidence=0.61,
+        is_otc=True,
+        score=2.0,
     ),
 ]
 
 
-class FakeMatchingAdapter(PillMatchingPort):
-    """고정 더미 후보를 신뢰도 순으로 반환하는 스텁."""
+class FakePillRepository(PillRepositoryPort):
+    """고정 더미 후보를 점수 내림차순으로 반환하는 `PillRepositoryPort` 더블."""
 
-    def match(self, attributes: PillAttributes, *, limit: int = 5) -> list[PillCandidate]:
+    def get_by_seq(self, item_seq: str) -> Pill | None:
+        return None
+
+    def search(self, keyword: str, limit: int = 20) -> list[Pill]:
+        return []
+
+    def filter_candidates(self, attrs: PillAttrs, limit: int = 10) -> list[PillCandidate]:
         return _DUMMY[:limit]
+
+    def upsert(self, pill: Pill) -> None:
+        return None
+
+    def upsert_many(self, pills: list[Pill]) -> None:
+        return None

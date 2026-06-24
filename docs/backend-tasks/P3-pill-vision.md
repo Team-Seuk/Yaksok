@@ -28,14 +28,14 @@
 - [x] outbound adapter(`gemini_vision_adapter.py`)가 위 호출을 감싸 `app/ports/output`의 Vision port 구현.
 
 ### 3. use_case
-- [x] `IdentifyPillUseCase`: Vision port로 속성 추출 → P2 매칭 port로 후보 조회 → 응답 조립. 두 port를 **주입**(`dependencies/__init__.py`, 키 있으면 실제 Gemini·없으면 fake).
+- [x] `IdentifyPillUseCase`: Vision port로 속성 추출 → **P2 `PillRepositoryPort.filter_candidates`** 로 후보 조회 → 응답 조립. Vision·repo 주입(`dependencies/__init__.py`: Vision은 키 있으면 실제 Gemini·없으면 fake / repo는 P2 `PillRepository(core.db)`). Vision `PillAttributes`(enum)→P2 `PillAttrs`(식약처 raw) 매핑(각인 `imprint→print`, 분할선 `line_front`/`line_back`, 색 "하양").
 
 ### 4. 응답
-- [x] 추출 속성 + 후보 약(이름·제조사·이미지URL·신뢰도). 후보 0개/저신뢰 → `needs_retry`로 재촬영 안내.
+- [x] 추출 속성 + 후보 약(P2 `PillCandidate`: item_seq·item_name·entp_name·shape·color·print·image_url·is_otc·**score**). 후보 0개/저점수(`_MIN_SCORE=2.0`) → `needs_retry`로 재촬영 안내.
 
 ## 산출물
-- [x] 동작하는 `POST /api/pill/identify` — 사진 넣으면 후보 약 반환(키 있으면 실제 Gemini e2e, 없으면 fake). 검증 ruff·mypy·lint-imports(5 KEPT)·pytest(11) 그린.
-- **남음**: ① `main.py` 라우터 등록 2줄 해제(**P1/공용구역**) ② 매칭 fake → **P2** 실제 어댑터로 교체.
+- [x] 동작하는 `POST /api/pill/identify`(필드 `file`) — 사진 넣으면 P2 매칭 후보 반환(키+DB+적재데이터 있으면 실제 e2e, 없으면 fake 주입 테스트). 검증 ruff·mypy(104)·lint-imports(5 KEPT)·**pytest(17)** 그린.
+- **남음**: ① `main.py` 라우터 등록 2줄 해제(**P1/공용구역**) ② 공공API 실데이터 적재(`fetch_pills.py`, 키 동기화 대기) 후 **`line_front/back` 식약처 raw 표기 P2와 확인**(현재 "-"/"+" 가정).
 
 ## 검증
 ```bash

@@ -3,6 +3,7 @@
 > 날짜별 굵직한 변경 한 줄. 세세한 커밋은 git log. (CONVENTIONS §3)
 
 ## 2026-06-24
+- **P3↔P2 매칭 통합** (`feat/pill-identify`): P2(PR #18) main 머지본을 가져와 P3의 임시 매칭 추상(`PillMatchingPort`·자체 `PillCandidate`)을 **P2 실계약으로 교체** — `PillRepositoryPort.filter_candidates(PillAttrs, limit)`. use_case가 Vision `PillAttributes`(enum)→P2 `PillAttrs`(식약처 raw str) 매핑(각인 `imprint→print`, 단일 분할선→`line_front`/`line_back` 분리, 색 "하양"=식약처 raw). DI는 P2 `PillRepository`(`core.db` 세션)+Vision 키 분기, 테스트는 `dependency_overrides`로 fake 주입(DB·키 불필요). 응답을 P2 `PillCandidate` 필드(+`score`)로, `needs_retry`는 가산점수 기준(`_MIN_SCORE=2.0`). 검증 ruff·mypy(104)·lint-imports(5 KEPT)·pytest(17) 그린. line 표기는 실데이터 적재 후 확인 필요.
 - **P3 알약 인식 — `apps/pill` 인식 파이프라인** (`feat/pill-identify`, 커밋 `4925ae2` + P1 머지 `2eb249e`): 백엔드 4인 분담 중 P3. `POST /api/pill/identify`(multipart 필드 `file` 1장, jpeg/png/webp ≤8MB, 사진 미저장) → Vision 속성 추출 → 매칭 → 후보 약. **도메인** `PillAttributes` + 식약처 낱알식별 enum(모양·색·분할선·제형). **포트** Vision/매칭(output)·Identify(input) Protocol, use_case `IdentifyPillUseCase`(2포트 생성자 주입). **Gemini Vision 어댑터**: 구조화 JSON 프롬프트(enum 강제)+파서, **P1 공용 래퍼 `core.gemini`를 감싸 실연동**(response_schema 구조화 출력). **DI 키 기반 분기**: `GOOGLE_API_KEY` 있으면 실제 Gemini, 없으면 fake → CI·오프라인 e2e. 매칭은 아직 P2 스텁. 공용구역 미변경(main 라우터 등록 2줄은 P1 몫). 검증: ruff·mypy(96)·lint-imports(5 KEPT)·pytest(11) 그린.
 
 ## 2026-06-23

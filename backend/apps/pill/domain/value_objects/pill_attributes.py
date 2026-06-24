@@ -51,11 +51,13 @@ class Color(StrEnum):
 
 
 class ScoreLine(StrEnum):
-    """분할선 (LINE_FRONT/BACK). 식약처 표기: 없음 / (-) / (+)."""
+    """분할선 표기 (LINE_FRONT/BACK). 식약처 raw 값과 일치시킨다.
 
-    NONE = "없음"
-    LINE = "-"
-    CROSS = "+"
+    분할선이 없으면 enum 값이 아니라 ``None`` 으로 둔다(매칭에서 제외).
+    """
+
+    LINE = "-"  # 가로 1분할선
+    CROSS = "+"  # 십자 분할선
 
 
 class Form(StrEnum):
@@ -80,5 +82,6 @@ class PillAttributes:
     color_back: Color | None = None
     imprint_front: str | None = None
     imprint_back: str | None = None
-    score_line: ScoreLine | None = None
+    line_front: ScoreLine | None = None
+    line_back: ScoreLine | None = None
     form: Form | None = None

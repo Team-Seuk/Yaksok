@@ -19,7 +19,9 @@ router = APIRouter(prefix="/pill", tags=["pill"])
 # 업로드 이미지 제약.
 _ALLOWED_MIME = {"image/jpeg", "image/png", "image/webp"}
 _MAX_BYTES = 8 * 1024 * 1024  # 8MB
-_MIN_CONFIDENCE = 0.3  # 이 미만이면 재촬영 안내
+# 매칭 최고 점수가 이 미만이면 재촬영 안내(P2 가산 점수 기준, 휴리스틱 — 추후 튜닝).
+# 모양(+2.0) 한 항목만 맞은 수준. 각인 일치는 +3.0 이라 단독으로도 통과.
+_MIN_SCORE = 2.0
 
 
 @router.post("/identify", response_model=IdentifyResponse)
@@ -45,4 +47,4 @@ async def identify_pill(
 
     # 사진은 식별에만 사용하고 저장하지 않는다.
     result = use_case.execute(image_bytes, mime)
-    return IdentifyResponse.from_result(result, min_confidence=_MIN_CONFIDENCE)
+    return IdentifyResponse.from_result(result, min_score=_MIN_SCORE)
