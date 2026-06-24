@@ -49,9 +49,9 @@ export default function ConversationPage({ onBack }: { onBack: () => void }) {
                 key={m.id}
                 className={`${styles.row}${me ? ` ${styles.rowMe}` : ''}`}
                 role="article"
-                aria-label={me ? '내 메시지' : '프로미의 메시지'}
+                aria-label={me ? '내 메시지' : '약속 도우미의 메시지'}
               >
-                <span className={styles.who}>{me ? '나' : '프로미'}</span>
+                <span className={styles.who}>{me ? '나' : '약속 도우미'}</span>
                 <div className={`${styles.bubble} ${me ? styles.bubbleMe : styles.bubbleBot}`}>
                   {m.text}
                 </div>
