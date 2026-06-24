@@ -40,7 +40,7 @@ SAMPLE_PILLS = [
         color_back=None,
         print_front="BAYER",
         print_back=None,
-        line_front="+"
+        line_front="+",
     ),
 ]
 
@@ -104,6 +104,7 @@ class FakeRepo:
 
 
 # ── 테스트 ──────────────────────────────────────────────────────────────────
+
 
 def test_match_by_print_front_exact() -> None:
     """각인 완전일치 → 해당 약이 1순위."""

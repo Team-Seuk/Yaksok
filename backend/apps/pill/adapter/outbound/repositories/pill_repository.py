@@ -200,13 +200,15 @@ class PillRepository:
             }
             for o in orms
         ]
-        stmt = pg_insert(PillORM).values(rows).on_conflict_do_update(
-            index_elements=["item_seq"],
-            set_={
-                col: pg_insert(PillORM).excluded[col]
-                for col in rows[0]
-                if col != "item_seq"
-            },
+        stmt = (
+            pg_insert(PillORM)
+            .values(rows)
+            .on_conflict_do_update(
+                index_elements=["item_seq"],
+                set_={
+                    col: pg_insert(PillORM).excluded[col] for col in rows[0] if col != "item_seq"
+                },
+            )
         )
         self._db.execute(stmt)
         self._db.commit()

@@ -51,9 +51,7 @@ def generate(
     ``types.GenerateContentConfig(response_mime_type="application/json", response_schema=...)`` 를 넘긴다.
     """
     try:
-        response = _client().models.generate_content(
-            model=model, contents=contents, config=config
-        )
+        response = _client().models.generate_content(model=model, contents=contents, config=config)
     except GeminiError:
         raise
     except Exception as exc:  # noqa: BLE001 — SDK 예외를 도메인 공통 예외로 변환
