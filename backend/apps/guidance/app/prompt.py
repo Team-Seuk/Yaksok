@@ -24,9 +24,7 @@ def build_system_prompt(
         health_info_lines.append(f"- 복용 중인 약: {', '.join(current_medications)}")
 
     health_section = (
-        "\n".join(health_info_lines)
-        if health_info_lines
-        else "- 특별한 건강 정보 없음"
+        "\n".join(health_info_lines) if health_info_lines else "- 특별한 건강 정보 없음"
     )
 
     return f"""너는 약속(Yaksok) 앱의 복약 상담 도우미 '프로미'야.

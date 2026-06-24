@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 class HealthInfoDto(BaseModel):
     """사용자 건강정보."""
+
     allergies: list[str] = []
     is_pregnant: bool = False
     is_breastfeeding: bool = False
@@ -16,12 +17,14 @@ class HealthInfoDto(BaseModel):
 
 class AskRequestDto(BaseModel):
     """메시지 전송 요청 — 질문 내용 + 건강정보."""
+
     message: str
     health_info: HealthInfoDto = HealthInfoDto()
 
 
 class MessageResponseDto(BaseModel):
     """메시지 응답 — AI 답변."""
+
     id: str
     role: str
     content: str
@@ -30,5 +33,6 @@ class MessageResponseDto(BaseModel):
 
 class ConversationResponseDto(BaseModel):
     """대화방 응답."""
+
     id: str
     created_at: datetime
