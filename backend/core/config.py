@@ -20,7 +20,12 @@ class Settings(BaseSettings):
 
     # 외부 API 키 (backend/.env)
     anthropic_api_key: str | None = None
+    google_api_key: str | None = None  # Gemini (LLM·Vision 공용) — https://aistudio.google.com
     data_go_kr_key: str | None = None
+
+    # DB 접속 URL. 기본은 로컬 PostgreSQL(psycopg v3). 엔진은 지연 연결이라
+    # DB가 없어도 서버는 뜨고, 실제 쿼리 시점에 연결한다.
+    database_url: str = "postgresql+psycopg://yaksok:yaksok@localhost:5432/yaksok"
 
 
 @lru_cache
