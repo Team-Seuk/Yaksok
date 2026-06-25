@@ -1,7 +1,7 @@
 """PillRepository — SQLAlchemy 구현.
 
 매칭 스코어링 로직:
-  - 각인(앞/뒤) 완전일치: +3.0 each
+  - 각인(앞/뒤) 완전일치: +5.0 each  (가장 강한 식별자 — 모양+색 전부보다 우선)
   - 모양 완전일치: +2.0
   - 색(앞) 완전일치: +1.5
   - 색(뒤) 완전일치: +1.0
@@ -14,9 +14,10 @@ from __future__ import annotations
 
 import re
 
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import InstrumentedAttribute, Session
+from sqlalchemy.sql.elements import ColumnElement
 
 from apps.pill.adapter.outbound.mappers.pill_mapper import domain_to_orm, orm_to_domain
 from apps.pill.adapter.outbound.orm.pill_orm import PillORM
@@ -31,16 +32,21 @@ def _normalize_print(val: str | None) -> str:
     return re.sub(r"[\s\-]", "", val).upper()
 
 
+def _normalize_print_sql(col: InstrumentedAttribute[str | None]) -> ColumnElement[str]:
+    """1차 필터용 — _normalize_print 와 동일 정규화를 SQL 표현식으로(공백·하이픈 제거, 대문자)."""
+    return func.upper(func.replace(func.replace(func.replace(col, " ", ""), "\t", ""), "-", ""))
+
+
 def _score(row: PillORM, attrs: PillAttrs) -> float:
     s = 0.0
     if attrs.print_front is not None and (
         _normalize_print(row.print_front) == _normalize_print(attrs.print_front)
     ):
-        s += 3.0
+        s += 5.0
     if attrs.print_back is not None and (
         _normalize_print(row.print_back) == _normalize_print(attrs.print_back)
     ):
-        s += 3.0
+        s += 5.0
     if attrs.shape is not None and row.shape == attrs.shape:
         s += 2.0
     if attrs.color_front is not None and row.color_front == attrs.color_front:
@@ -80,6 +86,16 @@ class PillRepository(PillRepositoryPort):
             conditions.append(PillORM.color_front == attrs.color_front)
         if attrs.color_back:
             conditions.append(PillORM.color_back == attrs.color_back)
+        # 각인은 가장 강한 식별자 — 모양·색을 Vision이 틀리게 읽어도
+        # 각인이 맞으면 후보에서 탈락하지 않도록 1차 필터에 포함(정규화 후 비교).
+        if attrs.print_front:
+            conditions.append(
+                _normalize_print_sql(PillORM.print_front) == _normalize_print(attrs.print_front)
+            )
+        if attrs.print_back:
+            conditions.append(
+                _normalize_print_sql(PillORM.print_back) == _normalize_print(attrs.print_back)
+            )
 
         stmt = select(PillORM)
         if conditions:
@@ -88,10 +104,11 @@ class PillRepository(PillRepositoryPort):
 
         rows = list(self._db.scalars(stmt))
 
+        # 동점 tie-break: 점수 내림차순 후 item_seq 오름차순으로 결정적 정렬
+        # (색만 맞아 같은 점수로 묶이는 잡음 약 사이에서 순서가 흔들리지 않게).
         scored = sorted(
             ((row, _score(row, attrs)) for row in rows),
-            key=lambda x: x[1],
-            reverse=True,
+            key=lambda x: (-x[1], x[0].item_seq),
         )
 
         return [

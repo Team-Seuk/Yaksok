@@ -20,7 +20,7 @@ router = APIRouter(prefix="/pill", tags=["pill"])
 _ALLOWED_MIME = {"image/jpeg", "image/png", "image/webp"}
 _MAX_BYTES = 8 * 1024 * 1024  # 8MB
 # 매칭 최고 점수가 이 미만이면 재촬영 안내(P2 가산 점수 기준, 휴리스틱 — 추후 튜닝).
-# 모양(+2.0) 한 항목만 맞은 수준. 각인 일치는 +3.0 이라 단독으로도 통과.
+# 모양(+2.0) 한 항목만 맞은 수준. 각인 일치는 +5.0 이라 단독으로도 통과.
 _MIN_SCORE = 2.0
 
 
