@@ -8,6 +8,7 @@
 
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,6 +27,21 @@ class Settings(BaseSettings):
     # DB 접속 URL. 기본은 로컬 PostgreSQL(psycopg v3). 엔진은 지연 연결이라
     # DB가 없어도 서버는 뜨고, 실제 쿼리 시점에 연결한다.
     database_url: str = "postgresql+psycopg://yaksok:yaksok@localhost:5432/yaksok"
+
+    @field_validator("database_url")
+    @classmethod
+    def _force_psycopg_driver(cls, v: str) -> str:
+        """드라이버 미지정 raw PostgreSQL URL을 psycopg(v3)로 정규화.
+
+        ``postgresql://`` / ``postgres://`` 처럼 ``+driver`` 가 없으면
+        SQLAlchemy 가 기본 psycopg2(미설치)를 찾다 import 시점에 크래시한다.
+        이를 ``postgresql+psycopg://`` 로 치환한다. 이미 드라이버가 붙어 있거나
+        postgresql 이외 스킴(sqlite 등)은 건드리지 않는다.
+        """
+        for scheme in ("postgresql", "postgres"):
+            if v.startswith(f"{scheme}://"):
+                return "postgresql+psycopg://" + v[len(f"{scheme}://") :]
+        return v
 
 
 @lru_cache
