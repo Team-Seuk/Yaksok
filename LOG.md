@@ -2,6 +2,12 @@
 
 > 날짜별 굵직한 변경 한 줄. 세세한 커밋은 git log. (CONVENTIONS §3)
 
+## 2026-06-25
+- **4인 분담 통합 + 라이브 배포**: 팀원 1(알약사전 조회 API+프론트)·2(카메라 자동스캔→대화)·3(상담 실연동+Alembic+테스트)·4(배포설정·README) 브랜치를 main 통합(충돌해소: `api.ts`/`ChatPage`=스캔+상담 결합/`CameraPage`, 프로미 명칭 유지). 검증 그린(backend ruff·format·mypy 124·lint-imports 5·pytest **31** / frontend tsc·lint·build).
+- **공공데이터 적재**: 낱알식별 API **v01(500 폐기)→v03** 수정, 공유 **Neon**에 **25,315건** 적재. `upsert_many` 버그 2개 수정 — 단일 INSERT 파라미터 한계(65535) → **1000행 청크**, `item_seq` 중복 → **dict 중복제거**. 실 e2e(사진→Vision→매칭→후보) 확인.
+- **배포(라이브)**: 프론트 **Vercel = www.seuk.cloud**, 백엔드 **Railway = yaksok-production-9631.up.railway.app**, DB Neon. 배포 함정 4개 해결 — railway.toml을 `backend/`로(Root Directory=backend), `NIXPACKS_UV_VERSION=0.11.23`, `DATABASE_URL`에 `+psycopg`(psycopg v3), Vercel `VITE_API_BASE`. **배포본에서 상담(실 LLM)·사전 검증됨.** 상세·재배포 가이드는 [HANDOFF.md](HANDOFF.md) §8.
+- 남은 후속: 폰 카메라 실기기 시연 · `core/db.py` URL 정규화(선택) · Alembic 설정(팀원3, 의존성 누락+디렉터리 충돌) · 매칭 정렬 튜닝(팀원2).
+
 ## 2026-06-24
 - **P3↔P2 매칭 통합** (`feat/pill-identify`): P2(PR #18) main 머지본을 가져와 P3의 임시 매칭 추상(`PillMatchingPort`·자체 `PillCandidate`)을 **P2 실계약으로 교체** — `PillRepositoryPort.filter_candidates(PillAttrs, limit)`. use_case가 Vision `PillAttributes`(enum)→P2 `PillAttrs`(식약처 raw str) 매핑(각인 `imprint→print`, 단일 분할선→`line_front`/`line_back` 분리, 색 "하양"=식약처 raw). DI는 P2 `PillRepository`(`core.db` 세션)+Vision 키 분기, 테스트는 `dependency_overrides`로 fake 주입(DB·키 불필요). 응답을 P2 `PillCandidate` 필드(+`score`)로, `needs_retry`는 가산점수 기준(`_MIN_SCORE=2.0`). 검증 ruff·mypy(104)·lint-imports(5 KEPT)·pytest(17) 그린. line 표기는 실데이터 적재 후 확인 필요.
 - **P3 알약 인식 — `apps/pill` 인식 파이프라인** (`feat/pill-identify`, 커밋 `4925ae2` + P1 머지 `2eb249e`): 백엔드 4인 분담 중 P3. `POST /api/pill/identify`(multipart 필드 `file` 1장, jpeg/png/webp ≤8MB, 사진 미저장) → Vision 속성 추출 → 매칭 → 후보 약. **도메인** `PillAttributes` + 식약처 낱알식별 enum(모양·색·분할선·제형). **포트** Vision/매칭(output)·Identify(input) Protocol, use_case `IdentifyPillUseCase`(2포트 생성자 주입). **Gemini Vision 어댑터**: 구조화 JSON 프롬프트(enum 강제)+파서, **P1 공용 래퍼 `core.gemini`를 감싸 실연동**(response_schema 구조화 출력). **DI 키 기반 분기**: `GOOGLE_API_KEY` 있으면 실제 Gemini, 없으면 fake → CI·오프라인 e2e. 매칭은 아직 P2 스텁. 공용구역 미변경(main 라우터 등록 2줄은 P1 몫). 검증: ruff·mypy(96)·lint-imports(5 KEPT)·pytest(11) 그린.

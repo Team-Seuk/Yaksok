@@ -1,90 +1,117 @@
 ---
 status: 개발
 updated: 2026-06-25
-summary: **통합 완료 — 팀원 1·2·3·4 작업 전부 main 머지 + 실데이터 적재 + 실 e2e 동작 (2026-06-25).** 알약사전 조회 API(팀원1)·카메라 자동스캔→대화 연결(팀원2)·복약 상담 실연동+Alembic+테스트(팀원3)·배포설정/문서(팀원4)를 main으로 통합(충돌 해소, 프로미 명칭 유지). 검증 그린: backend ruff·format·mypy(124)·import-linter(5 KEPT)·pytest(31) / frontend tsc·lint·build. **공유 Neon Postgres에 낱알식별 25,315건 적재 완료**, 실 e2e 확인(데모 사진 → Gemini Vision 속성추출 → 25k 매칭 → 후보 약 10건, `needs_retry:false`). **남은 일**: ①Railway/Vercel·seuk.cloud 배포 검증 ②Alembic 설정 수정(현재 환경에서 미작동 — 팀원3) ③매칭 상위정렬 튜닝(팀원2). Vision 토글=키(`GOOGLE_API_KEY`), 색은 식약처 raw("하양").
+summary: **통합 + 라이브 배포 완료 — 데모 작동 중 (2026-06-25).** 팀원 1·2·3·4 작업 전부 main 머지 + 충돌해소(프로미 명칭 유지). 공유 Neon에 낱알식별 25,315건 적재. **www.seuk.cloud(Vercel 프론트) → api(yaksok-production-9631.up.railway.app, Railway 백엔드) → Neon + Gemini** 체인이 라이브로 동작 — 복약 상담(실 LLM 답변)·알약사전 검색/상세 배포본에서 검증됨. 검증 그린: backend ruff·format·mypy(124)·import-linter(5)·pytest(31) / frontend tsc·lint·build. **남은 일**: ①폰 카메라 실기기 인식 시연 테스트 ②(선택) `core/db.py` DATABASE_URL `+psycopg` 자동 정규화 ③Alembic 설정 수정(팀원3) ④매칭 상위정렬 튜닝(팀원2). 재배포 시 §8의 환경변수·함정 4개 필독.
 repo: Team-Seuk/Yaksok
 ---
 
 > 위 frontmatter가 상태의 단일 원본. 세션 끝낼 때마다 갱신. (CONVENTIONS §4·§5)
 
-# Yaksok — HANDOFF (통합 완료, 2026-06-25)
-
-> 4인 분담 → 전부 main 통합 완료. 아래는 **현재 상태 + 남은 후속**. (분담 배포용 메모는 역할을 다함.)
+# Yaksok — HANDOFF (통합 + 배포 완료, 2026-06-25)
 
 ## 1. 프로젝트 한눈에
 
 **무엇**: 알약을 사진으로 찍으면 무슨 약인지 알려주고(인식), 복약 상담까지 해주는 모바일 웹앱.
 
-**스택**: 백엔드 Python 3.12·uv·FastAPI·SQLAlchemy 2.0(psycopg v3)·**공유 Neon Postgres**·Google `google-genai`(Gemini `gemini-2.5-flash`, LLM·Vision 공용). 프론트 React 18·Vite·TS·react-router-dom(CRT 그린, CSS Modules).
+**스택**: 백엔드 Python 3.12·uv·FastAPI·SQLAlchemy 2.0(psycopg **v3**)·**공유 Neon Postgres**·Google `google-genai`(Gemini `gemini-2.5-flash`, LLM·Vision 공용). 프론트 React 18·Vite·TS·react-router-dom(CRT 그린, CSS Modules).
 
-**구조(헥사고날 `backend/apps/<도메인>/`)**: `domain`(엔티티·값객체) → `app`(use_cases·ports·dtos) → `adapter`(inbound api / outbound orm·repo·gemini), `dependencies`(DI), `core`(db·gemini·config). import-linter 계약: `adapter→app→domain` / features 상호 import 금지 / core는 features import 금지(5 KEPT).
+**구조(헥사고날 `backend/apps/<도메인>/`)**: `domain` → `app`(use_cases·ports·dtos) → `adapter`(inbound api / outbound orm·repo·gemini), `dependencies`(DI), `core`(db·gemini·config). import-linter 5계약(adapter→app→domain / features 독립 / core는 features import 금지).
 
 ## 2. 지금 상태 (★ 먼저 읽기)
 
-- **레포**: `github.com/Team-Seuk/Yaksok`, 로컬 `C:/TeamSeuk/Yaksok`.
-- **origin/main = 통합 완료본**. 팀원 1·2·3·4 작업 전부 머지됨. `git pull` 후 바로 동작.
-- **DB = 공유 Neon Postgres** — `pills` 25,315건 적재됨, `conversations`·`messages` 준비됨.
-- **환경 파일**(`.env.example`→`.env` 복사): `backend/.env`에 `GOOGLE_API_KEY`·`DATA_GO_KR_KEY`·`DATABASE_URL`(공유 Neon, 팀장이 DM 배포·커밋 금지). `frontend/.env`는 `VITE_API_BASE`(선택).
+- **레포** `github.com/Team-Seuk/Yaksok`, 로컬 `C:/TeamSeuk/Yaksok`. origin/main = 통합+배포 완료본.
+- **라이브 배포 작동 중**:
+  - 프론트(Vercel): **https://www.seuk.cloud** (= seuk.cloud)
+  - 백엔드(Railway): **https://yaksok-production-9631.up.railway.app** (Railway 프로젝트 `empathetic-acceptance`)
+  - DB: **공유 Neon Postgres** — `pills` 25,315건 적재됨, `conversations`·`messages` 준비됨.
+- **검증됨(배포본)**: 복약 상담 = 실 Gemini 답변 렌더 ✅ / 알약사전 검색·상세 = 실데이터 ✅ / `/health` 200 ✅.
+- **로컬 실행**: `backend`에서 `uv sync` → `uv run uvicorn main:app --reload`(8000), `frontend`에서 `npm run dev`(5173·HTTPS). `backend/.env`에 키 3개 필요(§8).
 
 **핵심 엔드포인트**
-
-- `POST /api/pill/identify` (필드 `file`) — 사진 → 속성 + 후보 약 + `needs_retry`
-- `GET /api/pill/dictionary` (목록·검색) · `GET /api/pill/dictionary/{item_seq}` (상세) — 팀원1
-- `POST /api/guidance/conversations` · `POST|GET .../conversations/{id}/messages` — 팀원3
+- `POST /api/pill/identify` (필드 `file`) — 사진→속성+후보약+`needs_retry`
+- `GET /api/pill/dictionary` (목록·검색) · `GET /api/pill/dictionary/{item_seq}` (상세)
+- `POST /api/guidance/conversations` · `POST|GET .../conversations/{id}/messages`
 - `GET /health`
 
 ## 3. 통합 완료 내역 (DONE)
 
 | 영역 | 한 일 |
 | --- | --- |
-| 팀원1 | 알약사전 조회 API(`dictionary.py` 라우터·`SearchPillsUseCase`) + 프론트(`PillDetailPage`·`AllPillsPage` API연동) + 테스트 |
-| 팀원2 | 카메라 **자동 스캔 루프 → Gemini Vision 인식 → `/chat` 대화 연결**(스캔 결과를 대화 첫 메시지로) |
-| 팀원3 | 복약 상담 실연동(`/api/guidance/*`, 건강정보 전달) + **Alembic 도입** + `connect_timeout` + guidance 테스트 10 |
-| 팀원4 | README 전면 갱신 + 배포 설정(`railway.toml`·`vercel.json`) + `seuk.cloud` CORS |
-| 통합(팀장) | 3브랜치 머지·충돌 해소(`api.ts`·`ChatPage`=스캔+상담 결합·`CameraPage`), 프로미 명칭 유지, 낱알식별 API v01→**v03** 수정, **Neon 적재 25,315건**, 실 e2e 확인 |
-| 검증 | backend ruff·format·mypy(124)·lint-imports(5 KEPT)·pytest(31) ✅ / frontend tsc·lint·build ✅ / 실 e2e(사진→후보10건) ✅ |
+| 팀원1 | 알약사전 조회 API(`dictionary.py`·`SearchPillsUseCase`) + 프론트(`PillDetailPage`·`AllPillsPage` API연동) + 테스트 |
+| 팀원2 | 카메라 자동 스캔 루프 → Gemini Vision 인식 → `/chat` 대화 연결 |
+| 팀원3 | 복약 상담 실연동(`/api/guidance/*`, 건강정보 전달) + Alembic 도입 + `connect_timeout` + 테스트 10 |
+| 팀원4 | README + 배포설정(`railway.toml`·`vercel.json`) + `seuk.cloud` CORS |
+| 통합·배포(팀장) | 3브랜치 머지·충돌해소, 프로미 유지, 낱알식별 API **v01→v03** 수정, **Neon 적재 25,315건**, upsert 청크화·중복제거, **Railway+Vercel 라이브 배포** |
+| 검증 | backend ruff·format·mypy(124)·lint-imports(5)·pytest(31) ✅ / frontend tsc·lint·build ✅ / **배포본 상담·사전 e2e** ✅ |
 
-> 매칭 동작 예: 데모(타이레놀 500, 장방형·하양·각인500) → 후보 상위에 장방형·하양·500 약들 + 아세트아미노펜 성분약 잡힘.
+## 4. 남은 일 (후속 — 데모엔 지장 없음)
 
-## 4. 남은 일 (후속)
+1. **폰 카메라 실기기 시연 테스트** — seuk.cloud(HTTPS)라 폰 카메라 인식이 동작할 것. 헤드리스론 카메라가 없어 미검증. 인식 백엔드(`/api/pill/identify`)는 검증됨(데모 사진→후보 10건). ※ 데스크톱엔 수동 업로드 버튼 없음(팀원2가 자동스캔만 남김) — 인식은 카메라 있는 기기에서.
+2. **(선택) `core/db.py` DATABASE_URL 자동 정규화** — `postgresql://` → `postgresql+psycopg://`로 코드에서 강제. 누가 raw URL 넣어도 psycopg2 크래시 안 나게(§8 함정 재발 방지). 1줄.
+3. **Alembic 설정 수정 (팀원3)** — 현재 미작동: alembic이 **의존성에 없음**(pyproject 누락) + 로컬 `backend/alembic/` 디렉터리가 패키지명을 가림. `main.py` lifespan의 `alembic upgrade`는 실패→경고 후 넘어감. **지금은 스키마를 `create_all`로 만들어 둬서 동작**하나, 깨끗한 신규 DB 배포 땐 테이블 자동생성 안 됨. (의존성 추가 + 디렉터리명 `migrations`로 변경 권장.)
+4. **매칭 상위정렬 튜닝 (팀원2)** — 데모약이 후보엔 들지만 1위는 아님. `pill_repository._score` 가중치·`identify.py` `_MIN_SCORE`·`VISION_PROMPT`.
+5. **(정리) PR #22** — base가 `feat/pill-identify`로 잘못 머지됨(내용은 이미 main 통합). GitHub에서 닫으면 됨.
 
-1. **배포 검증 (팀장/팀원4)** — `railway.toml`(백엔드)·`vercel.json`(프론트)·`seuk.cloud` 도메인이 실제로 뜨는지 확인. 배포 환경의 `DATABASE_URL`·`GOOGLE_API_KEY` 설정 필요. ⚠️ 아래 Alembic 이슈가 배포 테이블 생성에 영향.
-2. **Alembic 설정 수정 (팀원3)** — 현재 환경에서 alembic이 **작동 안 함**: ①머지 후 `uv sync`로도 `alembic` 실행파일 미설치(의존성 그룹 확인), ②로컬 `backend/alembic/` 디렉터리가 설치된 `alembic` 패키지를 **이름충돌로 가림** → `main.py` lifespan의 `alembic upgrade head`가 실패(경고 후 넘어감). **현재 스키마는 `create_all`로 생성해 둠**(정상 동작 중)이나, 배포에서 테이블 자동생성이 안 될 수 있으니 정리 필요. (예: 마이그레이션 디렉터리명을 `migrations`로 바꾸거나 실행 경로 정리.)
-3. **매칭 상위정렬 튜닝 (팀원2)** — 실데이터로 `pill_repository._score` 가중치·`identify.py` `_MIN_SCORE`. 데모 약이 후보엔 들지만 1위는 아님(각인/색 표기 편차). 실사진 인식 점검 + `VISION_PROMPT` 튜닝.
-4. **(참고)** 적재는 `backend/scripts/fetch_pills.py`로 재실행 가능(upsert, 멱등). 산출물 `frontend/public/data/pills.json`은 gitignore(미사용·재생성 가능).
+## 5. 더미(연출용) vs 실데이터 — 시연 참고
 
-## 5. 공통 셋업 & 검증
+- **실데이터/실LLM**: 대화(상담), 알약사전 목록·상세·검색(`/all-pills`·`/dictionary/:itemSeq`), 카메라 인식 결과.
+- **더미(연출/스크린샷용)**: 홈 화면(오늘의 약속·최근 대화·통계), 내 기록(`/cabinet`) 약 카드. → 화면 채우기용. 실연결 원하면 후속.
+- 건강정보는 브라우저 **localStorage**(기기별 1인) — DB 아님. 계정/로그인 없음. **단일 사용자 시연 모델**(의도된 임시 구조).
+
+## 6. 공통 셋업 & 검증
 
 ```bash
 # 백엔드 (backend/)
 uv sync
 uv run uvicorn main:app --reload          # http://localhost:8000, .env의 DATABASE_URL(Neon) 필요
 uv run ruff check . && uv run ruff format --check . && uv run python -m mypy && uv run python -m pytest
-#   ※ lint-imports: uv run python -c "from importlinter.cli import lint_imports; import sys; sys.exit(lint_imports())"
+#  lint-imports: uv run python -c "from importlinter.cli import lint_imports; import sys; sys.exit(lint_imports())"
+#  (uv run alembic / uv run lint-imports 는 이 환경서 트램폴린·디렉터리충돌로 안 됨 — python -m / -c 우회)
 # 프론트 (frontend/)
-npm run dev                               # http://localhost:5173 (CORS 허용됨)
+npm run dev                               # https://localhost:5173 (basicSsl)
 npm run build && npm run lint
 ```
 
-**규칙**: 코드 바꾸면 위 검증 통과 후 커밋. 커밋/푸시는 명시 요청 시만. 시크릿은 코드·로그에 남기지 않기.
+## 7. 알아둘 함정
 
-## 6. 알아둘 함정
+- **psycopg v3** — `DATABASE_URL`은 반드시 `postgresql+psycopg://...`. `postgresql://`면 SQLAlchemy가 psycopg2(미설치)를 찾아 **import 시점에 크래시**.
+- **Neon 콜드스타트** — 유휴 후 ~5-10s. `core/db.py` `connect_timeout=15`로 여유(첫 요청 한 번 느릴 수 있음).
+- **SQLite 불가** — `pill_orm.raw_json`이 PG 전용 JSONB. 테스트는 DB 없이 fake(pytest 31건 DB 불필요).
+- **Vision 토글 = 키** — `GOOGLE_API_KEY` 유무로 실제/fake 자동 전환.
+- **색 표기 식약처 raw** — `"하양"`(O) ≠ `"흰색"`(X).
+- **공공데이터 낱알식별 = v03** — `MdcinGrnIdntfcInfoService03/getMdcinGrnIdntfcInfoList03` (구 v01은 500 폐기).
+- **Alembic 현재 미작동** — §4-3. 스키마는 create_all로 생성돼 있음.
 
-- **DB = 공유 Neon** — `DATABASE_URL` 없으면 쿼리 실패. Neon 서버리스는 유휴 후 콜드스타트(~5-10s) → `connect_timeout` 15s로 여유(첫 요청 한 번은 느릴 수 있음).
-- **SQLite 불가** — `pill_orm.raw_json`이 PG 전용 JSONB. 테스트는 DB 없이 `dependency_overrides`+fake로(현 pytest 31건 DB 불필요).
-- **Vision 토글 = 키** — `GOOGLE_API_KEY` 유무로 실제/fake 자동 전환(`apps/pill/dependencies/`).
-- **색 표기는 식약처 raw** — `"하양"`(O) ≠ `"흰색"`(X). Vision·DB·매칭 모두 식약처 값 기준.
-- **공공데이터 낱알식별 API = v03** — 구 `MdcinGrnIdntfcInfoService01`은 폐기(500). 현행 `...Service03/getMdcinGrnIdntfcInfoList03`.
-- **Alembic 현재 미작동** — §4-2 참조. 스키마는 `create_all`로 만들어져 있음.
+## 8. 배포 / 재배포 가이드 (★ 다른 세션에서 이어할 때 필독)
 
-## 7. 빠른 참조
+**아키텍처**: Vercel(seuk.cloud, 프론트 정적) → Railway(api, FastAPI) → Neon(DB) + Gemini.
+
+**Railway (백엔드)** — 프로젝트 `empathetic-acceptance`:
+- 서비스 **Root Directory = `backend`** (필수 — 루트에선 NIXPACKS가 Python 못 잡음). 설정은 `backend/railway.toml`.
+- **환경변수**:
+  - `DATABASE_URL` = `postgresql+psycopg://...neon.../neondb?sslmode=require` (★`+psycopg` 필수)
+  - `GOOGLE_API_KEY`, `DATA_GO_KR_KEY`
+  - `NIXPACKS_UV_VERSION` = `0.11.23` (★없으면 빌드 때 `pip install uv==`로 깨짐)
+- Networking → Generate Domain → `yaksok-production-9631.up.railway.app` (포트 8080).
+- 시작: `uv run python -m uvicorn main:app --host 0.0.0.0 --port $PORT` (railway.toml).
+
+**Vercel (프론트)** — seuk.cloud:
+- 빌드: `cd frontend && npm install && npm run build`, output `frontend/dist`, SPA rewrite(`vercel.json`).
+- **환경변수 `VITE_API_BASE` = `https://yaksok-production-9631.up.railway.app`** (★빌드시 인라인 — 바꾸면 반드시 Redeploy).
+- CORS는 백엔드 `main.py`에 seuk.cloud·www.seuk.cloud 허용됨.
+
+**키·DB URL은 모두 대시보드(Railway/Vercel)·`backend/.env`에만 — git 커밋 금지.** `.env`는 gitignore.
+
+## 9. 빠른 참조
 
 | 경로 | 내용 |
 | --- | --- |
-| `backend/main.py` | 진입점·라우터 등록·lifespan(alembic, 현재 미작동) |
+| `backend/main.py` | 진입점·라우터·lifespan(alembic, 미작동) |
 | `backend/core/{db,gemini,config}.py` | DB세션·Gemini래퍼·설정 |
-| `backend/apps/pill/` | 인식(`identify`)·매칭(`pill_repository`)·사전(`dictionary`·`search_pills`) |
-| `backend/apps/guidance/` | 복약 상담(LLM) + fake 어댑터·테스트 |
-| `backend/scripts/fetch_pills.py` | 공공데이터 적재(v03, upsert) |
+| `backend/apps/pill/` | 인식(identify)·매칭(pill_repository)·사전(dictionary·search_pills) |
+| `backend/apps/guidance/` | 복약 상담(LLM) + fake·테스트 |
+| `backend/scripts/fetch_pills.py` | 공공데이터 적재(v03, upsert 청크) |
+| `backend/railway.toml` | Railway 배포 설정 |
+| `vercel.json` | Vercel 빌드/SPA 설정 |
 | `frontend/src/lib/api.ts` | 백엔드 클라이언트(identify·dictionary·guidance) |
-| `frontend/src/pages/{camera,chat,allpills,dictionary}/` | 카메라 자동스캔·대화·사전목록·사전상세 |
+| `frontend/src/pages/{camera,chat,allpills,dictionary,cabinet,home,profile}/` | 화면들 |
