@@ -5,9 +5,24 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import PillImage from '../../components/PillImage'
 import { ArrowUp, ChevronRight } from '../../components/icons'
+import type { IdentifyResult } from '../../lib/api'
 import styles from './ChatPage.module.css'
 
 type Msg = { id: number; role: 'me' | 'bot'; text?: string; image?: string }
+
+/* 카메라 스캔으로 넘어올 때 전달되는 인식 결과 (CameraPage → navigate state). */
+type ScanHandoff = { image: string; result: IdentifyResult }
+
+/* 인식 직후 임시 안내 — 실제 상담 답변(LLM)은 팀원3의 guidance 연동으로 대체된다. */
+function scanIntro(result: IdentifyResult): string {
+  const top = result.candidates[0]?.item_name
+  if (top) return `사진 속 약은 ${top}로 보여요. 복용법이나 주의사항 등 궁금한 점을 물어보세요.`
+  const a = result.attributes
+  const seen = [a.shape, a.color_front].filter(Boolean).join(' · ')
+  return seen
+    ? `${seen} 형태의 알약으로 보여요. 약 이름이나 증상을 알려주시면 더 자세히 도와드릴게요.`
+    : '알약을 살펴봤어요. 궁금한 점을 편하게 물어보세요.'
+}
 
 const DEMO_PHOTO = '/demo/pill.jpg'
 /* 연출용 — 사진 속 약(타이레놀 500mg)에 대한 프로미 답변(성인 기준). */
@@ -40,20 +55,24 @@ export default function ChatPage() {
   const stageTyping = stage === 'typing'
   const stagePhoto = stage === 'photo'
   const stageAnswer = stage === 'answer'
+  /* 카메라 스캔으로 진입한 경우 — 캡처 사진을 첫 메시지로 띄우고 안내를 잇는다. */
+  const scan = (location.state as { scan?: ScanHandoff } | null)?.scan
   const [msgs, setMsgs] = useState<Msg[]>(
-    stageAnswer
-      ? [
-          { id: 1, role: 'me', image: DEMO_PHOTO },
-          { id: 2, role: 'bot', text: DEMO_ANSWER },
-        ]
-      : stagePhoto
-        ? [{ id: 1, role: 'me', image: DEMO_PHOTO }]
-        : stageTyping
-          ? [{ id: 1, role: 'me', text: '어제부터 머리가 지끈거리고 콧물이 나요.' }]
-          : [],
+    scan
+      ? [{ id: 1, role: 'me', image: scan.image }]
+      : stageAnswer
+        ? [
+            { id: 1, role: 'me', image: DEMO_PHOTO },
+            { id: 2, role: 'bot', text: DEMO_ANSWER },
+          ]
+        : stagePhoto
+          ? [{ id: 1, role: 'me', image: DEMO_PHOTO }]
+          : stageTyping
+            ? [{ id: 1, role: 'me', text: '어제부터 머리가 지끈거리고 콧물이 나요.' }]
+            : [],
   )
   const [draft, setDraft] = useState('')
-  const [typing, setTyping] = useState(stageTyping || stagePhoto)
+  const [typing, setTyping] = useState(stageTyping || stagePhoto || !!scan)
   const bottomRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   /* 사용자가 위로 스크롤 중이면 자동 하단 스크롤을 억제하기 위한 추적 */
@@ -65,6 +84,17 @@ export default function ChatPage() {
   useEffect(() => {
     if (stickToBottom.current) bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [msgs, typing])
+
+  /* 카메라 스캔으로 진입했으면 사진 메시지 뒤에 안내 답변을 한 번 잇는다(마운트 1회). */
+  useEffect(() => {
+    if (!scan) return
+    const t = setTimeout(() => {
+      setTyping(false)
+      setMsgs((m) => [...m, { id: m.length + 1, role: 'bot', text: scanIntro(scan.result) }])
+    }, 800)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function onScroll() {
     const el = scrollRef.current

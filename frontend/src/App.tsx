@@ -69,6 +69,7 @@ function AllPillsRoute() {
   return <AllPillsPage onBack={() => navigate(-1)} />
 }
 
+
 function ResultRoute() {
   const navigate = useNavigate()
   const { id } = useParams()

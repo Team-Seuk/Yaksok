@@ -4,13 +4,23 @@
 
    연출(서류 캡처용): /camera?stage=shot — 실제 카메라 대신 데모 알약 사진을 띄워 "촬영·인식 중" 모습을 보여준다. */
 import { useEffect, useRef, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { identifyPill, type IdentifyResult } from '../../lib/api'
 import styles from './CameraPage.module.css'
 
 type CamState = 'loading' | 'live' | 'denied'
 type FocusCaps = MediaTrackCapabilities & { focusMode?: string[] }
 
 const DEMO_PHOTO = '/demo/pill.jpg'
+
+/* 스캔 한 번 돌리고 다음 시도까지의 간격(ms). Gemini Vision 호출이 끝난 뒤 추가로 쉬는 시간. */
+const SCAN_GAP_MS = 1200
+
+/* 인식 성공 판정 — 알약 모양이 잡혔으면 프레임 안에 약이 또렷이 들어온 것으로 보고 진행한다.
+   (실데이터 적재 전이라 후보 0개여도 진행. 적재 후엔 needs_retry/점수 기준으로 조일 수 있다.) */
+function looksLikePill(result: IdentifyResult): boolean {
+  return result.attributes.shape !== null
+}
 
 function LockIcon({ size = 26 }: { size?: number }) {
   return (
@@ -80,11 +90,15 @@ const TIPS = [
 
 export default function CameraPage() {
   const location = useLocation()
+  const navigate = useNavigate()
   const stageShot = new URLSearchParams(location.search).get('stage') === 'shot'
   const [cam, setCam] = useState<CamState>('loading')
   const [attempt, setAttempt] = useState(0)
+  const [scanning, setScanning] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
+  /* 인식 성공 후 대화창으로 넘어가면 스캔 루프를 멈추기 위한 1회성 플래그 */
+  const navigatedRef = useRef(false)
 
   /* 탭에 들어오면 카메라 시작, 떠나면(언마운트) 트랙을 멈춰 카메라를 끈다. attempt를 올리면 재시도.
      연출 모드(stageShot)에선 실제 카메라를 켜지 않는다. */
@@ -142,6 +156,59 @@ export default function CameraPage() {
     }
   }, [attempt, stageShot])
 
+  /* 자동 스캔 루프 — 카메라가 켜지면(live) QR처럼 프레임을 계속 캡처해 인식 시도.
+     Gemini Vision 응답을 기다리는 동안은 다음 시도를 멈춰(순차) 호출이 겹치지 않게 한다.
+     약이 또렷이 잡히면 캡처 사진과 인식 결과를 들고 대화창으로 넘어간다. */
+  useEffect(() => {
+    if (cam !== 'live' || stageShot) return
+    let active = true
+
+    async function captureFrame(): Promise<{ blob: Blob; dataUrl: string } | null> {
+      const video = videoRef.current
+      if (!video || !video.videoWidth) return null
+      const canvas = document.createElement('canvas')
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return null
+      ctx.drawImage(video, 0, 0)
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.9)
+      const blob = await new Promise<Blob | null>((res) =>
+        canvas.toBlob(res, 'image/jpeg', 0.9),
+      )
+      return blob ? { blob, dataUrl } : null
+    }
+
+    async function loop() {
+      while (active && !navigatedRef.current) {
+        const frame = await captureFrame()
+        if (frame && active) {
+          setScanning(true)
+          try {
+            const file = new File([frame.blob], 'scan.jpg', { type: 'image/jpeg' })
+            const result = await identifyPill(file)
+            if (!active) return
+            if (looksLikePill(result)) {
+              navigatedRef.current = true
+              navigate('/chat', { state: { scan: { image: frame.dataUrl, result } } })
+              return
+            }
+          } catch {
+            /* 네트워크·서버 오류 — 잠시 후 재시도 */
+          } finally {
+            if (active) setScanning(false)
+          }
+        }
+        await new Promise((res) => setTimeout(res, SCAN_GAP_MS))
+      }
+    }
+
+    void loop()
+    return () => {
+      active = false
+    }
+  }, [cam, stageShot, navigate])
+
   return (
     <div className={styles.home}>
       <header className={styles.greeting}>
@@ -195,6 +262,12 @@ export default function CameraPage() {
           )}
 
           {(stageShot || cam === 'live') && <Reticle />}
+          {cam === 'live' && scanning && (
+            <span className={styles.scanBadge} role="status">
+              <span className={styles.scanDot} aria-hidden="true" />
+              인식 중
+            </span>
+          )}
         </div>
 
         {cam === 'denied' && !stageShot ? (
@@ -207,14 +280,16 @@ export default function CameraPage() {
               {stageShot
                 ? '알약을 인식하고 있어요'
                 : cam === 'live'
-                  ? '가운데 칸에 알약을 맞춰 주세요'
+                  ? scanning
+                    ? '알약을 살펴보고 있어요'
+                    : '가운데 칸에 알약을 맞춰 주세요'
                   : '카메라를 준비하고 있어요'}
             </span>
             <span className={styles.captionSub}>
               {stageShot
                 ? '잠시만 기다려 주세요. 곧 알려드릴게요.'
                 : cam === 'live'
-                  ? '알약을 비추고 기다리면 자동으로 인식됩니다.'
+                  ? '알약을 비추고 있으면 자동으로 알아봐요.'
                   : '잠시만 기다려 주세요. 곧 켜집니다.'}
             </span>
           </div>
