@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from apps.pill.app.dtos.pill_dto import PillDetail, SearchRequest
+from apps.pill.app.ports.input.search_pills_port import SearchPillsPort
 from apps.pill.app.ports.output.pill_repository import PillRepositoryPort
 
 
-class SearchPillsUseCase:
+class SearchPillsUseCase(SearchPillsPort):
     def __init__(self, repo: PillRepositoryPort) -> None:
         self._repo = repo
 

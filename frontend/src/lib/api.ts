@@ -146,3 +146,56 @@ export async function identifyPill(file: Blob): Promise<IdentifyResponse> {
   }
   return (await res.json()) as IdentifyResponse
 }
+
+/* ── 알약사전(검색·목록·상세) ───────────────────────────── */
+
+/** 목록/검색 항목(요약). 식약처 표기. */
+export interface PillSummary {
+  item_seq: string
+  item_name: string
+  entp_name: string | null
+  is_otc: boolean | null
+  shape: string | null
+  color_front: string | null
+  color_back: string | null
+  class_name: string | null
+  image_url: string | null
+}
+
+/** 상세 = 요약 + 각인·제형·효능·용법·주의. */
+export interface PillDetailInfo extends PillSummary {
+  print_front: string | null
+  print_back: string | null
+  form: string | null
+  efcy: string | null
+  use_method: string | null
+  caution: string | null
+}
+
+/** GET 요청 공통 처리(연결 실패·HTTP 오류를 ApiError 로). */
+async function getJson<T>(path: string): Promise<T> {
+  let res: Response
+  try {
+    res = await fetch(`${API_BASE}${path}`)
+  } catch {
+    throw new ApiError(0, '서버에 연결할 수 없어요. 백엔드가 실행 중인지 확인해 주세요.')
+  }
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as { detail?: string } | null
+    throw new ApiError(res.status, body?.detail ?? `요청 실패 (${res.status})`)
+  }
+  return (await res.json()) as T
+}
+
+/** 알약 목록/검색. q 가 비면 전체(최대 limit). */
+export async function listPills(q = '', limit = 30): Promise<PillSummary[]> {
+  const params = new URLSearchParams()
+  if (q.trim()) params.set('q', q.trim())
+  params.set('limit', String(limit))
+  return getJson<PillSummary[]>(`/api/pill/dictionary?${params.toString()}`)
+}
+
+/** 품목기준코드로 알약 상세 1건. 없으면 ApiError(404). */
+export async function getPillDetail(itemSeq: string): Promise<PillDetailInfo> {
+  return getJson<PillDetailInfo>(`/api/pill/dictionary/${encodeURIComponent(itemSeq)}`)
+}

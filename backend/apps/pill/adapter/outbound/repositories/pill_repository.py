@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session
 
 from apps.pill.adapter.outbound.mappers.pill_mapper import domain_to_orm, orm_to_domain
 from apps.pill.adapter.outbound.orm.pill_orm import PillORM
+from apps.pill.app.ports.output.pill_repository import PillRepositoryPort
 from apps.pill.domain.entities.pill import Pill, PillAttrs, PillCandidate
 
 
@@ -53,7 +54,7 @@ def _score(row: PillORM, attrs: PillAttrs) -> float:
     return s
 
 
-class PillRepository:
+class PillRepository(PillRepositoryPort):
     def __init__(self, db: Session) -> None:
         self._db = db
 
