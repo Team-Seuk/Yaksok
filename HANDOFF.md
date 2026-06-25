@@ -1,7 +1,7 @@
 ---
 status: 개발
 updated: 2026-06-25
-summary: **알약 인식·복약 상담 통합 완료 → 4인 분담 시작 단계 (2026-06-24 핸드오프, origin/main 기준).** `POST /api/pill/identify`(필드 `file`) Gemini Vision→P2 매칭, guidance 상담 엔드포인트까지 `main.py` 라우터 배선 완료, 기동 시 DB 테이블 자동생성(lifespan `create_all`, Alembic 전 임시), 프론트 카메라 촬영→인식 실연동 + 식별 결과 화면(`/identify`) 동작. 검증 그린(backend ruff·format·mypy·lint-imports·pytest17 / frontend tsc·build·eslint / 라이브 health·415·CORS). **다음 = 팀장 §4(키 발급·배포·조율) + 팀원 1~4 분담**(§5: 알약사전 종단 / 인식 품질·결과흐름 / 상담 연동·백엔드 견고화 / 환경셋업·문서). 선행: 공공데이터·Gemini 키 발급 후 적재(`scripts/fetch_pills.py`). Vision 토글은 코드가 아니라 키(`GOOGLE_API_KEY`). 색 표기는 식약처 raw("하양" O / "흰색" X).
+summary: **알약 인식·복약 상담 통합 완료 → 4인 분담 시작 단계 (2026-06-24 핸드오프, origin/main 기준).** `POST /api/pill/identify`(필드 `file`) Gemini Vision→P2 매칭, guidance 상담 엔드포인트까지 `main.py` 라우터 배선 완료, 기동 시 DB 테이블 자동생성(lifespan `create_all`, Alembic 전 임시), 프론트 카메라 촬영→인식 실연동 + 식별 결과 화면(`/identify`) 동작. 검증 그린(backend ruff·format·mypy·lint-imports·pytest17 / frontend tsc·build·eslint / 라이브 health·415·CORS / Gemini 키 실호출 OK). **다음 = 팀장 §4(키 2개 + 공유 Neon DB 발급·배포·조율) + 팀원 1~4 분담**(§5: 알약사전 종단 / 인식 품질·결과흐름 / 상담 연동·백엔드 견고화 / 환경셋업·문서). DB = **공유 Neon Postgres**(팀장이 `DATABASE_URL` 배포, 로컬 설치 없음); 선행: 공공데이터·Gemini 키 + Neon URL 배포 후 적재 1회(전원 공유, `scripts/fetch_pills.py`). 데이터 방식 = 공공API 적재(closed-world 고정셋 보류). Vision 토글은 코드가 아니라 키(`GOOGLE_API_KEY`). 색 표기는 식약처 raw("하양" O / "흰색" X).
 repo: Team-Seuk/Yaksok
 ---
 
@@ -28,7 +28,7 @@ repo: Team-Seuk/Yaksok
 
 **스택**
 
-- **백엔드**: Python 3.12 · `uv` · FastAPI · SQLAlchemy 2.0(`psycopg` v3) · PostgreSQL · Google `google-genai`(Gemini `gemini-2.5-flash`, LLM·Vision 공용)
+- **백엔드**: Python 3.12 · `uv` · FastAPI · SQLAlchemy 2.0(`psycopg` v3) · PostgreSQL(**공유 Neon**) · Google `google-genai`(Gemini `gemini-2.5-flash`, LLM·Vision 공용)
 - **프론트**: React 18 · Vite · TypeScript · react-router-dom (CRT 그린 테마, CSS Modules)
 
 **구조 (헥사고날, `backend/apps/<도메인>/`)**
@@ -55,7 +55,7 @@ core/        # db·gemini·config 공용 (features를 import 하지 않음)
 
 **환경 파일** (`.env.example` → `.env` 복사)
 
-- `backend/.env`: `GOOGLE_API_KEY`, `DATA_GO_KR_KEY`, `DATABASE_URL`(기본 `postgresql+psycopg://yaksok:yaksok@localhost:5432/yaksok`)
+- `backend/.env`: `GOOGLE_API_KEY`, `DATA_GO_KR_KEY`, **`DATABASE_URL`(공유 Neon Postgres — 팀장이 발급해 DM으로 배포; 커밋 금지)**
 - `frontend/.env`: `VITE_API_BASE`(미설정 시 `http://localhost:8000`)
 
 **핵심 엔드포인트** (main.py 등록 완료)
@@ -71,13 +71,13 @@ core/        # db·gemini·config 공용 (features를 import 하지 않음)
 | 영역   | 한 일                                                                                                                                     |
 | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | 통합   | 인식·상담·데이터·매칭·프론트 브랜치를 하나로 머지(충돌 2건 해소)                                                                          |
-| 브랜딩 | 어시스턴트 명칭 **"프로미" → "약속 도우미"** 통일                                                                                         |
+| 브랜딩 | 어시스턴트 명칭 **"약속 도우미" → "프로미"** 통일                                                                                         |
 | 백엔드 | **main.py 라우터 배선**(pill·guidance — 이전엔 미등록이라 엔드포인트가 안 떴음)                                                           |
 | 백엔드 | guidance ruff B008 수정(레포 ruff 게이트 복구)                                                                                            |
-| 백엔드 | **기동 시 DB 테이블 자동 생성**(lifespan `create_all`, Alembic 전 임시). Postgres만 켜면 테이블 생김. DB 없어도 서버는 뜸                 |
+| 백엔드 | **기동 시 DB 테이블 자동 생성**(lifespan `create_all`, Alembic 전 임시). DB 연결되면 테이블 생김                                          |
 | 프론트 | **카메라 촬영/업로드 → `/api/pill/identify` 실연동**(이전엔 프론트가 백엔드를 아예 호출 안 했음). 셔터 캡처 + 갤러리 업로드 + 인식중/에러 |
 | 프론트 | **식별 결과 화면 신설** `/identify`(추출 속성 + 후보약 + `needs_retry` 재촬영)                                                            |
-| 검증   | backend ruff·format·mypy·lint-imports·pytest(17) ✅ / frontend tsc·build·eslint ✅ / 라이브 HTTP health·415·CORS ✅                       |
+| 검증   | backend ruff·format·mypy·lint-imports·pytest(17) ✅ / frontend tsc·build·eslint ✅ / 라이브 HTTP health·415·CORS ✅ / Gemini 키 실호출 ✅ |
 
 > Vision 토글은 **코드가 아니라 키**: `GOOGLE_API_KEY` 있으면 실제 Gemini, 없으면 fake. 키 없이도 흐름 전체를 fake로 확인 가능.
 
@@ -85,10 +85,11 @@ core/        # db·gemini·config 공용 (features를 import 하지 않음)
 
 ## 4. 팀장이 할 일
 
-1. **API 키 발급·배포** — 계정·시크릿은 팀장이:
+1. **API 키 2개 + 공유 DB 발급·배포** — 계정·시크릿은 팀장이. 전부 `backend/.env`로 **안전 공유(DM·비번관리자, 레포·로그 금지)**:
    - Gemini: https://aistudio.google.com/apikey
    - 공공데이터포털 낱알식별: https://www.data.go.kr/data/15057639/openapi.do (즉시 자동승인, 인코딩 인증키)
-   - → `backend/.env`로 팀에 안전하게 공유(레포·로그에 남기지 않기). _팀원4 적재·팀원2 인식의 선행이라 최우선._
+   - **공유 Postgres(Neon)**: https://neon.tech 무료 프로젝트 생성 → connection string을 `DATABASE_URL`로. 드라이버 접두어를 **`postgresql+psycopg://`** 로 바꾸고 `?sslmode=require` 유지. **한 DB를 팀 전원이 공유** → 팀원4가 한 번 적재하면 모두 실데이터 사용(각자 로컬 DB 설치 불필요).
+   - _팀원4 적재·팀원2 인식의 선행이라 최우선._
 2. **§5 분담 진행 점검 + 조율 + PR 리뷰/머지.**
 3. (완료) ~~로컬 main(+15) → origin 반영~~ — origin/main에 통합본 반영됨.
 
@@ -99,14 +100,14 @@ core/        # db·gemini·config 공용 (features를 import 하지 않음)
 **지금 키 없이 시작 가능 — 막고 기다리지 말 것.**
 
 - **팀원 1(사전)·3(상담)** = pill 실데이터와 무관 → **즉시 시작**. (1은 조회 API+프론트, 3은 guidance 연동·테스트·Alembic — LLM 키 없이 fake로 흐름 전부 구현 가능.)
-- **팀원 4** = `docker-compose`·문서는 **지금 가능**. "적재"만 키+데이터 확정 후.
+- **팀원 4** = 문서·연결 확인은 **지금 가능**. "적재"만 키+DB 확정 후.
 - **팀원 2(인식)** = Gemini 키 + 실데이터가 선행 → 그 전까진 대기.
 
-**키는 git에 안 올라간다.** `backend/.env`는 `.gitignore` 대상이다. 키는 **비번관리자·DM으로 공유**(커밋·로그 금지). → "팀장이 키 받고 다시 push" 같은 단계는 **없다**. 받은 사람이 자기 `.env`에 넣으면 끝.
+**키·DB URL은 git에 안 올라간다.** `backend/.env`는 `.gitignore` 대상이다. 키와 Neon `DATABASE_URL`은 **비번관리자·DM으로 공유**(커밋·로그 금지). → "팀장이 키 받고 다시 push" 같은 단계는 **없다**. 받은 사람이 자기 `.env`에 넣으면 끝.
 
 **pull은 일상이다.** 각자 `feat/*` 브랜치에서 작업하고 수시로 main을 pull하는 게 정상 흐름이지 손해가 아니다. 시작을 미룰 이유가 없다.
 
-**매칭은 '사진 비교'가 아니라 '속성 대조'다 (중요).** 사용자 사진 → Gemini Vision이 속성(모양·색·각인 앞뒤·분할선) 추출 → **DB의 식약처 낱알식별 속성과 exact-match**. 저장 이미지는 결과 표시용일 뿐 매칭에 안 쓴다. → **매칭 DB로 필요한 건 "속성 테이블"이지 사진이 아니다.** 보유 데이터가 "정해진 알약 사진셋"뿐이라면, 그 알약들의 식약처 속성을 채운 **소규모 closed-world DB**(전량 공공API 적재보다 시연 안정적)가 유력하다. **데이터 방식(고정셋 vs 공공API 전량)은 팀장이 데이터셋 확인 후 확정** — 그 결정은 팀원 2·4의 적재에만 영향이고, 1·3·4(인프라)는 그 전에도 진행한다.
+**매칭은 '사진 비교'가 아니라 '속성 대조'다 (중요).** 사용자 사진 → Gemini Vision이 속성(모양·색·각인 앞뒤·분할선) 추출 → **DB의 식약처 낱알식별 속성과 exact-match**. 저장 이미지는 결과 표시용일 뿐 매칭에 안 쓴다. → **매칭 DB로 필요한 건 "속성 테이블"이지 사진이 아니다.** **데이터 방식 = 당장은 공공데이터 API 적재로 결정**(closed-world 고정셋은 보류). **공유 Neon DB**라 팀원4가 한 번 적재하면 팀원1·2가 실데이터를 자동 공유한다 — 그 적재만 팀원 2·4에 영향이고, 1·3은 그 전에도 진행한다.
 
 ---
 
@@ -137,19 +138,20 @@ core/        # db·gemini·config 공용 (features를 import 하지 않음)
 1. **guidance 프론트 실연동** — `ChatPage`/`ConversationPage`는 더미(코멘트 "서버 연동 M4"). `lib/api.ts`에 guidance 함수 추가해 `/api/guidance/*`(대화방 생성·메시지·내역) 호출. 건강정보(localStorage `lib/storage.ts`)를 상담 프롬프트에 전달(`build_system_prompt`은 이미 받게 돼 있음).
 2. **guidance 도메인 테스트 추가** — 현재 0개(pytest 17개 전부 pill). pill의 `dependency_overrides`+fake 패턴 참고.
 3. **Alembic 정식 마이그레이션** — 임시 `create_all` 대체(pills·conversations·messages).
+4. **(견고화) `core/db.py`에 `connect_timeout` 추가** — 현재 `DATABASE_URL` 미설정/불통 시 서버가 startup(lifespan `create_all`)에서 멈춘다(행). 짧은 연결 타임아웃을 줘서 빠르게 실패+경고 후 부팅되게.
 
-- 파일: `frontend/src/pages/chat/ChatPage.tsx`·`pages/conversation/ConversationPage.tsx`·`lib/api.ts`, `backend/apps/guidance/`, `backend/`(신규 alembic)
+- 파일: `frontend/src/pages/chat/ChatPage.tsx`·`pages/conversation/ConversationPage.tsx`·`lib/api.ts`, `backend/apps/guidance/`, `backend/core/db.py`, `backend/`(신규 alembic)
 
 ### 팀원 4 — 환경 셋업·문서 (★ 가벼운 작업 모음, 코딩 부담 적음)
 
-1. **`docker-compose.yml`(Postgres) 추가** — "DB 한 줄로 켜기"(user/pw/db = `yaksok`, 기본 `DATABASE_URL`과 일치). 거의 설정 복붙 수준.
-2. **공공데이터 적재 실행** — 키 받은 뒤 `cd backend && uv run python scripts/fetch_pills.py` (pills 적재 + `frontend/public/data/pills.json`). _팀원1·2의 실데이터 선행이라 빨리._
+1. **DB = 공유 Neon (로컬 설치 불필요)** — 팀장이 배포한 `DATABASE_URL`을 `backend/.env`에 넣고 연결 확인(`uvicorn` 기동 시 테이블 자동생성되는지). docker-compose·로컬 Postgres 설치 안 한다. README에 "Neon URL을 `.env`에 넣으면 끝" 셋업법 한 줄 문서화.
+2. **공공데이터 적재 실행** — 키 받은 뒤 `cd backend && uv run python scripts/fetch_pills.py` (공유 Neon에 pills 적재 + `frontend/public/data/pills.json`). **공유 DB라 1회만 적재하면 전원 공유.** _팀원1·2의 실데이터 선행이라 빨리._
 3. **문서** — README 갱신(실행법·구조), `.env` 세팅 가이드, API 명세 정리(서버 `/docs` 화면 캡처/요약).
 4. **팀 도메인 URL로 앱 등록** — 배포된 앱을 팀 도메인 URL에 연결·등록해 팀원·시연용 공개 주소를 확보한다.
 
-- 선행: 적재는 §4-1(공공데이터 키). 도메인 등록은 배포 가능한 빌드가 나온 뒤.
+- 선행: 적재는 §4-1(공공데이터 키 + Neon `DATABASE_URL`). 도메인 등록은 배포 가능한 빌드가 나온 뒤.
 
-**의존 요약**: `§4-1 키` → `팀원4 적재`(팀원1·2 실데이터) / `팀원1 상세API`(팀원2 상세연결).
+**의존 요약**: `§4-1 키+DB(Neon)` → `팀원4 적재`(1회, 공유 Neon → 팀원1·2 실데이터 자동 공유) / `팀원1 상세API` → `팀원2 상세연결`.
 
 ---
 
@@ -157,7 +159,7 @@ core/        # db·gemini·config 공용 (features를 import 하지 않음)
 
 ```bash
 # 백엔드 (backend/ 에서)
-uv run uvicorn main:app --reload          # http://localhost:8000, DB 켜져 있으면 테이블 자동생성
+uv run uvicorn main:app --reload          # http://localhost:8000, .env의 DATABASE_URL(Neon) 있으면 테이블 자동생성
 uv run ruff check . && uv run ruff format --check . && uv run mypy && uv run lint-imports && uv run pytest
 
 # 프론트 (frontend/ 에서)
@@ -172,10 +174,10 @@ npm run build && npm run lint
 ## 7. 알아둘 함정
 
 - **이 문서도 곧 stale** — 시작 전 `git fetch && git log origin/main`로 실제 상태 확인.
-- **DB 없이 백엔드 기동하면 느림** — lifespan이 DB 연결 타임아웃만큼 기다린 뒤(경고만) 뜬다. 빠르게 띄우려면 Postgres 먼저.
+- **`DATABASE_URL`(Neon) 안 넣고 기동하면 startup에서 멈춘다** — lifespan `create_all`이 DB 연결을 기다리며 행된다(현재 connect timeout 없음). `.env`에 Neon URL부터 넣을 것. (견고화는 팀원3 §4: `core/db.py`에 `connect_timeout`.)
 - **SQLite 불가** — `pill_orm.raw_json`이 PG 전용 `JSONB`. 테스트는 DB 없이 `dependency_overrides`+fake로.
 - **Vision 토글 = 키** — `GOOGLE_API_KEY` 유무로 실제/fake 자동 전환(`apps/pill/dependencies/vision.py`).
-- **인식이 500이면** 대개 DB 미기동(매칭 단계 연결 실패). Postgres 켜면 빈 데이터라도 200(`needs_retry`).
+- **인식이 500이면** 대개 DB 연결 문제(매칭 단계). Neon URL 확인. 연결되면 빈 데이터라도 200(`needs_retry`).
 - **색 표기는 식약처 raw** — `"하양"`(O) ≠ `"흰색"`(X). Vision·DB·매칭 모두 식약처 값 기준.
 
 ---
