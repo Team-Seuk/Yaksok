@@ -1,29 +1,46 @@
-/* 전체 알약 사전 = 데이터셋에 등록된 모든 약을 검색·열람하는 화면.
-   ※ 임시 더미 데이터. 실제 데이터셋이 들어오면 pillData.ts를 교체하면 된다. */
-import { useMemo, useState } from 'react'
-import PillImage from '../../components/PillImage'
+/* 전체 알약 사전 = DB에 적재된 모든 약을 검색·열람하는 화면.
+   백엔드 GET /api/pill/dictionary 로 목록/검색을 받아온다. */
+import { useEffect, useState } from 'react'
+import PillImage, { type PillLook } from '../../components/PillImage'
 import { ChevronLeft, ChevronRight, BookIcon } from '../../components/icons'
-import { PILLS } from '../../lib/pillData'
+import { listPills, ApiError, type PillSummary } from '../../lib/api'
 import styles from './AllPillsPage.module.css'
+
+/* 실사진(image_url)이 없을 때 쓰는 기본 일러스트. */
+const DEFAULT_LOOK: PillLook = { kind: 'round', color: '#e7ecee' }
 
 export default function AllPillsPage({
   onBack,
   onSelect,
 }: {
   onBack: () => void
-  onSelect?: (id: number) => void
+  onSelect?: (itemSeq: string) => void
 }) {
   const [q, setQ] = useState('')
+  const [items, setItems] = useState<PillSummary[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const results = useMemo(() => {
-    const k = q.trim().toLowerCase()
-    if (!k) return PILLS
-    return PILLS.filter(
-      (p) =>
-        p.name.toLowerCase().includes(k) ||
-        p.ingredient.toLowerCase().includes(k) ||
-        p.category.toLowerCase().includes(k),
-    )
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    setError(null)
+    const t = setTimeout(() => {
+      listPills(q)
+        .then((res) => {
+          if (!cancelled) setItems(res)
+        })
+        .catch((e: unknown) => {
+          if (!cancelled) setError(e instanceof ApiError ? e.message : '목록을 불러오지 못했어요.')
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false)
+        })
+    }, 250) // 입력 디바운스
+    return () => {
+      cancelled = true
+      clearTimeout(t)
+    }
   }, [q])
 
   return (
@@ -34,7 +51,9 @@ export default function AllPillsPage({
         </button>
         <span className={styles.headBody}>
           <span className={styles.headName}>전체 알약 사전</span>
-          <span className={styles.headSub}>등록된 약 {PILLS.length}종</span>
+          <span className={styles.headSub}>
+            {loading ? '불러오는 중…' : `${items.length}종`}
+          </span>
         </span>
       </div>
 
@@ -42,37 +61,59 @@ export default function AllPillsPage({
         <input
           className={`input ${styles.search}`}
           type="search"
-          placeholder="약 이름·성분·분류 검색"
+          placeholder="약 이름·분류 검색"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           aria-label="약 검색"
         />
 
-        {results.length === 0 ? (
+        {error ? (
+          <div className="state">
+            <div className="state-icon">
+              <BookIcon size={30} />
+            </div>
+            <p className="state-title">불러오지 못했어요</p>
+            <p className="state-desc">{error}</p>
+          </div>
+        ) : loading ? (
+          <div className="state">
+            <p className="state-title">불러오는 중…</p>
+          </div>
+        ) : items.length === 0 ? (
           <div className="state">
             <div className="state-icon">
               <BookIcon size={30} />
             </div>
             <p className="state-title">검색 결과가 없어요</p>
-            <p className="state-desc">다른 이름이나 성분으로 다시 찾아보세요.</p>
+            <p className="state-desc">다른 이름이나 분류로 다시 찾아보세요.</p>
           </div>
         ) : (
           <ul className={styles.list}>
-            {results.map((p) => (
+            {items.map((p) => (
               <li
-                key={p.id}
+                key={p.item_seq}
                 className={styles.card}
-                onClick={() => onSelect?.(p.id)}
+                onClick={() => onSelect?.(p.item_seq)}
                 style={onSelect ? { cursor: 'pointer' } : undefined}
               >
                 <span className={styles.thumb}>
-                  <PillImage look={p.look} size={40} />
+                  {p.image_url ? (
+                    <img
+                      src={p.image_url}
+                      alt=""
+                      width={40}
+                      height={40}
+                      style={{ objectFit: 'contain', borderRadius: 8 }}
+                    />
+                  ) : (
+                    <PillImage look={DEFAULT_LOOK} size={40} />
+                  )}
                 </span>
                 <span className={styles.body}>
-                  <span className={styles.name}>{p.name}</span>
-                  <span className={styles.ingredient}>{p.ingredient}</span>
+                  <span className={styles.name}>{p.item_name}</span>
+                  <span className={styles.ingredient}>{p.entp_name ?? ''}</span>
                 </span>
-                <span className={styles.category}>{p.category}</span>
+                {p.class_name && <span className={styles.category}>{p.class_name}</span>}
                 {onSelect && <ChevronRight />}
               </li>
             ))}

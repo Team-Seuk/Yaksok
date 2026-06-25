@@ -16,6 +16,7 @@ import ConversationPage from './pages/conversation/ConversationPage'
 import ProfilePage from './pages/profile/ProfilePage'
 import SymptomPage from './pages/symptom/SymptomPage'
 import AllPillsPage from './pages/allpills/AllPillsPage'
+import PillDetailPage from './pages/dictionary/PillDetailPage'
 import IdentifyResultPage from './pages/identify/IdentifyResultPage'
 import { hasHealth } from './lib/storage'
 
@@ -67,7 +68,24 @@ function MoreRoute() {
 
 function AllPillsRoute() {
   const navigate = useNavigate()
-  return <AllPillsPage onBack={() => navigate(-1)} onSelect={(id) => navigate(`/pill/${id}`)} />
+  return (
+    <AllPillsPage
+      onBack={() => navigate(-1)}
+      onSelect={(itemSeq) => navigate(`/dictionary/${itemSeq}`)}
+    />
+  )
+}
+
+function PillDetailRoute() {
+  const navigate = useNavigate()
+  const { itemSeq } = useParams()
+  return (
+    <PillDetailPage
+      itemSeq={itemSeq ?? ''}
+      onBack={() => navigate(-1)}
+      onAsk={() => navigate(`/conversation/new?pill=${itemSeq ?? ''}`)}
+    />
+  )
 }
 
 function ResultRoute() {
@@ -118,6 +136,7 @@ export default function App() {
             <Route path="/more" element={<MoreRoute />} />
           </Route>
           <Route path="/pill/:id" element={<ResultRoute />} />
+          <Route path="/dictionary/:itemSeq" element={<PillDetailRoute />} />
           <Route path="/identify" element={<IdentifyResultPage />} />
           <Route path="/conversation/:id" element={<ConversationRoute />} />
           <Route path="/symptom" element={<SymptomRoute />} />
