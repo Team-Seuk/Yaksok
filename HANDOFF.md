@@ -1,68 +1,195 @@
 ---
 status: 개발
-updated: 2026-06-24
-summary: **P3 알약 인식 + P2 매칭 통합 (브랜치 `feat/pill-identify`, 미푸시, 2026-06-24).** `POST /api/pill/identify`(필드 `file`) — Gemini Vision(P1 `core.gemini` 래퍼, 속성 추출)→**P2 `PillRepositoryPort.filter_candidates`**(실연동)→후보 약. P1·P2 모두 origin/main 머지본을 가져와 통합: 내 임시 매칭 추상 삭제→P2 `PillAttrs`/`PillCandidate` 계약으로 정렬(각인·분할선 front/back, 색 "하양"). DI는 P2 `PillRepository`(DB 세션)+Vision 키 분기, 테스트는 fake 주입(DB·키 불필요). ruff·mypy(104)·lint-imports(5 KEPT)·pytest(17) 그린. **남은 통합=`main.py` 라우터 등록 2줄(P1)** + 공공API 실데이터 적재 후 line 표기 확인. ／이전: **실기기 모바일 폴리시 + 카메라 실연동 + 공공데이터 착수 (미커밋, 2026-06-24).** 폰(HTTPS)으로 실기기 테스트하며 다수 UI 수정 — 5탭 헤더 위치/높이 통일(상단 15px·`.page-title` 위 margin 제거·대화 헤더 밑줄 삭제), 홈 "오늘의 한마디" 본문을 "최근 대화"와 통일, 스크롤바 폭(6.6px)·자동숨김 지연(800ms), **핀치/더블탭 줌 차단**(viewport `user-scalable=no` + iOS용 `lockZoom()` gesture + `touch-action:manipulation`), 카메라 **풀폭 직사각형 뷰파인더 + 민트 조준선**, 대화 AI명 **'프로미'**(약속 도우미 폐기). **카메라 실제 getUserMedia 구동**(후면·1080p·연속AF, '알약 촬영하기' 버튼 제거·탭 진입 시 자동 시작·이탈 시 정지) → 이를 위해 **vite `@vitejs/plugin-basic-ssl`로 dev HTTPS 전환**(폰 카메라는 보안 컨텍스트 필수). 디지털줌·수동초점·탭초점은 화질저하/미작동으로 제거, 최종은 원본 화각·해상도. **서류용 연출(스테이징) 모드 보존(삭제 금지)**: `/camera?stage=shot`, `/chat?stage={typing,photo,answer}`, 데모이미지 `frontend/public/demo/pill.jpg` — 실제 구현 참고자료. **공공데이터포털 낱알식별 오픈API 수집 스크립트** `backend/scripts/fetch_pills.py`(stdlib, 전량 페이징→`frontend/public/data/pills.json`) 작성 — 키 동기화 대기로 호출은 아직 500(키/등록은 정상, e약은요는 401이라 대비됨). 백엔드 빈 스캐폴드·프론트 `api/` 미연결은 그대로. ／이전: **프론트 모바일 폴리시 패스(브랜치 claude/elastic-pascal-72aa59)** — 13화면 3축(모바일 일관성·인터랙션/모션·가독성/접근성) 전수 감사 후 18파일 개선. 공유 토큰(theme.css·index.html)은 직접, 화면별은 병렬 워크플로 4그룹으로. 핵심: `viewport-fit=cover`(safe-area 실작동)·입력 16px화(iOS 줌 차단, `--fs-input`)·**흰 글자 위 민트 표면 AA 확보**(`--accent-strong #0a7d6c` 5:1 → 버튼·`.bubbleMe`·`.newCard`)·`--text-faint` 4.37:1로·320px 반응형(viewfinder clamp·home stats 세로)·하드코딩 px 토큰화·터치타깃 44·aria(탭/약카드/메시지 발신자)·chat 타이핑 인디케이터+자동스크롤 억제·필수표시 스크린리더 보강. + 실기기 테스트서 스크롤바 PC잔재(증감 화살표 버튼·두꺼움) 수정·폭 미세조정(12px). 검증: typecheck/lint/build 그린 + 실렌더 computed-style 단언 통과. 스펙·결과 [docs/FRONTEND-POLISH.md](docs/FRONTEND-POLISH.md). **PR로 main 머지 완료.** ／직전 머지 상태: 대개편 PR #12 + 후속 #13~#15. **백엔드는 여전히 빈 헥사고날 스캐폴드**, **프론트 `api/` 비어있음(백엔드 미연결, 건강정보만 localStorage)**. ／이전(P1): **백엔드 P1 공용 기반 구축 + 4트랙 분담 문서화 (2026-06-24).** Gemini(LLM·Vision) 실연동 준비 — `core/config.py`에 `google_api_key`·`database_url`, `core/db.py`(SQLAlchemy2 `Base`/`get_db`, 지연연결), `core/gemini.py`(공용 멀티모달 래퍼 `generate`/`image_part`), deps(`google-genai`·`sqlalchemy`·`psycopg[binary]`) 추가. 검증 그린(ruff·mypy 82·lint-imports **5계약 KEPT**·pytest 1). 백엔드를 4트랙(P1 기반/P2 데이터·매칭/P3 식별·Vision/P4 상담)으로 나눈 **에이전트용 문서** [docs/backend-tasks/](docs/backend-tasks/README.md) 신설, `AGENTS.md`에 포인터. ／이전: **실기기 모바일 폴리시 + 카메라 실연동 + 공공데이터 착수 (미커밋, 2026-06-24).** 폰(HTTPS)으로 실기기 테스트하며 다수 UI 수정 — 5탭 헤더 위치/높이 통일(상단 15px·`.page-title` 위 margin 제거·대화 헤더 밑줄 삭제), 홈 "오늘의 한마디" 본문을 "최근 대화"와 통일, 스크롤바 폭(6.6px)·자동숨김 지연(800ms), **핀치/더블탭 줌 차단**(viewport `user-scalable=no` + iOS용 `lockZoom()` gesture + `touch-action:manipulation`), 카메라 **풀폭 직사각형 뷰파인더 + 민트 조준선**, 대화 AI명 **'프로미'**(약속 도우미 폐기). **카메라 실제 getUserMedia 구동**(후면·1080p·연속AF, '알약 촬영하기' 버튼 제거·탭 진입 시 자동 시작·이탈 시 정지) → 이를 위해 **vite `@vitejs/plugin-basic-ssl`로 dev HTTPS 전환**(폰 카메라는 보안 컨텍스트 필수). 디지털줌·수동초점·탭초점은 화질저하/미작동으로 제거, 최종은 원본 화각·해상도. **서류용 연출(스테이징) 모드 보존(삭제 금지)**: `/camera?stage=shot`, `/chat?stage={typing,photo,answer}`, 데모이미지 `frontend/public/demo/pill.jpg` — 실제 구현 참고자료. **공공데이터포털 낱알식별 오픈API 수집 스크립트** `backend/scripts/fetch_pills.py`(stdlib, 전량 페이징→`frontend/public/data/pills.json`) 작성 — 키 동기화 대기로 호출은 아직 500(키/등록은 정상, e약은요는 401이라 대비됨). 백엔드 빈 스캐폴드·프론트 `api/` 미연결은 그대로. ／이전: **프론트 모바일 폴리시 패스(브랜치 claude/elastic-pascal-72aa59)** — 13화면 3축(모바일 일관성·인터랙션/모션·가독성/접근성) 전수 감사 후 18파일 개선. 공유 토큰(theme.css·index.html)은 직접, 화면별은 병렬 워크플로 4그룹으로. 핵심: `viewport-fit=cover`(safe-area 실작동)·입력 16px화(iOS 줌 차단, `--fs-input`)·**흰 글자 위 민트 표면 AA 확보**(`--accent-strong #0a7d6c` 5:1 → 버튼·`.bubbleMe`·`.newCard`)·`--text-faint` 4.37:1로·320px 반응형(viewfinder clamp·home stats 세로)·하드코딩 px 토큰화·터치타깃 44·aria(탭/약카드/메시지 발신자)·chat 타이핑 인디케이터+자동스크롤 억제·필수표시 스크린리더 보강. + 실기기 테스트서 스크롤바 PC잔재(증감 화살표 버튼·두꺼움) 수정·폭 미세조정(12px). 검증: typecheck/lint/build 그린 + 실렌더 computed-style 단언 통과. 스펙·결과 [docs/FRONTEND-POLISH.md](docs/FRONTEND-POLISH.md). **PR로 main 머지 완료.** ／직전 머지 상태: 대개편 PR #12 + 후속 #13~#15. **백엔드는 여전히 빈 헥사고날 스캐폴드**, **프론트 `api/` 비어있음(백엔드 미연결, 건강정보만 localStorage)**.
+updated: 2026-06-25
+summary: **알약 인식·복약 상담 통합 완료 → 4인 분담 시작 단계 (2026-06-24 핸드오프, origin/main 기준).** `POST /api/pill/identify`(필드 `file`) Gemini Vision→P2 매칭, guidance 상담 엔드포인트까지 `main.py` 라우터 배선 완료, 기동 시 DB 테이블 자동생성(lifespan `create_all`, Alembic 전 임시), 프론트 카메라 촬영→인식 실연동 + 식별 결과 화면(`/identify`) 동작. 검증 그린(backend ruff·format·mypy·lint-imports·pytest17 / frontend tsc·build·eslint / 라이브 health·415·CORS). **다음 = 팀장 §4(키 발급·배포·조율) + 팀원 1~4 분담**(§5: 알약사전 종단 / 인식 품질·결과흐름 / 상담 연동·백엔드 견고화 / 환경셋업·문서). 선행: 공공데이터·Gemini 키 발급 후 적재(`scripts/fetch_pills.py`). Vision 토글은 코드가 아니라 키(`GOOGLE_API_KEY`). 색 표기는 식약처 raw("하양" O / "흰색" X).
 repo: Team-Seuk/Yaksok
 ---
 
-# Yaksok — HANDOFF
+> 위 frontmatter가 상태의 단일 원본. 세션 끝낼 때마다 갱신. (CONVENTIONS §4·§5) 아래는 2026-06-24 팀장 배포용 핸드오프 정식본.
 
-> 작업 세션 끝낼 때마다 갱신. 위 frontmatter가 상태의 단일 원본. (CONVENTIONS §4·§5)
+# Yaksok 팀 핸드오프 — 2026-06-24
 
-## 마지막 작업
-- **P3↔P2 매칭 통합 (2026-06-24, 브랜치 `feat/pill-identify`)**: P2(PR #18) origin/main 머지 → 내 브랜치로 머지 후, P3의 임시 매칭 추상을 **P2 실제 계약으로 정렬**. ①내 `PillMatchingPort`·자체 `PillCandidate` DTO **삭제** → P2 `app/ports/output/pill_repository.PillRepositoryPort` + 도메인 `PillCandidate`/`PillAttrs` 사용. ②use_case가 Vision `PillAttributes`(enum) → P2 `PillAttrs`(식약처 raw str) **매핑**(`imprint→print`, 단일 `score_line` → **`line_front`/`line_back` 분리**) 후 `repo.filter_candidates(attrs, limit=10)` 호출. ③**색 표기 정렬**: P2 메시지의 "흰색"이 아니라 식약처 raw **"하양"**(내 enum 값)이 맞음 — ingest(`fetch_pills`)가 식약처 값 verbatim 저장, 매칭은 exact-equality. ④DI: `dependencies/`가 P2 `PillRepository(core.db get_db 세션)` 주입(Vision은 키 기반 분기 유지). 테스트는 `dependency_overrides`로 fake Vision + `FakePillRepository`(P2 포트 구현 더블) 주입해 DB·키 없이 결정적. ⑤응답 스키마를 P2 `PillCandidate` 필드(item_seq·item_name·entp_name·shape·color·print·image_url·is_otc·**score**)로 교체, `needs_retry`는 가산점수 기준(`_MIN_SCORE=2.0`, 휴리스틱). 검증: ruff·mypy(104)·lint-imports(5 KEPT)·**pytest(17, P2 매칭 테스트 포함)** 그린. ⚠️ **`line_front/back` 식약처 raw 표기는 실데이터 미적재(공공API 키 동기화 대기)라 "-"/"+" 가정** — 적재 후 P2와 확인 필요.
-- **P3 알약 인식 백엔드 파이프라인 (2026-06-24, 브랜치 `feat/pill-identify`)**: 백엔드 헥사고날 빈 스캐폴드에 4인 분담(개요: `apps/pill` inbound·Vision = P3)으로 P3 구현. 모델은 팀 결정대로 **Gemini**(P1이 `google_api_key`·`google-genai`·`core.gemini` 래퍼 추가, origin/main 머지 완료).
-  - **엔드포인트** `POST /api/pill/identify` (`apps/pill/adapter/inbound/api/v1/identify.py`): multipart 이미지 1장(jpeg/png/webp, ≤8MB), 415/400/413 검증, **사진 서버 미저장**(ERD 결정 — vision 속성만). 응답 = 추출 속성 + 후보 약(이름·제조사·이미지URL·신뢰도) + `needs_retry`(후보 0/저신뢰 시 재촬영 안내).
-  - **도메인/포트/use_case**: `domain/value_objects/pill_attributes.py`(식약처 낱알식별 enum — 모양·색 앞뒤·각인 앞뒤·분할선·제형, `PillAttributes`). `app/ports/output`의 `VisionPort`·`PillMatchingPort`, `app/ports/input`의 `IdentifyPillPort`(전부 Protocol). `app/use_cases/identify_pill.py` `IdentifyPillUseCase`(Vision·매칭 2포트 생성자 주입).
-  - **Gemini Vision 어댑터**(`adapter/outbound/gemini_vision_adapter.py`): enum 값을 노출한 **구조화 JSON 프롬프트**(자유서술 금지)+관대한 파서. **P1 origin/main 머지 후 실제 연동** — P1 공용 래퍼 `core.gemini.generate([프롬프트, gemini.image_part(...)], config=response_schema 강제)`를 감싸 `VisionPort` 구현(google-genai는 P1이 deps 추가, 직접 import 안 함).
-  - **DI 키 기반 분기**(`dependencies/__init__.py`): `GOOGLE_API_KEY` 있으면 실제 `GeminiVisionAdapter`, 없으면 `FakeVisionAdapter` → CI·오프라인에서도 e2e. **매칭은 아직 `FakeMatchingAdapter`(P2 스텁)** — P2 완성 시 이 한 곳만 교체.
-  - **업로드 필드명 `file`**(P1 문서 curl `-F file=@`와 일치)로 정렬. 응답 `needs_retry`(후보 0/저신뢰 재촬영 안내).
-  - **공용구역 미변경**: `core/`·`main.py`·`pyproject.toml`·`.env.example` 그대로(P1 단독 소유). **⚠️ 남은 통합 1건 = `main.py`의 주석 2줄**(`include_router(pill_router, prefix="/api")`) **해제(P1 몫)** — 그래야 통합 앱에서 서빙. 현재 라우터는 테스트가 자체 앱에 마운트해 단독 검증.
-  - **검증**: `backend/`에서 ruff·mypy(96파일)·lint-imports(5계약 KEPT)·pytest(**11 passed**: 파서·extract 배선·use_case·API happy/415/400) 전부 그린. `feat/pill-identify`에 커밋(`4925ae2`) + origin/main(P1) 머지(`2eb249e`).
-- **백엔드 P1 공용 기반 + 4트랙 분담 문서 (2026-06-24, 브랜치 `feat/backend-foundation`, main 머지 완료)**: 빈 헥사고날 스캐폴드 위에 Gemini(LLM·Vision)·DB를 실연동하기 위한 공용 기반을 깔았다. ①`core/config.py`에 `google_api_key`(Gemini, LLM·Vision 공용 키 하나)·`database_url`(기본 로컬 PostgreSQL) 추가. ②`core/db.py` 신설 — SQLAlchemy 2.0 `engine`·`SessionLocal`·`Base`·`get_db()`(요청당 세션 의존성), **엔진 지연연결**이라 Postgres 없어도 서버 부팅 OK. ③`core/gemini.py` 신설 — 공용 멀티모달 래퍼 `generate(contents,*,model,config)`(기본 `gemini-2.5-flash`)+`image_part(bytes,mime)`, 키 누락 시 `GeminiError`. SDK는 `google-genai`(`from google import genai`→`genai.Client`→`client.models.generate_content`). 계약상 공용 클라이언트를 **core에 둠**(`apps`→`core` import 허용). ④`pyproject.toml`에 `google-genai`·`sqlalchemy`·`psycopg[binary]` + google-genai mypy override, `.env.example`에 `GOOGLE_API_KEY`. 검증: **ruff·mypy(82파일)·lint-imports(5계약 KEPT)·pytest(1) 그린**, core 런타임 import OK. ⑤백엔드를 **4트랙으로 분담**(P1 기반/P2 데이터·매칭/P3 식별·Vision/P4 상담)하고 **에이전트가 이어받을 수 있게** [docs/backend-tasks/](docs/backend-tasks/README.md)(README+P1~P4) 작성 — 계약·공용 기반 사용법·DI 패턴·검증 포함, `AGENTS.md` 문서시스템에 포인터 추가. P1 코드·문서는 origin/main에 머지 완료.
-- **실기기 모바일 폴리시 + 카메라 실연동 + 공공데이터 착수 (2026-06-24, 미커밋)**: 폰을 LAN(`192.168.0.115:5173`)으로 붙여 실기기 테스트하며 작업.
-  - **UI 폴리시(전부 CSS/문구)**: 5탭(알약사전·카메라·홈·대화·기타) **헤더 위치/높이 통일** — 공유 `.page-title` 위 margin(4px) 제거(알약사전·기타가 처지던 것 해결), 대화 `.head` 밑줄 삭제+`line-height` 정렬, 상단 패딩 5탭 공통 **15px**. 홈 **"오늘의 한마디" 본문**을 "최근 대화" 본문과 동일(15px·regular). 스크롤바 폭 12→**6.6px**·자동숨김 지연 700→**800ms**(`lib/scrollbar.ts`). **전역 줌 차단**: `index.html` viewport `maximum-scale=1,user-scalable=no` + `src/lib/lockZoom.ts`(iOS Safari용 `gesturestart/change/end` 차단, `main.tsx`에서 호출) + `theme.css` `html{touch-action:manipulation}`(더블탭). 대화 AI명 **약속 도우미→'프로미'**(ChatPage·ConversationPage), Conversation 안내문구 "편하게 물어보세요…" 제거.
-  - **카메라 실제 동작**(`pages/camera/CameraPage.tsx` 전면 재작성): `navigator.mediaDevices.getUserMedia`(facingMode environment·1080p)로 라이브, **'알약 촬영하기' 버튼 제거**·탭 진입 시 자동 시작·이탈(언마운트) 시 트랙 정지. 연속 자동초점(`focusMode:continuous`, 지원 기기). 뷰파인더는 **풀폭 직사각형**(`width:calc(100%+2*sp-md)`+음수마진 좌우 끝까지, `flex:1`로 세로 채움, 모서리 각짐) + **중앙 민트 조준선**(코너 브래킷+십자, `opacity .55`+`brightness`). ‖ **시도→폐기**: CSS `transform:scale` 디지털줌·기기 native zoom·수동 focusDistance 슬라이더·탭 focus/노출 — 전부 화질 저하 또는 미작동(특정 Android에서 `caps:manual`·`fd:0~1.27`이나 체감 개선 없음)이라 제거하고 **원본 화각·해상도**로 확정.
-  - **dev HTTPS 전환**: 폰(LAN)에서 카메라는 보안 컨텍스트 필수 → `vite.config.ts`에 **`@vitejs/plugin-basic-ssl`**(devDep 추가) 적용, 서버 HTTPS 전용. 폰 첫 접속 시 자체서명 인증서 경고 1회 무시. ⚠️ 이 때문에 **로컬 미리보기 MCP/Playwright가 인증서 거부로 스크린샷 불가**(검증은 typecheck/lint/build + 계산).
-  - **서류용 연출(스테이징) 모드 — 보존, 삭제 금지(실제 구현 참고자료)**: `/camera?stage=shot`(데모 알약사진 띄운 촬영·인식중), `/chat?stage=typing`(증상 텍스트→응답준비 점3개), `/chat?stage=photo`(사진 첨부→응답준비), `/chat?stage=answer`(사진 첨부→프로미가 타이레놀 설명 답변, 성인 기준). 데모 이미지 **`frontend/public/demo/pill.jpg`**. ChatPage `Msg`에 `image?` 추가·사진 말풍선(`.photo`) 렌더.
-  - **공공데이터포털 낱알식별 오픈API 수집 스크립트**: `backend/scripts/fetch_pills.py`(표준 라이브러리만, `DATA_GO_KR_KEY`를 `.env`에서 읽어 전량 페이징 → `frontend/public/data/pills.json` 생성, 필요 컬럼만 추림 + `ITEM_IMAGE` 실사진 URL 포함). 현재 호출은 **HTTP 500 "Unexpected errors"** — 진단 결과 **키·등록은 정상**(낱알식별은 500인데 미등록 e약은요는 401로 대비됨) → **활용신청 승인 직후 키↔식약처 서버 동기화 대기** 상태. 시간 지나 재시도 예정. 받아오면 `pills.json` → 전체 알약 사전/알약사전 더미 교체 예정.
-  - **검증**: 매 변경마다 `npm run typecheck && lint && build` 그린. (실기기 시각 확인은 사용자가 폰에서 직접.)
-- **프론트 모바일 폴리시 패스 (2026-06-23, 브랜치 `claude/elastic-pascal-72aa59`, 미커밋)**: "편리·자연스러운 UI + 다양한 모바일 환경 일관성" 요청. 13화면을 3축(모바일 일관성·인터랙션/모션·가독성/접근성[고령])으로 병렬 전수 감사 → 18파일 개선. 진행: 브레인스토밍·DESIGN.md 인터뷰로 범위 확정(흐름/구조·데이터 와이어링 제외) → 공유 토큰 레이어(theme.css·index.html)는 직접, 화면별 폴리시는 **병렬 워크플로 4그룹(entry/lists/detail/chat) + 검증 에이전트**로. **전역**: `viewport-fit=cover`(safe-area env() 실작동), `--fs-input:16px`로 입력류(iOS 포커스 자동줌 차단), **`--accent-strong #0a7d6c`(흰 글자 2.8:1→5.0:1 AA) 신설 → 버튼·전송·`.bubbleMe`(chat/conversation)·`.newCard`(result) 등 흰 글자 위 민트 표면 전부**, `--text-faint #93a0a0→#667373`(2.4→4.37:1, dim보다 한 톤 밝게), `.tab:active`·`.send:disabled` 피드백, `.viewfinder` clamp, `.composer` 좌우 safe-area. **화면별**: 320px 반응형(home stats 세로전환·camera viewfinder clamp·splash glow 비례), 하드코딩 px→토큰(margin 2px·아이콘 38px·등장 키프레임 translateY), 텍스트 ellipsis(cabinet 약명·allpills), allpills 카드 hover+rise 등장모션 통일, **chat 타이핑 인디케이터(700ms 대기 표시)+자동 하단스크롤 억제**, 터치타깃 44(symptom chip), aria(탭바 nav·cabinet 약카드·메시지 `role=article` 발신자), 작은 글자 13→15px(카메라 권한거부·splash skip), 필수표시 `(필수)` 스크린리더 보강. 검증: **typecheck/lint/build 그린**(71모듈) + **320px 실렌더 computed-style 단언 통과**(전 화면 가로 오버플로 0). 스펙·결과·보류항목 [docs/FRONTEND-POLISH.md](docs/FRONTEND-POLISH.md). 보류(의도): 카드 hover 2-tier·전역 `.msg-row--me`(soft, 맥락 다름)는 유지. 추가로 실기기 모바일 테스트 중 **스크롤바 버그** 수정 — 내부 스크롤 영역에 PC용 두꺼운 화살표 버튼 스크롤바가 나오던 것(원인: `scrollbar-width` 미상속으로 내부 스크롤러가 `auto`로 떨어짐 + 최신 Chrome은 표준 `scrollbar-color`가 있으면 `::-webkit-scrollbar` 무시). webkit 단일체계로 전환(폭 12px·증감버튼 제거·`.is-scrolling` thumb autohide), 표준 속성은 `@supports (-moz-appearance)`로 Firefox 전용 격리. 실기기 모바일 정상 확인. **PR로 main 머지 완료.**
-- **대개편 머지 + 후속 폴리시 4PR (2026-06-22~23, 전부 main 머지)**: ①**PR #12 `feat/design-overhaul` 머지** — 아래 "대개편" 항목의 작업트리 변경이 커밋·머지됨 + 추가로 5탭 네비게이션 개편·Figma 시안 적용·홈 최근 대화 카드·알약사전(allpills) 사전화·내 정보 입력 개편·앱 스크롤바·카드 엘리베이션. 새 화면 추가: `pages/{camera,chat,allpills}`. 라우트: `/`(home)·`/cabinet`·`/camera`·`/chat`·`/more`(탭) + `/pill/:id`·`/conversation/:id`·`/symptom`·`/all-pills`·`/profile`. ②**PR #13** 스플래시 — 이음새 선 제거, 워드마크 위→아래 등장, 유지시간 조정. ③**PR #14** 뒤로가기 버튼 좌측 정렬. ④**PR #15** 폰트 교체 — 제목 Nanum Square + 본문 Pretendard. **백엔드·api 연결은 변화 없음**(여전히 빈 스캐폴드 / localStorage만).
-- **프론트엔드 대개편 = M1 (2026-06-22, `feat/design-overhaul` → PR #12로 머지 완료)**: 디자인 인터뷰(상위 [`../DESIGN.md`](../DESIGN.md))로 정체성 확정 — **라이트·민트(#0fae97)·Pretendard 유지·정제**, 무드 다정/부드러운/안심, density airy, signature=알약 일러스트. ①**토큰 시스템 완성** `frontend/src/styles/theme.css`: 간격·타이포·모션·z·반경 토큰 신설 + 하드코딩(24/13/11.5px·버튼 그라데이션) 제거 + 솔리드 민트 버튼 + `prefers-reduced-motion` 전역 + 상태(.state)·대화 말풍선 프리미티브. ②**라우터 도입** `react-router-dom@7`: `App.tsx`의 `useState` 화면 전환을 라우트(RootLayout 온보딩 가드 + TabLayout)로 교체, `TabBar` 라우터 기반, route 래퍼가 `useNavigate` 콜백 주입(페이지 props 시그니처 보존). ③**개별 대화 화면 신설** `pages/conversation/ConversationPage`(말풍선+composer). ④**6화면 비주얼 폴리시**(home·cabinet·result·symptom·more·profile, 병렬 에이전트 6기, 화면별 `*.module.css` 격리) + **상태 화면**(홈 카메라 권한거부·인식중, 기록 빈 상태, 증상 빈 상태) + 안전정보(주의사항)를 warn 톤+아이콘+라벨로 분리 강조. ⑤**시그니처 강화** `components/PillImage.tsx`(음영·하이라이트·각인`imprint?`·분할선`scored?`, 하위호환). `vite-env.d.ts` 추가(CSS Module 타입). 검증: `npm run typecheck && lint && build` 그린 + Playwright 7화면 실렌더 확인. 스펙 [docs/FRONTEND-OVERHAUL.md](docs/FRONTEND-OVERHAUL.md). **아직 커밋 안 함** — 변경 파일은 작업트리에 있음.
-- **프로젝트 리네임 + 협업 게이트 개편 (2026-06-22)**: ①레포명 `pill_recognition`→**Yaksok** — 로컬 폴더·GitHub 레포(`Team-Seuk/Yaksok`)·git remote + 코드/문서 표기(README·AGENTS·CONVENTIONS·PLAN·LOG·HANDOFF·docs/ERD·FastAPI title·pyproject·index.html·theme.css·`package(.json/-lock)`=`yaksok-frontend`·`storage.ts` 키 `yaksok:health`) 통일, HANDOFF·LOG 과거 이력은 보존(PR #11). ②CODEOWNERS를 **위험도 기반**으로 재편 — 일반 기능 파일은 오너 미지정→아무 팀원 1명 승인, 위험 공용구역(`core`·의존성·CI·공용 컴포넌트/`api`·설정·문서)만 @suvisdev(PL)+@bestcow(PO) 2명 오너 → 셀프승인 데드락 제거. `프로젝트_시작.txt` 온보딩(세팅·PR 승인 흐름·역할)을 CONTRIBUTING에 통합(PR #10). ③`protect-main` 룰셋 bypass에 Repository admin(=@bestcow) `always` 추가 → PO 전권(승인·CI 없이 머지·직접 push). 두 PR CI(backend/frontend) 그린, admin 머지.
-- **백엔드 도구 _template 표준 정렬 (2026-06-21)**: pip→**uv**(`backend/pyproject.toml`+`uv.lock`, ruff를 런타임→dev로 이동), Python 3.11→**3.12**, ruff 규칙 강화(UP·B·SIM)+`ruff format --check`, **mypy**(strict-ish)·**import-linter** 추가 — THE ONE RULE을 단일 패키지가 아니라 **피처별 계약**(apps.{auth,guidance,pill} adapter→app→domain + 피처 독립 + core 격리, 5계약 KEPT)으로. CI(`check.yml`) backend 잡을 uv 파이프라인으로 교체(pytest 실제 실행, 잡 이름 `backend`/`frontend`는 유지 → branch protection 영향 없음), 스모크 테스트 1개(`apps/pill/tests/test_smoke.py`) 추가. 옛 `requirements*.txt`·`ruff.toml`·`pytest.ini` 제거. CODEOWNERS 죽은 경로 `/backend/app/`→`/backend/apps/`·`/backend/core/`·`pyproject.toml`로 수정. README·AGENTS 실행법 uv로 정합. **구조(feature-first)·프론트·문서 시스템은 그대로.** 검증: ruff·mypy(80파일)·lint-imports(5 KEPT)·pytest(1 passed) 로컬 그린. org도 Team-Seuk로 통일(remote 재지정 예정).
-- **md 문서 정합 (2026-06-19)**: 코드/ERD 변경 대비 stale 문서 수정 — `README.md` 백엔드 실행 `uvicorn app.main:app`→`main:app`(헥사고날 반영, 실행 깨짐 수정), `PLAN.md` 데이터모델 v1.2 반영(증상추천·성분매칭 테이블 추가, 총 12개), `LOG.md` 라벨 제거 한 줄 추가, 본 HANDOFF 머지 상태 갱신.
-- **ERD 다이어그램 가독성 개선·라벨 제거 (2026-06-19, PR #3·#4 머지)**: 레이아웃 재배치(성분 매칭 `allergens`를 `allergies` 바로 아래로 → 매칭 선 단축), 선택적 약 참조(`pill_item_seq`·`matched_item_seq`)는 **점선**으로 핵심 관계와 분리, 그룹 라벨 겹침 제거, 선 위 설명 텍스트 라벨 전부 제거. viewBox 1560×1040, [docs/ERD.png](docs/ERD.png) Edge 2x 재생성(4680×3120).
-- **ERD v1.2 — 기능 연결 5개 (2026-06-19, PR #2 머지)**: ①알레르기↔약: 성분 마스터 `allergens`(id,name) + `pill_allergens`(약↔성분 M:N) 신설, `allergies.allergen_id`(FK?) 추가 → 사용자 알레르기 ∩ 약 성분으로 "못 먹는 약" 판정. ②약↔증상추천: `symptom_recommendations`(symptom_query_id, pill_item_seq, rank, reason) 신설. ③증상추천↔대화세션: `symptom_queries.conversation_id`(FK?). ④증상추천↔건강정보: `symptom_queries.profile_id`(FK?). ⑤건강정보↔대화세션: `conversations.profile_id`(FK?). 테이블 9→12. [docs/ERD.md](docs/ERD.md)(mermaid+DDL+관계표+설계메모)·[docs/ERD.svg](docs/ERD.svg) 전면 재작성. **`frontend/src/lib/types.ts`는 미반영**(건강정보 화면만 쓰고 새 관계는 프론트 미사용 → 범위 밖, 서버 영속화 때 함께 정합).
-- **백엔드 헥사고날 구조 전환 (2026-06-19, PR #2 머지)**: `backend/app/`(계층형 빈 스캐폴드)를 `claude/pedantic-ritchie-149dd1` 정본으로 교체. 결과 구조: `backend/apps/{auth,pill,guidance}/`(각 `adapter/`{inbound·outbound}·`app/`{use_cases·ports·dtos}·`domain/`{entities·value_objects}·`tests/`·`dependencies/`·`_docs/`) + `backend/core/`(config) + 진입점 `backend/main.py`(app/ 밖, CORS localhost:5173·라우터 등록 가이드) + `run.py`·`pytest.ini`·`requirements-test.txt`. 전부 빈 `__init__.py` 스캐폴드(로직 없음). `AGENTS.md` 스택/검증 섹션 정합. 검증: `ruff check .` All passed · `pytest` 수집 0건(정상) · `uvicorn main:app`→`/health`={"status":"ok"}.
-- **라이트 테마 전환 + 증상별 추천 화면 + ERD v1.1 (2026-06-18)**: 5화면 다크→라이트 톤 전환(오프화이트+teal, 상단 teal 안개, 홈 뷰파인더 흰 카드), Pretendard 폰트. 증상별 약 추천 화면 신설(`pages/symptom`, 기타 진입, OTC 추천+면책). 약품 상세를 "요약+대화 세션 목록+＋새 대화"로 재구성. ERD v1.1 정리(`summaries` 제거→`conversations.summary`, `title` 제거, 테이블 10→9)를 `docs/ERD.md`·`ERD.svg`·`ERD.png`(Edge 래스터화)에 반영, PLAN 요약 정책 정합. 6관점 워크플로 평가 결과 대부분 프로토타입 단계상 의도적 생략으로 확인, valid 지적만 반영.
-- **프론트 프로토타입 UI + 건강정보 저장 (2026-06-18)**: `frontend/src`에 5화면 구현 — 홈(카메라 뷰파인더)·내 기록(`cabinet`)·약품 상세(`result`)·기타(`more`)·내 정보 입력(`profile`). 다크+teal 디자인 토큰(`styles/theme.css`), 하단 탭바, 알약 이미지(`components/PillImage.tsx`, 모양·색 SVG), 화면 전환은 라우터 없이 `App.tsx` `useState`. **건강정보만 실연결**: `lib/types.ts`(ERD→TS 타입)·`lib/storage.ts`(localStorage, 시드 dev 유저 id=1)로 내 정보 입력 저장/불러오기 + 온보딩 분기(정보 없으면 입력화면부터). 화면값↔ERD 매핑(나이↔birthYear·여성↔F·약 텍스트↔medications 1:N). typecheck·lint·build 통과. **나머지(내 기록·약품 상세·세션 카드·증상별 추천)는 더미·미연결.**
-- **ERD 다이어그램 시각화 (2026-06-17)**: [docs/ERD.svg](docs/ERD.svg)(벡터) + [docs/ERD.png](docs/ERD.png)(3800×2368, Edge 헤드리스로 래스터화) 추가. 한/영 컬럼 병기, 까마귀발 관계 표기(1·0..1·N·0..N), PK/FK/FK?/UQ 배지, 기능별 색 그룹(계정·건강 / 인식·대화 / 약), 범례 상세화. SVG 수정 시 동일 Edge 명령으로 PNG 재생성. 커밋 `b0da2aa`까지 로컬 main 머지(push 안 함).
-- **백엔드 폴더 구조 정본 결정 (2026-06-17)**: worktree마다 구조가 갈려 있음 확인 — 현 main/이 worktree는 계층형 `backend/app/{auth,core,guidance,pill}`(빈 스캐폴드), 다른 worktree(`pedantic-ritchie`)는 헥사고날 `backend/apps/<도메인>/{adapter,app,domain,tests}`. **정본은 헥사고날로 결정**(아직 main 미반영). ERD는 데이터 모델이라 폴더 구조와 독립 — 단 헥사고날에선 도메인 경계 넘는 FK는 DB 제약이 아니라 논리 ID 참조로 봐야 함.
-- **데이터 모델 v1 확정 (2026-06-17)**: 앱 핵심 기능 기준 ERD 설계 → [docs/ERD.md](docs/ERD.md) 신설(mermaid 다이어그램 + DDL + 관계 + 결정). 대상 DB PostgreSQL. 결정: ①계정은 이메일+비번 스키마만 두고 프로토타입 인증 미구현(시드 dev 유저) ②촬영 이미지 서버 미저장(vision_attrs만) ③**프로토타입 단계에선 서버/DB 미구현, 프론트 임시 저장으로 진행**. PLAN.md 기술결정에 반영·링크.
-- **public 전환 + 시크릿 관리 정비 (2026-06-15)**: repo private→public(이력 시크릿 스캔 클린). `backend/.env.example`(키 이름만)·`app/core/config.py`(pydantic-settings 로더, 키 기본 None) 추가, `requirements.txt`에 `pydantic-settings`. GitHub secret scanning + push protection ON. CONTRIBUTING에 키 규칙.
-- **org 이전 (2026-06-15)**: `bestcow/pill_recognition` → `TEAM-Cursor/pill_recognition` (GitHub Organization 전환, 폴리레포: 프로젝트 1개 = repo 1개). 로컬 remote도 갱신.
-- **문서 시스템 정비**: 끊겨 있던 `(CONVENTIONS §N)` 참조 대상 [CONVENTIONS.md](CONVENTIONS.md) 신설(문서 지도 + 갱신 규칙 §1~§6). `AGENTS.md`에 "문서 시스템(작업할 때마다 갱신)" 섹션 추가 → `CLAUDE.md`가 매 세션 로드해 HANDOFF/LOG 갱신을 트리거.
-- **스택 전환**: Expo(RN) 폐기 → FastAPI(Python 3.11+) + React(TS·Vite) 웹. 기존 Expo M0는 `archive/expo-m0` 브랜치 + `expo-m0-final` 태그로 보존 후 main에서 제거. 기본 브랜치 `master`→`main`.
-- **협업 스캐폴드 적용**(`_templates/repo-scaffold/`에서 복사): `.github/`(CODEOWNERS·PR템플릿·`check.yml`), `backend/`(FastAPI + `/health`), `frontend/`(Vite+React+TS + Hello), `docs/`, 통합 `.gitignore`, README, CONTRIBUTING. 빈 폴더는 `.gitkeep`, 기능 코드 없음.
-- **로컬 검증 통과**: frontend typecheck·lint·`vite build` clean. backend `pip install`(fastapi 0.115.14/uvicorn 0.32.1/ruff 0.7.4)→`ruff check` All passed→`uvicorn` `/health`={"status":"ok"}.
-- **GitHub push 완료**: private repo `bestcow/pill_recognition` 생성, `main`+`archive/expo-m0`+`expo-m0-final` push. CODEOWNERS는 팀원 아이디 미정이라 전부 `@bestcow`로 임시.
+> **🤖 이 문서를 받은 팀원의 Claude에게 — 먼저 이것부터 하세요:**
+> 당신은 이 핸드오프를 받은 팀원의 코딩 보조입니다. 바로 코드를 짜지 말고, 먼저 이 팀원에게 **무엇을 하면 되는지 쉽고 간단하게 말로 설명**하세요.
+>
+> 1. §1·§2를 읽어 프로젝트 맥락을 잡는다.
+> 2. 사용자가 **팀원 몇 번(1~4)** 인지 확인한다(모르면 물어본다).
+> 3. 그 사람의 §5 블록을 근거로, **"당신이 할 일은 ○○입니다"** 형식으로 **짧고 쉽게** 설명한다 — 전문용어는 일상어로 풀고, 왜 필요한지와 **첫 시작 단계(어느 파일부터·무슨 명령)** 까지 알려준다.
+> 4. 팀원이 이해하면 그때 실제 작업을 돕는다.
 
-## 다음 할 일
-- **백엔드 4트랙 구축 (진행 중)**: P1 공용 기반 완료(브랜치 `feat/backend-foundation`, 커밋·PR 대기). 다음 — P1 잔여(라우터 등록 규약·DI 예시·첫 ORM 생기면 Alembic), P2 데이터·매칭(공공API 키 풀리면 적재), P3 식별·Vision, P4 상담을 병렬로. **백엔드 맡는 에이전트/사람은 [docs/backend-tasks/](docs/backend-tasks/README.md) 먼저 읽을 것.**
-- **모바일 폴리시 패스 처리 (먼저)**: `claude/elastic-pascal-72aa59`의 18파일 변경을 커밋 → PR. `theme.css`·`index.html`·공용은 **위험 공용구역**이라 PL(@suvisdev)+PO(@bestcow) 승인 필요(PO bypass 가능). CI(frontend) 그린 확인 후 머지. **(사람)** 커밋/PR 여부 결정. 보류항목(카드 hover 통일 등)은 [docs/FRONTEND-POLISH.md](docs/FRONTEND-POLISH.md) 참고.
-- **대개편 브랜치 처리 = 완료 (2026-06-22~23)**: PR #12로 머지됨 + 후속 #13~#15까지 머지. 별도 액션 없음.
-- **프론트 세부 구현(진행 중)**: ①세션→개별 대화 화면 — 골격(`pages/conversation`)·라우트(`/conversation/:id`) 있음, 남은 건 `messages` 실데이터 연결(현재 `api/`·storage 미연결). ②내 기록(`cabinet`)·약품 상세(`result`)를 더미 대신 저장소 데이터로 연결 ③증상별 추천 결과를 `symptom_queries`로 저장. ④`chat`·`camera`·`allpills` 화면도 데이터 연결 검토.
-- **서버 영속화(M5) 때 챙길 ERD 항목**(평가에서 도출, 지금은 불필요): `sex/status/role` CHECK 제약, `conversations.updated_at` 자동 갱신 트리거, "사용자 데이터 조회는 user_id 필터 강제" 명문화, DUR 약물 상호작용 구조화.
-- **CODEOWNERS 위험도 기반 전환 완료 (2026-06-22)**: 일반 기능 파일=오너 미지정(아무나 1명), 위험 공용구역=@suvisdev(PL)+@bestcow(PO). 남음: **(사람)** 팀원 push 권한 확인 — org Base permissions를 Write로 두거나 collaborator(write) 추가.
-- **(사람)** 각 팀원: `backend/.env.example` → `backend/.env` 복사 후 키 채우기. 실제 키는 비번관리자/DM으로 공유(평문·커밋 금지).
-- **main 보호 + PO 전권 적용 완료 (2026-06-22)**: `main`에 PR 필수·승인 1·Require Code Owners·status check(`backend`/`frontend`)·force-push·삭제 차단. `protect-main` 룰셋 bypass에 @bestcow(admin) `always` → PO는 승인·CI 없이 머지/직접 push 가능. 남음: **(사람)** Settings → General에서 "Automatically delete head branches" 체크.
-- **백엔드 도메인 로직 구현(헥사고날 위)**: main에 머지된 `apps/<도메인>` 빈 스캐폴드에 엔티티·value_object·use_case·port·adapter(라우터) 구현. ERD v1.2 기준, `pill` 도메인(핵심 식별·안내)부터.
-- **ERD 후속 결정**: 건강정보(`health_profiles`/`medications`/`allergies`)를 `profile` 도메인으로 분리할지 / 헥사고날 도메인 경계 넘는 FK를 다이어그램에 점선(약결합)으로 표시할지.
-- ERD 확정됨 → 프로토타입은 [docs/ERD.md](docs/ERD.md) 구조를 프론트 임시 저장(localStorage 등)으로 흉내. 서버 영속화는 추후 같은 스키마로.
-- 이후 M1(디자인 토큰) → M2~M4(카메라·비전·공공API·LLM) 실연동.
-- frontend `npm audit`: vite/esbuild 관련 2건(dev-server 한정) — 데모엔 영향 적으나 추후 vite 메이저 업글로 정리 검토.
+> 내일 작업 인계서. **§4 = 팀장이 직접 할 일**, **§5 = 팀원 4명 분담**(팀원 1~4).
+> 각 작업은 독립적으로 적었고, 팀원 Claude가 §1·§2·§6 + 자기 팀원 블록만 읽으면 바로 맥락을 잡을 수 있다.
 
-## 막힌 것
-_해당 없음_ — branch protection·collaborator 추가는 팀원 아이디 확정 후 GitHub 웹에서 수동 진행.
+---
+
+## 1. 프로젝트 한눈에
+
+**무엇**: 알약을 사진으로 찍으면 무슨 약인지 알려주고(인식), 복약 상담까지 해주는 모바일 웹앱.
+
+**스택**
+
+- **백엔드**: Python 3.12 · `uv` · FastAPI · SQLAlchemy 2.0(`psycopg` v3) · PostgreSQL · Google `google-genai`(Gemini `gemini-2.5-flash`, LLM·Vision 공용)
+- **프론트**: React 18 · Vite · TypeScript · react-router-dom (CRT 그린 테마, CSS Modules)
+
+**구조 (헥사고날, `backend/apps/<도메인>/`)**
+
+```
+domain/      # 엔티티·값객체 (순수)
+app/         # use_cases · ports(in/out) · dtos
+adapter/     # inbound(api) · outbound(orm·repo·gemini)
+dependencies/# FastAPI DI provider
+core/        # db·gemini·config 공용 (features를 import 하지 않음)
+```
+
+도메인: `pill`(인식+매칭+사전), `guidance`(상담), `auth`(뼈대만, 미구현).
+
+**import-linter 계약 (깨면 CI 실패)**: `adapter → app → domain` / features 상호 import 금지 / `core`는 features import 금지. → ORM `create_all`처럼 모델 import가 필요한 코드는 `core`가 아니라 `main.py`·스크립트에.
+
+---
+
+## 2. 지금 상태 (★ 먼저 읽기)
+
+- **레포**: `github.com/Team-Seuk/Yaksok`
+- **로컬**: `C:/TeamSeuk/Yaksok`(메인) + `C:/TeamSeuk/Yaksok-integ`(통합 워크트리, 브랜치 `integ/pill-frontend` = 로컬 main tip)
+- **통합본은 이미 `origin/main`에 반영됨.** 아래 "한 일"이 origin/main에 들어가 있으니, 팀원은 `git pull` 후 바로 시작하면 된다. (이전 핸드오프의 "로컬 main +15 미푸시"는 해소됨.)
+
+**환경 파일** (`.env.example` → `.env` 복사)
+
+- `backend/.env`: `GOOGLE_API_KEY`, `DATA_GO_KR_KEY`, `DATABASE_URL`(기본 `postgresql+psycopg://yaksok:yaksok@localhost:5432/yaksok`)
+- `frontend/.env`: `VITE_API_BASE`(미설정 시 `http://localhost:8000`)
+
+**핵심 엔드포인트** (main.py 등록 완료)
+
+- `POST /api/pill/identify` — multipart 필드 **`file`**(jpeg/png/webp ≤8MB) → 속성+후보약
+- `POST /api/guidance/conversations` · `POST|GET /api/guidance/conversations/{id}/messages`
+- `GET /health`
+
+---
+
+## 3. 어제까지 한 일 (DONE — origin/main에 통합, 검증 그린)
+
+| 영역   | 한 일                                                                                                                                     |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 통합   | 인식·상담·데이터·매칭·프론트 브랜치를 하나로 머지(충돌 2건 해소)                                                                          |
+| 브랜딩 | 어시스턴트 명칭 **"프로미" → "약속 도우미"** 통일                                                                                         |
+| 백엔드 | **main.py 라우터 배선**(pill·guidance — 이전엔 미등록이라 엔드포인트가 안 떴음)                                                           |
+| 백엔드 | guidance ruff B008 수정(레포 ruff 게이트 복구)                                                                                            |
+| 백엔드 | **기동 시 DB 테이블 자동 생성**(lifespan `create_all`, Alembic 전 임시). Postgres만 켜면 테이블 생김. DB 없어도 서버는 뜸                 |
+| 프론트 | **카메라 촬영/업로드 → `/api/pill/identify` 실연동**(이전엔 프론트가 백엔드를 아예 호출 안 했음). 셔터 캡처 + 갤러리 업로드 + 인식중/에러 |
+| 프론트 | **식별 결과 화면 신설** `/identify`(추출 속성 + 후보약 + `needs_retry` 재촬영)                                                            |
+| 검증   | backend ruff·format·mypy·lint-imports·pytest(17) ✅ / frontend tsc·build·eslint ✅ / 라이브 HTTP health·415·CORS ✅                       |
+
+> Vision 토글은 **코드가 아니라 키**: `GOOGLE_API_KEY` 있으면 실제 Gemini, 없으면 fake. 키 없이도 흐름 전체를 fake로 확인 가능.
+
+---
+
+## 4. 팀장이 할 일
+
+1. **API 키 발급·배포** — 계정·시크릿은 팀장이:
+   - Gemini: https://aistudio.google.com/apikey
+   - 공공데이터포털 낱알식별: https://www.data.go.kr/data/15057639/openapi.do (즉시 자동승인, 인코딩 인증키)
+   - → `backend/.env`로 팀에 안전하게 공유(레포·로그에 남기지 않기). _팀원4 적재·팀원2 인식의 선행이라 최우선._
+2. **§5 분담 진행 점검 + 조율 + PR 리뷰/머지.**
+3. (완료) ~~로컬 main(+15) → origin 반영~~ — origin/main에 통합본 반영됨.
+
+---
+
+## 4.5 진행 방식 — 시작 순서 · 키 · 데이터 (★ 팀원 먼저 읽기)
+
+**지금 키 없이 시작 가능 — 막고 기다리지 말 것.**
+
+- **팀원 1(사전)·3(상담)** = pill 실데이터와 무관 → **즉시 시작**. (1은 조회 API+프론트, 3은 guidance 연동·테스트·Alembic — LLM 키 없이 fake로 흐름 전부 구현 가능.)
+- **팀원 4** = `docker-compose`·문서는 **지금 가능**. "적재"만 키+데이터 확정 후.
+- **팀원 2(인식)** = Gemini 키 + 실데이터가 선행 → 그 전까진 대기.
+
+**키는 git에 안 올라간다.** `backend/.env`는 `.gitignore` 대상이다. 키는 **비번관리자·DM으로 공유**(커밋·로그 금지). → "팀장이 키 받고 다시 push" 같은 단계는 **없다**. 받은 사람이 자기 `.env`에 넣으면 끝.
+
+**pull은 일상이다.** 각자 `feat/*` 브랜치에서 작업하고 수시로 main을 pull하는 게 정상 흐름이지 손해가 아니다. 시작을 미룰 이유가 없다.
+
+**매칭은 '사진 비교'가 아니라 '속성 대조'다 (중요).** 사용자 사진 → Gemini Vision이 속성(모양·색·각인 앞뒤·분할선) 추출 → **DB의 식약처 낱알식별 속성과 exact-match**. 저장 이미지는 결과 표시용일 뿐 매칭에 안 쓴다. → **매칭 DB로 필요한 건 "속성 테이블"이지 사진이 아니다.** 보유 데이터가 "정해진 알약 사진셋"뿐이라면, 그 알약들의 식약처 속성을 채운 **소규모 closed-world DB**(전량 공공API 적재보다 시연 안정적)가 유력하다. **데이터 방식(고정셋 vs 공공API 전량)은 팀장이 데이터셋 확인 후 확정** — 그 결정은 팀원 2·4의 적재에만 영향이고, 1·3·4(인프라)는 그 전에도 진행한다.
+
+---
+
+## 5. 팀원 분담 (팀장 제외 4명)
+
+> 팀원 1~3은 기능을 백~프론트 종단으로 맡고, **팀원 4는 서류·환경 담당이라 코딩 부담이 적은 가벼운 작업을 몰았다.** 각 작업 끝의 **선행**은 의존 작업.
+
+### 팀원 1 — 알약사전(검색·목록·상세) 종단
+
+1. **조회 API 신설(백엔드)** — `app/use_cases/search_pills.py`(목록·상세·검색)는 **있는데 엔드포인트가 없다.** `identify.py` 라우터 패턴대로 `adapter/inbound/api/v1/`에 라우터+스키마 추가, main.py 등록.
+2. **프론트 연동** — `AllPillsPage`·`ResultPage`가 더미 `lib/pillData.ts`로 동작 → 위 API 호출로 교체.
+
+- 파일: `apps/pill/app/use_cases/search_pills.py`, `apps/pill/adapter/inbound/api/v1/`, `frontend/src/pages/allpills/*`·`pages/result/ResultPage.tsx`·`lib/pillData.ts`
+- 선행: 실데이터 확인은 팀원4 적재 후.
+
+### 팀원 2 — 알약 인식 품질·결과 흐름
+
+1. **실사진 인식 점검 + `VISION_PROMPT` 튜닝** (Gemini 키 들어온 뒤).
+2. **식별 결과 후보 클릭 → 상세 연결** (`item_seq` 기준, 팀원1의 상세 API와).
+3. **`needs_retry` 재촬영 UX**(저조명·각인 안 보임).
+4. **매칭 점수 튜닝** — 실데이터로 `pill_repository.py` 가중치·`identify.py`의 `_MIN_SCORE=2.0`.
+
+- 파일: `apps/pill/adapter/outbound/gemini_vision_adapter.py`, `apps/pill/adapter/outbound/repositories/pill_repository.py`, `frontend/src/pages/identify/IdentifyResultPage.tsx`
+- 선행: §4-1(Gemini 키); 상세연결은 팀원1, 점수튜닝은 팀원4 적재.
+
+### 팀원 3 — 복약 상담 연동 + 백엔드 견고화
+
+1. **guidance 프론트 실연동** — `ChatPage`/`ConversationPage`는 더미(코멘트 "서버 연동 M4"). `lib/api.ts`에 guidance 함수 추가해 `/api/guidance/*`(대화방 생성·메시지·내역) 호출. 건강정보(localStorage `lib/storage.ts`)를 상담 프롬프트에 전달(`build_system_prompt`은 이미 받게 돼 있음).
+2. **guidance 도메인 테스트 추가** — 현재 0개(pytest 17개 전부 pill). pill의 `dependency_overrides`+fake 패턴 참고.
+3. **Alembic 정식 마이그레이션** — 임시 `create_all` 대체(pills·conversations·messages).
+
+- 파일: `frontend/src/pages/chat/ChatPage.tsx`·`pages/conversation/ConversationPage.tsx`·`lib/api.ts`, `backend/apps/guidance/`, `backend/`(신규 alembic)
+
+### 팀원 4 — 환경 셋업·문서 (★ 가벼운 작업 모음, 코딩 부담 적음)
+
+1. **`docker-compose.yml`(Postgres) 추가** — "DB 한 줄로 켜기"(user/pw/db = `yaksok`, 기본 `DATABASE_URL`과 일치). 거의 설정 복붙 수준.
+2. **공공데이터 적재 실행** — 키 받은 뒤 `cd backend && uv run python scripts/fetch_pills.py` (pills 적재 + `frontend/public/data/pills.json`). _팀원1·2의 실데이터 선행이라 빨리._
+3. **문서** — README 갱신(실행법·구조), `.env` 세팅 가이드, API 명세 정리(서버 `/docs` 화면 캡처/요약).
+4. **팀 도메인 URL로 앱 등록** — 배포된 앱을 팀 도메인 URL에 연결·등록해 팀원·시연용 공개 주소를 확보한다.
+
+- 선행: 적재는 §4-1(공공데이터 키). 도메인 등록은 배포 가능한 빌드가 나온 뒤.
+
+**의존 요약**: `§4-1 키` → `팀원4 적재`(팀원1·2 실데이터) / `팀원1 상세API`(팀원2 상세연결).
+
+---
+
+## 6. 공통 셋업 & 검증 명령
+
+```bash
+# 백엔드 (backend/ 에서)
+uv run uvicorn main:app --reload          # http://localhost:8000, DB 켜져 있으면 테이블 자동생성
+uv run ruff check . && uv run ruff format --check . && uv run mypy && uv run lint-imports && uv run pytest
+
+# 프론트 (frontend/ 에서)
+npm run dev                               # http://localhost:5173 (CORS 허용됨)
+npm run build && npm run lint
+```
+
+**규칙**: 코드 바꾸면 위 검증 통과 후 커밋. 커밋/푸시는 명시 요청 시만. 파괴적 작업은 확인받고. 시크릿은 코드·로그에 남기지 않기.
+
+---
+
+## 7. 알아둘 함정
+
+- **이 문서도 곧 stale** — 시작 전 `git fetch && git log origin/main`로 실제 상태 확인.
+- **DB 없이 백엔드 기동하면 느림** — lifespan이 DB 연결 타임아웃만큼 기다린 뒤(경고만) 뜬다. 빠르게 띄우려면 Postgres 먼저.
+- **SQLite 불가** — `pill_orm.raw_json`이 PG 전용 `JSONB`. 테스트는 DB 없이 `dependency_overrides`+fake로.
+- **Vision 토글 = 키** — `GOOGLE_API_KEY` 유무로 실제/fake 자동 전환(`apps/pill/dependencies/vision.py`).
+- **인식이 500이면** 대개 DB 미기동(매칭 단계 연결 실패). Postgres 켜면 빈 데이터라도 200(`needs_retry`).
+- **색 표기는 식약처 raw** — `"하양"`(O) ≠ `"흰색"`(X). Vision·DB·매칭 모두 식약처 값 기준.
+
+---
+
+## 8. 빠른 참조
+
+| 경로                                                 | 내용                                         |
+| ---------------------------------------------------- | -------------------------------------------- |
+| `backend/main.py`                                    | 진입점·라우터 등록·테이블 자동생성(lifespan) |
+| `backend/core/{db,gemini,config}.py`                 | 공용 DB세션·Gemini래퍼·설정(.env)            |
+| `backend/apps/pill/`                                 | 인식(`identify`)·매칭·사전(`search_pills`)   |
+| `backend/apps/guidance/`                             | 복약 상담(LLM)                               |
+| `backend/scripts/fetch_pills.py`                     | 공공데이터 적재                              |
+| `frontend/src/lib/api.ts`                            | 백엔드 API 클라이언트(`identifyPill` + 타입) |
+| `frontend/src/pages/camera/CameraPage.tsx`           | 카메라·캡처·업로드                           |
+| `frontend/src/pages/identify/IdentifyResultPage.tsx` | 식별 결과                                    |
+| `frontend/src/lib/pillData.ts`                       | 알약 더미 데이터(→ API로 교체 예정)          |
