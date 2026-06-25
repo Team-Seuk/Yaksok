@@ -3,6 +3,8 @@
 > 날짜별 굵직한 변경 한 줄. 세세한 커밋은 git log. (CONVENTIONS §3)
 
 ## 2026-06-25
+- **HANDOFF §4 후속 3건 (PR #23·#24)**: ①`core/db.py`/`config.py` — DATABASE_URL `postgresql://`·`postgres://`를 `postgresql+psycopg://`로 자동 정규화(field_validator). ②**Alembic 활성화** — 의존성 추가 + `backend/alembic/`→`backend/migrations/`(로컬 디렉터리가 설치 패키지명을 가리던 문제 해소), lifespan `upgrade head` 작동. ③**매칭 점수화 보정** — 각인을 1차 OR 필터에 포함(강식별자 누락 방지)·각인 가중치 3.0→5.0·동점 `item_seq` tie-break.
+- **'오늘의 약속' 편집 + 홈 그래프 + 인트로 + 호칭 개인화 (PR #25)**: 홈 '오늘의 약속' 카드 → 전체화면 편집(**View Transition 카드 모핑**, 복용 시점/타이밍/횟수/용량 인라인 수정·삭제·추가[직접 입력·내 사전·전체 사전 검색], 탭바 유지)·홈 **복약률 원그래프**(진입마다 0→수치 카운트업)·인트로 개편(건너뛰기 제거·2초 고정·캡슐 두 반쪽이 모여 붙는 연출·텍스트 조기 등장)·전역 텍스트 선택/이미지 드래그 방지·복약 상담 프롬프트의 **'어르신' 단정 제거 → 나이·성별 기반 호칭**(나이/성별/병력을 백엔드로 전달). 검증 그린(backend ruff·format·mypy 124·pytest 31·import-linter 5 / frontend tsc·lint·build).
 - **4인 분담 통합 + 라이브 배포**: 팀원 1(알약사전 조회 API+프론트)·2(카메라 자동스캔→대화)·3(상담 실연동+Alembic+테스트)·4(배포설정·README) 브랜치를 main 통합(충돌해소: `api.ts`/`ChatPage`=스캔+상담 결합/`CameraPage`, 프로미 명칭 유지). 검증 그린(backend ruff·format·mypy 124·lint-imports 5·pytest **31** / frontend tsc·lint·build).
 - **공공데이터 적재**: 낱알식별 API **v01(500 폐기)→v03** 수정, 공유 **Neon**에 **25,315건** 적재. `upsert_many` 버그 2개 수정 — 단일 INSERT 파라미터 한계(65535) → **1000행 청크**, `item_seq` 중복 → **dict 중복제거**. 실 e2e(사진→Vision→매칭→후보) 확인.
 - **배포(라이브)**: 프론트 **Vercel = www.seuk.cloud**, 백엔드 **Railway = yaksok-production-9631.up.railway.app**, DB Neon. 배포 함정 4개 해결 — railway.toml을 `backend/`로(Root Directory=backend), `NIXPACKS_UV_VERSION=0.11.23`, `DATABASE_URL`에 `+psycopg`(psycopg v3), Vercel `VITE_API_BASE`. **배포본에서 상담(실 LLM)·사전 검증됨.** 상세·재배포 가이드는 [HANDOFF.md](HANDOFF.md) §8.
