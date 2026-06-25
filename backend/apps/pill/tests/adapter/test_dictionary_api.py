@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from apps.pill.adapter.inbound.api.v1 import router as pill_router
+from apps.pill.app.ports.output.pill_repository import PillRepositoryPort
 from apps.pill.app.use_cases.search_pills import SearchPillsUseCase
 from apps.pill.dependencies import get_search_pills_use_case
 from apps.pill.domain.entities.pill import Pill, PillAttrs, PillCandidate
@@ -39,7 +40,7 @@ _PILLS = [
 ]
 
 
-class _FakeRepo:
+class _FakeRepo(PillRepositoryPort):
     """SearchPillsUseCase 가 쓰는 메서드만 동작하는 PillRepositoryPort 더블."""
 
     def get_by_seq(self, item_seq: str) -> Pill | None:

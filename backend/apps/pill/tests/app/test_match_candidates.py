@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from apps.pill.app.dtos.pill_dto import MatchRequest
+from apps.pill.app.ports.output.pill_repository import PillRepositoryPort
 from apps.pill.app.use_cases.match_candidates import MatchCandidatesUseCase
 from apps.pill.domain.entities.pill import Pill, PillAttrs, PillCandidate
 
@@ -46,7 +47,7 @@ SAMPLE_PILLS = [
 
 
 # ── 가짜 리포지토리 ─────────────────────────────────────────────────────────
-class FakeRepo:
+class FakeRepo(PillRepositoryPort):
     def __init__(self, pills: list[Pill]) -> None:
         self._pills = pills
 
