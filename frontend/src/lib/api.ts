@@ -59,6 +59,8 @@ export interface HealthInfoPayload {
   is_breastfeeding?: boolean
   conditions?: string[]
   current_medications?: string[]
+  age?: number
+  sex?: string // "M" | "F" | "other"
 }
 
 export interface ConversationResponse {

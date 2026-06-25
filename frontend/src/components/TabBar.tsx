@@ -14,7 +14,7 @@ export default function TabBar() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   return (
-    <nav className="tabbar" aria-label="주요 메뉴">
+    <nav className="tabbar" aria-label="주요 메뉴" style={{ viewTransitionName: 'tabbar' }}>
       {TABS.map(({ path, label, Icon }) => {
         const on = pathname === path
         return (

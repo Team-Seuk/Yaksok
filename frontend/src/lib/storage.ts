@@ -31,3 +31,17 @@ export function saveHealth(bundle: HealthBundle): void {
 export function hasHealth(): boolean {
   return localStorage.getItem(HEALTH_KEY) !== null
 }
+
+/** medications가 비었을 때 홈·편집이 공유하는 기본 약(스케줄 포함).
+   사용자가 편집에서 손대면 실제 medications로 저장된다. */
+export const DEFAULT_MEDICATIONS: Medication[] = [
+  { id: 1, profileId: DEV_PROFILE_ID, name: '타이레놀정 500mg', when: '아침', timing: '식후', perDay: 1, dose: 1 },
+  { id: 2, profileId: DEV_PROFILE_ID, name: '이지엔6프로', when: '점심', timing: '식후', perDay: 1, dose: 1 },
+]
+
+/** 복용약 목록 — 저장된 게 있으면 그것, 없으면 기본 약.
+   홈과 '오늘의 약속' 편집이 같은 목록을 보도록 한 곳에서 푼다. */
+export function loadMedications(): Medication[] {
+  const meds = loadHealth()?.medications
+  return meds && meds.length > 0 ? meds : DEFAULT_MEDICATIONS
+}

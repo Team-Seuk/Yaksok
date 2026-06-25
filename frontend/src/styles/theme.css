@@ -113,6 +113,22 @@ body {
   font-weight: var(--fw-medium);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* 앱 전반 텍스트 선택·드래그 방지(네이티브 앱 느낌). 입력 필드만 아래에서 예외 처리. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* 입력·편집 요소는 선택/편집 가능해야 함 */
+input, textarea, [contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* 이미지·SVG·링크의 드래그(고스트 이미지) 방지 */
+img, svg, a {
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 button { font-family: inherit; }
@@ -126,6 +142,10 @@ h1, h2 { font-family: var(--font-display); }
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  /* 페이지 전환(View Transitions API)도 즉시 끊기게 */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation-duration: 0.01ms !important; }
 }
 
 /* ---- 앱 셸 ---- */
@@ -402,3 +422,9 @@ h1, h2 { font-family: var(--font-display); }
 .more-title { font-size: var(--fs-sm); font-weight: var(--fw-semibold); }
 .more-desc { font-size: var(--fs-cap); color: var(--text-dim); margin-top: var(--sp-xs); }
 .more-chev { margin-left: auto; color: var(--text-faint); display: flex; }
+
+/* ---- 페이지 전환(View Transitions API) ----
+   홈 '오늘의 약속' 카드 ↔ 편집 전체화면이 같은 view-transition-name(today-card)으로
+   박스째 모핑한다. 탭바(tabbar)는 전환 중 제자리 유지. */
+::view-transition-group(today-card) { animation-duration: var(--duration-normal); }
+::view-transition-group(tabbar) { animation-duration: var(--duration-normal); }

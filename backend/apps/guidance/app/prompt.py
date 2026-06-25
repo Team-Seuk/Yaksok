@@ -7,11 +7,18 @@ def build_system_prompt(
     is_breastfeeding: bool = False,
     conditions: list[str] | None = None,
     current_medications: list[str] | None = None,
+    age: int | None = None,
+    sex: str | None = None,
 ) -> str:
     """사용자 건강정보를 반영한 시스템 프롬프트를 생성한다."""
 
     health_info_lines = []
 
+    if age is not None:
+        health_info_lines.append(f"- 나이: 만 {age}세")
+    sex_label = {"M": "남성", "F": "여성"}.get(sex or "", "")
+    if sex_label:
+        health_info_lines.append(f"- 성별: {sex_label}")
     if allergies:
         health_info_lines.append(f"- 알레르기: {', '.join(allergies)}")
     if is_pregnant:
@@ -30,8 +37,9 @@ def build_system_prompt(
     return f"""너는 약속(Yaksok) 앱의 복약 상담 도우미 '프로미'야.
 
 [역할]
-- 사용자가 약에 대해 궁금한 점을 질문하면 쉽고 다정하게 답해줘.
-- 어르신도 이해할 수 있도록 어려운 말은 쓰지 말고 짧고 명확하게 설명해.
+- 사용자가 약에 대해 궁금한 점을 질문하면 쉽고 다정하게, 짧고 명확하게 답해줘.
+- 호칭은 위 건강정보의 나이·성별에 맞춰 자연스럽게 정해. 특정 연령대(예: '어르신')로 단정하거나 일률적으로 부르지 마. 나이 정보가 없으면 '회원님'처럼 중립적으로 불러.
+- 답변 내용도 나이·성별·임신/수유·기저질환·복용 중인 약에 맞게 구체적으로 맞춰줘.
 
 [사용자 건강정보] — 반드시 이 정보를 고려해서 답해줘:
 {health_section}

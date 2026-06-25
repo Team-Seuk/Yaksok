@@ -10,11 +10,17 @@ type Msg = { id: string; role: 'me' | 'bot'; text: string }
 function buildHealthInfo(): HealthInfoPayload {
   const bundle = loadHealth()
   if (!bundle) return {}
+  const by = bundle.profile.birthYear
   return {
     allergies: bundle.allergies.map((a) => a.name),
     is_pregnant: bundle.profile.isPregnant,
     is_breastfeeding: bundle.profile.isBreastfeeding,
     current_medications: bundle.medications.map((m) => m.name),
+    conditions: bundle.profile.medicalHistory
+      ? bundle.profile.medicalHistory.split(',').map((s) => s.trim()).filter(Boolean)
+      : [],
+    age: by ? new Date().getFullYear() - by : undefined,
+    sex: bundle.profile.sex,
   }
 }
 

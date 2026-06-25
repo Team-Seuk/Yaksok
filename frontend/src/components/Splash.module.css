@@ -7,7 +7,6 @@
   display: grid;
   place-items: center;
   background: var(--bg);
-  cursor: pointer;
   transition: opacity var(--duration-normal) var(--ease-out);
 }
 .leaving {
@@ -58,15 +57,15 @@
   display: flex;
   transition: transform 0.6s var(--ease-spring);
   will-change: transform;
+  transform: translateX(-16px) rotate(-7deg); /* 처음엔 떨어져 있음 (왼쪽 반쪽) */
 }
 .halfR {
   margin-left: -2px;
+  transform: translateX(16px) rotate(7deg); /* 처음엔 떨어져 있음 (오른쪽 반쪽) */
 }
-.splitL {
-  transform: translateX(-16px) rotate(-7deg);
-}
+.splitL,
 .splitR {
-  transform: translateX(16px) rotate(7deg);
+  transform: none; /* phase>=1 → 가운데로 모여 붙음 */
 }
 
 /* 워드마크 — 캡슐 사이로 차오름 */
@@ -96,13 +95,6 @@
 }
 .brandOn .tagline {
   animation: taglineFade 0.9s var(--ease-out) 0.25s both;
-}
-
-.skip {
-  position: absolute;
-  bottom: var(--sp-2xl);
-  font-size: var(--fs-sm);
-  color: var(--text-faint);
 }
 
 @keyframes capsuleIn {

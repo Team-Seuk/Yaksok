@@ -18,6 +18,7 @@ import SymptomPage from './pages/symptom/SymptomPage'
 import AllPillsPage from './pages/allpills/AllPillsPage'
 import PillDetailPage from './pages/dictionary/PillDetailPage'
 import IdentifyResultPage from './pages/identify/IdentifyResultPage'
+import TodayEditPage from './pages/today/TodayEditPage'
 import { hasHealth } from './lib/storage'
 
 /* 앱 셸 + 온보딩 가드: 건강정보가 없으면 내 정보 입력(/profile)으로 보낸다. */
@@ -36,7 +37,15 @@ function TabLayout() {
   const location = useLocation()
   const idx = TAB_ORDER.indexOf(location.pathname)
   const prev = useRef(idx)
-  const dir = idx > prev.current ? styles.fromRight : idx < prev.current ? styles.fromLeft : ''
+  // 탭↔탭만 좌우 슬라이드. 탭 밖(/today 등)을 드나들 땐 슬라이드 없이 View Transition에 맡긴다.
+  const dir =
+    idx === -1 || prev.current === -1
+      ? ''
+      : idx > prev.current
+        ? styles.fromRight
+        : idx < prev.current
+          ? styles.fromLeft
+          : ''
   useEffect(() => {
     prev.current = idx
   })
@@ -112,6 +121,12 @@ function SymptomRoute() {
   return <SymptomPage onBack={() => navigate(-1)} />
 }
 
+function TodayRoute() {
+  const navigate = useNavigate()
+  // 홈으로 morph 전환(replace로 history 중복 방지). 기기 뒤로가기(pop)도 홈으로 돌아간다.
+  return <TodayEditPage onBack={() => navigate('/', { viewTransition: true, replace: true })} />
+}
+
 function ProfileRoute() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -137,6 +152,7 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/more" element={<MoreRoute />} />
+            <Route path="/today" element={<TodayRoute />} />
           </Route>
           <Route path="/pill/:id" element={<ResultRoute />} />
           <Route path="/dictionary/:itemSeq" element={<PillDetailRoute />} />

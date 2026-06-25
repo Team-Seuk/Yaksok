@@ -13,6 +13,8 @@ class HealthInfoDto(BaseModel):
     is_breastfeeding: bool = False
     conditions: list[str] = []
     current_medications: list[str] = []
+    age: int | None = None
+    sex: str | None = None  # "M" | "F" | "other"
 
 
 class AskRequestDto(BaseModel):

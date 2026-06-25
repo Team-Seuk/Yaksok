@@ -30,6 +30,8 @@ class AskGuidanceUseCase:
             is_breastfeeding=request.health_info.is_breastfeeding,
             conditions=request.health_info.conditions,
             current_medications=request.health_info.current_medications,
+            age=request.health_info.age,
+            sex=request.health_info.sex,
         )
 
         # Gemini 호출

@@ -1,37 +1,31 @@
 import { useEffect, useState } from 'react'
 import styles from './Splash.module.css'
 
-/* 랜딩 스플래시 = 앱 진입 모션. 캡슐이 열리며 그 사이로 '약속'이 차오르는 모프.
-   자동 사라짐 + 탭하면 건너뛰기 + reduced-motion 대응. */
+/* 랜딩 스플래시 = 로딩이 끝날 때까지 보여주는 진입 화면. 떨어져 있던 캡슐 두 반쪽이 모여 붙고 '약속'이 차오른다.
+   2초 고정 노출 + reduced-motion 대응. (건너뛰기 없음 — 로딩 완료를 알리는 화면이므로) */
 export default function Splash({ onDone }: { onDone: () => void }) {
-  const [phase, setPhase] = useState(0) // 0 등장 · 1 열림 · 2 워드마크
+  const [phase, setPhase] = useState(0) // 0 등장(떨어짐) · 1 붙음 · 2 워드마크
   const [leaving, setLeaving] = useState(false)
 
   useEffect(() => {
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
     if (reduce) {
       setPhase(2)
-      const t = setTimeout(onDone, 900)
+      const t = setTimeout(onDone, 2000)
       return () => clearTimeout(t)
     }
     const timers = [
-      setTimeout(() => setPhase(1), 500),
-      setTimeout(() => setPhase(2), 950),
-      setTimeout(() => setLeaving(true), 2000),
-      setTimeout(onDone, 2350),
+      setTimeout(() => setPhase(1), 450),
+      setTimeout(() => setPhase(2), 700),
+      setTimeout(() => setLeaving(true), 1700),
+      setTimeout(onDone, 2000),
     ]
     return () => timers.forEach(clearTimeout)
   }, [onDone])
 
-  function skip() {
-    setLeaving(true)
-    setTimeout(onDone, 320)
-  }
-
   return (
     <div
       className={`${styles.overlay}${leaving ? ` ${styles.leaving}` : ''}`}
-      onClick={skip}
       aria-label="약속 시작 화면"
     >
       <div className={styles.panel}>
@@ -76,7 +70,6 @@ export default function Splash({ onDone }: { onDone: () => void }) {
           <span className={styles.tagline}>잊지 않게, 안심하게</span>
         </div>
 
-        <span className={styles.skip}>탭하여 건너뛰기</span>
       </div>
     </div>
   )
