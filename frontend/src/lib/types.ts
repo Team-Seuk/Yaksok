@@ -26,11 +26,22 @@ export interface HealthProfile {
   bmi: number | null // 선택
 }
 
-/** medications — health_profiles 1:N (복용약 목록) */
+/** 복용 시점 — 하루 중 언제 */
+export type DoseWhen = '아침' | '점심' | '저녁' | '자기 전'
+/** 식사 기준 타이밍 */
+export type DoseTiming = '식전' | '식후' | '공복' | '취침 전'
+
+/** medications — health_profiles 1:N (복용약 목록)
+   복용 스케줄(when·timing·perDay·dose)은 프로토타입에서 '오늘의 약속' 편집으로 채운다.
+   기존 데이터 호환을 위해 전부 선택 필드 — 없으면 '미설정'으로 본다. */
 export interface Medication {
   id: ID
   profileId: ID // FK → HealthProfile.id
   name: string
+  when?: DoseWhen // 복용 시점(아침/점심/저녁/자기 전)
+  timing?: DoseTiming // 식전/식후/공복/취침 전
+  perDay?: number // 하루 복용 횟수
+  dose?: number // 1회 복용 정 수
 }
 
 /** allergies — health_profiles 1:N (알레르기 목록) */

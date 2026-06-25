@@ -146,10 +146,35 @@
 }
 .blockHead {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: var(--sp-sm);
 }
+.blockActions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  flex-shrink: 0;
+}
+.editBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-xs);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--accent-deep);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-pill);
+  padding: var(--sp-xs) var(--sp-sm);
+  min-height: 34px;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+.editBtn:hover { background: var(--accent-line); }
+.editBtn:active { transform: translateY(1px); }
 .blockTitle {
   font-size: var(--fs-h2);
   font-weight: var(--fw-bold);
@@ -234,25 +259,72 @@
   padding: var(--sp-md);
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: var(--sp-xs);
   box-shadow: var(--shadow-card);
 }
 .statNum {
-  font-size: var(--fs-display);
-  font-weight: var(--fw-bold);
+  font-size: calc(var(--fs-display) + 12px);
+  font-weight: var(--fw-semibold);
   letter-spacing: -0.02em;
   line-height: 1;
   color: var(--accent-deep);
   font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  margin-right: var(--sp-md);
 }
 .statSub {
-  font-size: var(--fs-xs);
+  font-size: var(--fs-cap);
   color: var(--text-faint);
 }
 .statLabel {
-  font-size: var(--fs-cap);
-  color: var(--text-dim);
+  font-size: var(--fs-lg);
+  color: var(--text);
   font-weight: var(--fw-medium);
+}
+
+/* 가로 배치 stat(새로 찾아본 약): 왼쪽 텍스트 · 오른쪽 큰 숫자 */
+.statCount {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-sm);
+}
+.statCountText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-xs);
+  min-width: 0;
+}
+
+/* ---- 복약률 원형 그래프 ---- */
+.statRing {
+  align-items: center;
+  text-align: center;
+  gap: var(--sp-sm);
+}
+.ring {
+  width: 76px;
+  height: 76px;
+}
+.ringTrack {
+  fill: none;
+  stroke: var(--bg-elev-2);
+  stroke-width: 10;
+}
+.ringFill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+.ringText {
+  fill: var(--accent-deep);
+  font-size: 18px;
+  font-weight: var(--fw-semibold);
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-variant-numeric: tabular-nums;
 }
 
 .note {
