@@ -83,7 +83,9 @@ function ResultRoute() {
 
 function ConversationRoute() {
   const navigate = useNavigate()
-  return <ConversationPage onBack={() => navigate(-1)} />
+  const { id } = useParams()
+  if (!id) return <Navigate to="/chat" replace />
+  return <ConversationPage conversationId={id} onBack={() => navigate(-1)} />
 }
 
 function SymptomRoute() {

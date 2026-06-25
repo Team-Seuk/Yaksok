@@ -1,62 +1,51 @@
-/* 대화 모드 = 빈 채팅에서 바로 묻는 독립 화면 (탭 화면, 뒤로가기 없음).
-   클로드 시작 화면처럼 비어 있고, 한 줄 물으면 대화가 열린다.
-   실제 LLM 연동·세션 저장은 후속 — 지금은 정해진 안내 답으로 흐름만 보여준다. */
+/* 대화 모드 = 빈 채팅에서 바로 묻는 독립 화면 (탭 화면, 뒤로가기 없음). */
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import PillImage from '../../components/PillImage'
-import { ArrowUp, ChevronRight } from '../../components/icons'
+import { ArrowUp } from '../../components/icons'
 import styles from './ChatPage.module.css'
+import { createConversation, sendMessage, ApiError, type HealthInfoPayload } from '../../lib/api'
+import { loadHealth } from '../../lib/storage'
 
 type Msg = { id: number; role: 'me' | 'bot'; text?: string; image?: string }
 
 const DEMO_PHOTO = '/demo/pill.jpg'
-/* 연출용 — 사진 속 약(타이레놀 500mg)에 대한 프로미 답변(성인 기준). */
-const DEMO_ANSWER =
-  '보내주신 약은 타이레놀정 500mg (성분: 아세트아미노펜 500mg)으로 보여요. 발열·두통·생리통·근육통 등에 두루 쓰는 해열진통제예요.\n\n' +
-  '성인은 보통 1회 1~2정(500~1,000mg)을 4~6시간 간격으로, 필요할 때 복용해요. 하루 최대 4,000mg(8정)을 넘기지 마세요.\n\n' +
-  '음주 후에는 복용을 피하고, 종합감기약 등 다른 아세트아미노펜 함유 약과 겹쳐 먹지 않도록 성분을 확인하세요. 간 질환이 있다면 복용 전 의사·약사와 상담하는 게 좋아요.'
 const EXAMPLES = ['두통에 먹을 약 알려줘', '빈속에 먹어도 될까?', '졸음이 오는 약이야?']
-const BOT_REPLY = '네, 확인해 드릴게요. 약 이름이나 증상을 조금 더 알려주시면 더 정확하게 안내해 드릴게요.'
-
-/* 최근 대화 기록 — 지난 세션 목록(프로토타입: 더미). 탭하면 그 대화로 이어진다. */
-type RecentSession = { id: number; title: string; preview: string; when: string }
-const RECENT_SESSIONS: RecentSession[] = [
-  { id: 1, title: '이지엔6프로연질캡슐', preview: '빈속에 먹어도 되나요?', when: '어제' },
-  { id: 2, title: '타이레놀정 500mg', preview: '하루에 몇 알까지 괜찮아요?', when: '6/14' },
-  { id: 3, title: '감기약 같이 먹기', preview: '진통제랑 같이 먹어도 되나요?', when: '6/11' },
-]
 
 /* 프로미 아바타 — 브랜드 알약을 작은 민트 원 안에 */
 const ASSISTANT_LOOK = { kind: 'capsule', color: 'var(--accent)', color2: 'var(--bg-elev)' } as const
 
+/** localStorage 건강정보 → API payload 변환 */
+function buildHealthInfo(): HealthInfoPayload {
+  const bundle = loadHealth()
+  if (!bundle) return {}
+  return {
+    allergies: bundle.allergies.map((a) => a.name),
+    is_pregnant: bundle.profile.isPregnant,
+    is_breastfeeding: bundle.profile.isBreastfeeding,
+    current_medications: bundle.medications.map((m) => m.name),
+  }
+}
+
 export default function ChatPage() {
-  const navigate = useNavigate()
-  /* 캡처용 스테이징 — 프로미가 응답을 준비하는 타이핑 인디케이터가 고정으로 떠 있다.
-       /chat?stage=typing : 증상 텍스트를 보낸 직후 (응답 준비중)
-       /chat?stage=photo  : 알약 사진을 첨부해 보낸 직후 (응답 준비중)
-       /chat?stage=answer : 사진 첨부 → 프로미가 답변까지 완료 */
   const location = useLocation()
   const stage = new URLSearchParams(location.search).get('stage')
   const stageTyping = stage === 'typing'
   const stagePhoto = stage === 'photo'
-  const stageAnswer = stage === 'answer'
+
   const [msgs, setMsgs] = useState<Msg[]>(
-    stageAnswer
-      ? [
-          { id: 1, role: 'me', image: DEMO_PHOTO },
-          { id: 2, role: 'bot', text: DEMO_ANSWER },
-        ]
-      : stagePhoto
-        ? [{ id: 1, role: 'me', image: DEMO_PHOTO }]
-        : stageTyping
-          ? [{ id: 1, role: 'me', text: '어제부터 머리가 지끈거리고 콧물이 나요.' }]
-          : [],
+    stagePhoto
+      ? [{ id: 1, role: 'me', image: DEMO_PHOTO }]
+      : stageTyping
+        ? [{ id: 1, role: 'me', text: '어제부터 머리가 지끈거리고 콧물이 나요.' }]
+        : [],
   )
   const [draft, setDraft] = useState('')
   const [typing, setTyping] = useState(stageTyping || stagePhoto)
+  const [conversationId, setConversationId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
-  /* 사용자가 위로 스크롤 중이면 자동 하단 스크롤을 억제하기 위한 추적 */
   const stickToBottom = useRef(true)
 
   const canSend = draft.trim().length > 0
@@ -69,28 +58,41 @@ export default function ChatPage() {
   function onScroll() {
     const el = scrollRef.current
     if (!el) return
-    /* 바닥 근처(여유 48px)면 자동 스크롤 유지, 위로 올렸으면 억제 */
     stickToBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 48
   }
 
-  function send(text: string) {
+  async function send(text: string) {
     const t = text.trim()
     if (!t) return
     stickToBottom.current = true
     setMsgs((m) => [...m, { id: m.length + 1, role: 'me', text: t }])
     setDraft('')
     setTyping(true)
-    setTimeout(() => {
+    setError(null)
+
+    try {
+      let convId = conversationId
+      if (!convId) {
+        const conv = await createConversation()
+        convId = conv.id
+        setConversationId(convId)
+      }
+
+      const reply = await sendMessage(convId, t, buildHealthInfo())
       setTyping(false)
-      setMsgs((m) => [...m, { id: m.length + 1, role: 'bot', text: BOT_REPLY }])
-    }, 700)
+      setMsgs((m) => [...m, { id: m.length + 1, role: 'bot', text: reply.content }])
+    } catch (e) {
+      setTyping(false)
+      const msg = e instanceof ApiError ? e.message : '오류가 발생했어요. 다시 시도해 주세요.'
+      setError(msg)
+    }
   }
 
   return (
     <div className="result">
       <header className={styles.head}>
         <h1 className={styles.headTitle}>대화</h1>
-        <p className={styles.headSub}>저는 프로미에요!</p>
+        <p className={styles.headSub}>채팅으로 알아보기</p>
       </header>
 
       <div
@@ -111,37 +113,13 @@ export default function ChatPage() {
               <ul className={styles.examples}>
                 {EXAMPLES.map((ex) => (
                   <li key={ex}>
-                    <button type="button" className={styles.exampleChip} onClick={() => send(ex)}>
+                    <button type="button" className={styles.exampleChip} onClick={() => void send(ex)}>
                       {ex}
                     </button>
                   </li>
                 ))}
               </ul>
             </div>
-
-            {RECENT_SESSIONS.length > 0 && (
-              <section className={styles.recent} aria-labelledby="chat-recent">
-                <h3 id="chat-recent" className={styles.recentHead}>최근 대화</h3>
-                <ul className={styles.recentList}>
-                  {RECENT_SESSIONS.map((s) => (
-                    <li key={s.id}>
-                      <button
-                        type="button"
-                        className={styles.recentCard}
-                        onClick={() => navigate(`/conversation/${s.id}`)}
-                      >
-                        <span className={styles.recentBody}>
-                          <span className={styles.recentTitle}>{s.title}</span>
-                          <span className={styles.recentPreview}>{s.preview}</span>
-                        </span>
-                        <span className={styles.recentWhen}>{s.when}</span>
-                        <span className={styles.recentChev}><ChevronRight size={18} /></span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
           </div>
         ) : (
           <div className={styles.list}>
@@ -179,6 +157,13 @@ export default function ChatPage() {
                 </div>
               </div>
             )}
+            {error && (
+              <div className={styles.row} role="alert">
+                <div className={`${styles.bubble} ${styles.bubbleBot}`} style={{ color: 'var(--danger, #e55)' }}>
+                  {error}
+                </div>
+              </div>
+            )}
             <div ref={bottomRef} />
           </div>
         )}
@@ -188,7 +173,7 @@ export default function ChatPage() {
         className="composer"
         onSubmit={(e) => {
           e.preventDefault()
-          send(draft)
+          void send(draft)
         }}
       >
         <input

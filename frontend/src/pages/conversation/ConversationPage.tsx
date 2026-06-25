@@ -1,31 +1,74 @@
-import { useState } from 'react'
+/* 개별 대화 화면 — 한 약(또는 새 질문)에 대한 메시지 말풍선 + 입력. */
+import { useEffect, useRef, useState } from 'react'
 import { ChevronLeft, ArrowUp } from '../../components/icons'
 import styles from './ConversationPage.module.css'
+import { getMessages, sendMessage, ApiError, type MessageResponse, type HealthInfoPayload } from '../../lib/api'
+import { loadHealth } from '../../lib/storage'
 
-/* 개별 대화 화면 = 한 약(또는 새 질문)에 대한 메시지 말풍선 + 입력 (프로토타입: 더미).
-   ERD의 conversations·messages에 대응. 서버 연동은 M4. */
-type Msg = { id: number; role: 'me' | 'bot'; text: string }
+type Msg = { id: string; role: 'me' | 'bot'; text: string }
 
-const SEED: Msg[] = [
-  { id: 1, role: 'me', text: '공복에 먹어도 되나요?' },
-  {
-    id: 2,
-    role: 'bot',
-    text: '위장 자극이 적은 편이지만 속이 예민하면 식후 30분에 드시는 걸 권해요.\n지금 21시라면 다음 날 아침 속쓰림을 줄이려 가벼운 음식과 함께 드세요.',
-  },
-]
+function buildHealthInfo(): HealthInfoPayload {
+  const bundle = loadHealth()
+  if (!bundle) return {}
+  return {
+    allergies: bundle.allergies.map((a) => a.name),
+    is_pregnant: bundle.profile.isPregnant,
+    is_breastfeeding: bundle.profile.isBreastfeeding,
+    current_medications: bundle.medications.map((m) => m.name),
+  }
+}
 
-export default function ConversationPage({ onBack }: { onBack: () => void }) {
-  const [msgs, setMsgs] = useState<Msg[]>(SEED)
+function toMsg(m: MessageResponse): Msg {
+  return { id: m.id, role: m.role === 'user' ? 'me' : 'bot', text: m.content }
+}
+
+export default function ConversationPage({
+  conversationId,
+  title,
+  onBack,
+}: {
+  conversationId: string
+  title?: string
+  onBack: () => void
+}) {
+  const [msgs, setMsgs] = useState<Msg[]>([])
   const [draft, setDraft] = useState('')
+  const [typing, setTyping] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const bottomRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    getMessages(conversationId)
+      .then((list) => setMsgs(list.map(toMsg)))
+      .catch((e) => {
+        const msg = e instanceof ApiError ? e.message : '내역을 불러오지 못했어요.'
+        setError(msg)
+      })
+  }, [conversationId])
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [msgs, typing])
 
   const canSend = draft.trim().length > 0
 
-  function send() {
+  async function send() {
     const text = draft.trim()
     if (!text) return
-    setMsgs((m) => [...m, { id: m.length + 1, role: 'me', text }])
+    setMsgs((m) => [...m, { id: `tmp-${Date.now()}`, role: 'me', text }])
     setDraft('')
+    setTyping(true)
+    setError(null)
+
+    try {
+      const reply = await sendMessage(conversationId, text, buildHealthInfo())
+      setTyping(false)
+      setMsgs((m) => [...m, toMsg(reply)])
+    } catch (e) {
+      setTyping(false)
+      const msg = e instanceof ApiError ? e.message : '오류가 발생했어요. 다시 시도해 주세요.'
+      setError(msg)
+    }
   }
 
   return (
@@ -35,7 +78,7 @@ export default function ConversationPage({ onBack }: { onBack: () => void }) {
           <ChevronLeft />
         </button>
         <span className={styles.headBody}>
-          <span className={styles.headName}>이지엔6프로연질캡슐</span>
+          <span className={styles.headName}>{title ?? '상담'}</span>
           <span className={styles.headSub}>이 약에 대한 대화</span>
         </span>
       </div>
@@ -58,6 +101,20 @@ export default function ConversationPage({ onBack }: { onBack: () => void }) {
               </div>
             )
           })}
+          {typing && (
+            <div className={styles.row} role="status" aria-label="프로미가 입력 중입니다">
+              <span className={styles.who}>프로미</span>
+              <div className={`${styles.bubble} ${styles.bubbleBot}`}>…</div>
+            </div>
+          )}
+          {error && (
+            <div className={styles.row} role="alert">
+              <div className={`${styles.bubble} ${styles.bubbleBot}`} style={{ color: 'var(--danger, #e55)' }}>
+                {error}
+              </div>
+            </div>
+          )}
+          <div ref={bottomRef} />
         </div>
       </div>
 
@@ -65,7 +122,7 @@ export default function ConversationPage({ onBack }: { onBack: () => void }) {
         className={`composer ${styles.composer}`}
         onSubmit={(e) => {
           e.preventDefault()
-          send()
+          void send()
         }}
       >
         <input

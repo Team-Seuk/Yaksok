@@ -11,25 +11,26 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from core.db import Base, engine
-
 logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    """기동 시 테이블을 보장한다(Alembic 도입 전 임시).
+    """기동 시 Alembic 마이그레이션을 실행한다.
 
-    ORM 모델 모듈을 import 해야 ``Base.metadata`` 에 테이블이 등록된다.
-    DB 미기동이어도 서버는 뜨고(쿼리 시점에 실패), 연결되면 자동 생성된다.
+    DB 미연결이면 경고만 내고 서버는 뜬다(쿼리 시점에 실패).
+    마이그레이션은 ``alembic upgrade head`` 로도 수동 실행 가능.
     """
-    from apps.guidance.adapter.outbound.orm import models as _guidance_orm  # noqa: F401
-    from apps.pill.adapter.outbound.orm import pill_orm as _pill_orm  # noqa: F401
-
     try:
-        Base.metadata.create_all(bind=engine)
+        from pathlib import Path
+
+        import alembic.command
+        from alembic.config import Config as AlembicConfig
+
+        alembic_cfg = AlembicConfig(str(Path(__file__).parent / "alembic.ini"))
+        alembic.command.upgrade(alembic_cfg, "head")
     except Exception as exc:  # noqa: BLE001 — DB 없이도 기동 보장
-        logger.warning("DB 테이블 생성 건너뜀 (DB 미연결?): %s", exc)
+        logger.warning("Alembic 마이그레이션 건너뜀 (DB 미연결?): %s", exc)
     yield
 
 

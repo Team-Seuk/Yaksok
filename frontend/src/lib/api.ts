@@ -51,6 +51,83 @@ export class ApiError extends Error {
   }
 }
 
+// ── Guidance (복약 상담) ──────────────────────────────────────────
+
+export interface HealthInfoPayload {
+  allergies?: string[]
+  is_pregnant?: boolean
+  is_breastfeeding?: boolean
+  conditions?: string[]
+  current_medications?: string[]
+}
+
+export interface ConversationResponse {
+  id: string
+  created_at: string
+}
+
+export interface MessageResponse {
+  id: string
+  role: string
+  content: string
+  created_at: string
+}
+
+/** 새 대화방을 만든다. */
+export async function createConversation(): Promise<ConversationResponse> {
+  let res: Response
+  try {
+    res = await fetch(`${API_BASE}/api/guidance/conversations`, { method: 'POST' })
+  } catch {
+    throw new ApiError(0, '서버에 연결할 수 없어요.')
+  }
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as { detail?: string } | null
+    throw new ApiError(res.status, body?.detail ?? `요청 실패 (${res.status})`)
+  }
+  return (await res.json()) as ConversationResponse
+}
+
+/** 대화방에 메시지를 보내고 AI 답변을 받는다. */
+export async function sendMessage(
+  conversationId: string,
+  message: string,
+  healthInfo?: HealthInfoPayload,
+): Promise<MessageResponse> {
+  let res: Response
+  try {
+    res = await fetch(`${API_BASE}/api/guidance/conversations/${conversationId}/messages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, health_info: healthInfo ?? {} }),
+    })
+  } catch {
+    throw new ApiError(0, '서버에 연결할 수 없어요.')
+  }
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as { detail?: string } | null
+    throw new ApiError(res.status, body?.detail ?? `요청 실패 (${res.status})`)
+  }
+  return (await res.json()) as MessageResponse
+}
+
+/** 대화방의 메시지 내역을 가져온다. */
+export async function getMessages(conversationId: string): Promise<MessageResponse[]> {
+  let res: Response
+  try {
+    res = await fetch(`${API_BASE}/api/guidance/conversations/${conversationId}/messages`)
+  } catch {
+    throw new ApiError(0, '서버에 연결할 수 없어요.')
+  }
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as { detail?: string } | null
+    throw new ApiError(res.status, body?.detail ?? `요청 실패 (${res.status})`)
+  }
+  return (await res.json()) as MessageResponse[]
+}
+
+// ── Pill identify ─────────────────────────────────────────────────
+
 /** 알약 사진을 보내 식별 결과를 받는다. file 은 카메라 캡처 Blob 또는 업로드 File. */
 export async function identifyPill(file: Blob): Promise<IdentifyResponse> {
   const form = new FormData()
