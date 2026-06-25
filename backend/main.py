@@ -40,6 +40,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",  # Vite dev 서버
         "http://127.0.0.1:5173",
+        "https://seuk.cloud",
+        "https://www.seuk.cloud",
     ],
     allow_credentials=True,
     allow_methods=["*"],
