@@ -31,6 +31,20 @@ function scanIntro(result: IdentifyResponse): string {
     : '알약을 살펴봤어요. 궁금한 점을 편하게 물어보세요.'
 }
 
+/* 인식 결과를 LLM 에 넘길 맥락 문자열로 요약 — 사용자의 '이 약/이게' 를 LLM 이 알게 한다. */
+function scanContextSummary(result: IdentifyResponse): string {
+  const a = result.attributes
+  const parts: string[] = []
+  if (a.product_name) parts.push(`포장 제품명: ${a.product_name}`)
+  const phys = [a.shape, a.color_front, a.imprint_front ? `각인 ${a.imprint_front}` : null]
+    .filter(Boolean)
+    .join(', ')
+  if (phys) parts.push(`알약 속성: ${phys}`)
+  const names = result.candidates.slice(0, 3).map((c) => c.item_name)
+  if (names.length) parts.push(`매칭 후보(점수순): ${names.join(', ')}`)
+  return parts.length ? parts.join(' / ') : '사진에서 약을 또렷이 식별하지 못함(후보 없음)'
+}
+
 const DEMO_PHOTO = '/demo/pill.jpg'
 const EXAMPLES = ['두통에 먹을 약 알려줘', '빈속에 먹어도 될까?', '졸음이 오는 약이야?']
 
@@ -78,6 +92,8 @@ export default function ChatPage() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const stickToBottom = useRef(true)
+  /* 카메라 인식 결과 요약 — 이후 모든 질문에 맥락으로 동봉(LLM 은 메시지별로 stateless). */
+  const scanCtxRef = useRef<string | null>(null)
 
   const canSend = draft.trim().length > 0
   const empty = msgs.length === 0
@@ -96,6 +112,7 @@ export default function ChatPage() {
         const file = new File([blob], 'scan.jpg', { type: 'image/jpeg' })
         const result = await identifyPill(file)
         if (!alive) return
+        scanCtxRef.current = scanContextSummary(result)
         setTyping(false)
         setMsgs((m) => [...m, { id: m.length + 1, role: 'bot', text: scanIntro(result) }])
       } catch (e) {
@@ -133,7 +150,7 @@ export default function ChatPage() {
         setConversationId(convId)
       }
 
-      const reply = await sendMessage(convId, t, buildHealthInfo())
+      const reply = await sendMessage(convId, t, buildHealthInfo(), scanCtxRef.current)
       setTyping(false)
       setMsgs((m) => [...m, { id: m.length + 1, role: 'bot', text: reply.content }])
     } catch (e) {

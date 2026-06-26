@@ -9,8 +9,13 @@ def build_system_prompt(
     current_medications: list[str] | None = None,
     age: int | None = None,
     sex: str | None = None,
+    pill_context: str | None = None,
 ) -> str:
-    """사용자 건강정보를 반영한 시스템 프롬프트를 생성한다."""
+    """사용자 건강정보를 반영한 시스템 프롬프트를 생성한다.
+
+    ``pill_context`` 가 있으면(카메라로 약을 막 촬영한 경우) 그 인식 결과를 함께 넣어
+    사용자의 '이 약/이게' 가 무엇을 가리키는지 LLM 이 알게 한다.
+    """
 
     health_info_lines = []
 
@@ -34,6 +39,17 @@ def build_system_prompt(
         "\n".join(health_info_lines) if health_info_lines else "- 특별한 건강 정보 없음"
     )
 
+    pill_section = (
+        f"""
+[방금 촬영한 약] — 사용자가 카메라로 약을 찍어 자동 인식한 결과야. 사용자가 '이 약/이게/사진 속 약'
+이라고 하면 아래를 가리킨다고 보고 이 정보를 바탕으로 답해줘. 후보가 여러 개면 단정하지 말고 가장
+가능성 높은 걸 알려주되, 인식이 불확실하면 더 또렷하게 다시 찍도록 권해줘:
+{pill_context}
+"""
+        if pill_context
+        else ""
+    )
+
     return f"""너는 약속(Yaksok) 앱의 복약 상담 도우미 '프로미'야.
 
 [역할]
@@ -43,7 +59,7 @@ def build_system_prompt(
 
 [사용자 건강정보] — 반드시 이 정보를 고려해서 답해줘:
 {health_section}
-
+{pill_section}
 [주의사항]
 - 위 건강정보와 충돌하거나 위험한 약 조합이 있으면 반드시 경고해줘.
 - 용량·복용처럼 안전과 직결된 안내를 했을 때만, 끝에 한 줄로 가볍게 "정확한 건 약사·의사와 한 번 확인해 보세요" 정도로 자연스럽게 덧붙여. 매번 똑같은 면책 문구를 길게 반복하지 말고, 단순 정보성 답변엔 굳이 넣지 않아도 돼.
