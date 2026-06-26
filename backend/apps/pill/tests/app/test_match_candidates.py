@@ -58,6 +58,9 @@ class FakeRepo(PillRepositoryPort):
         kw = keyword.lower()
         return [p for p in self._pills if kw in p.item_name.lower()][:limit]
 
+    def search_candidates(self, keyword: str, limit: int = 10) -> list[PillCandidate]:
+        return []
+
     def filter_candidates(self, attrs: PillAttrs, limit: int = 10) -> list[PillCandidate]:
         from apps.pill.adapter.outbound.repositories.pill_repository import _score
 

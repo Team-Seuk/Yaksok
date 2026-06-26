@@ -37,6 +37,21 @@ def _normalize_print_sql(col: InstrumentedAttribute[str | None]) -> ColumnElemen
     return func.upper(func.replace(func.replace(func.replace(col, " ", ""), "\t", ""), "-", ""))
 
 
+def _name_relevance(item_name: str | None, keyword: str) -> float:
+    """제품명 검색 일치도 — 정확>접두>포함 순. 공백 무시 비교."""
+    name = re.sub(r"\s", "", item_name or "")
+    kw = re.sub(r"\s", "", keyword)
+    if not kw:
+        return 0.0
+    if name == kw:
+        return 10.0
+    if name.startswith(kw):
+        return 8.0
+    if kw in name:
+        return 6.0
+    return 4.0  # ILIKE 로 걸렸으나 위 조건 밖(부분 토큰 등)
+
+
 def _score(row: PillORM, attrs: PillAttrs) -> float:
     s = 0.0
     if attrs.print_front is not None and (
@@ -76,6 +91,37 @@ class PillRepository(PillRepositoryPort):
             .limit(limit)
         )
         return [orm_to_domain(r) for r in self._db.scalars(stmt)]
+
+    def search_candidates(self, keyword: str, limit: int = 10) -> list[PillCandidate]:
+        """제품명으로 검색(포장 인식 경로) → 이름 일치도 점수순 후보. 이름 우선이라 item_name 기준만 본다."""
+        kw = keyword.strip()
+        if not kw:
+            return []
+        # 넉넉히 받아 Python 에서 일치도순 재정렬(정확>접두>포함).
+        stmt = (
+            select(PillORM).where(PillORM.item_name.ilike(f"%{kw}%")).limit(max(limit * 5, limit))
+        )
+        rows = list(self._db.scalars(stmt))
+        scored = sorted(
+            ((row, _name_relevance(row.item_name, kw)) for row in rows),
+            key=lambda x: (-x[1], x[0].item_seq),
+        )
+        return [
+            PillCandidate(
+                item_seq=row.item_seq,
+                item_name=row.item_name,
+                entp_name=row.entp_name,
+                shape=row.shape,
+                color_front=row.color_front,
+                color_back=row.color_back,
+                print_front=row.print_front,
+                print_back=row.print_back,
+                image_url=row.image_url,
+                is_otc=row.is_otc,
+                score=score,
+            )
+            for row, score in scored[:limit]
+        ]
 
     def filter_candidates(self, attrs: PillAttrs, limit: int = 10) -> list[PillCandidate]:
         """속성 조건으로 1차 필터 후 스코어링, 상위 N 반환."""

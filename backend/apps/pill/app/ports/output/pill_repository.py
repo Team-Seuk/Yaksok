@@ -15,6 +15,11 @@ class PillRepositoryPort(ABC):
     def search(self, keyword: str, limit: int = 20) -> list[Pill]: ...
 
     @abstractmethod
+    def search_candidates(self, keyword: str, limit: int = 10) -> list[PillCandidate]:
+        """제품명(이름)으로 검색한 후보 — 포장 인식 경로용. 이름 일치도를 score 로 채운다."""
+        ...
+
+    @abstractmethod
     def filter_candidates(self, attrs: PillAttrs, limit: int = 10) -> list[PillCandidate]: ...
 
     @abstractmethod
