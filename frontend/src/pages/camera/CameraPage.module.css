@@ -49,8 +49,8 @@
      (100%+32px와 16px×2의 서브픽셀 반올림으로 생기는 실틈 방지 · 초과분은 .home overflow:hidden이 잘라냄) */
   width: calc(100% + 2 * var(--sp-md) + 4px);
   margin-inline: calc(-1 * var(--sp-md) - 2px);
-  flex: 1;
-  min-height: 0;
+  aspect-ratio: 1 / 1;
+  max-height: 100%;
   border-radius: 0;
   background:
     radial-gradient(120% 120% at 50% 28%, var(--accent-fog), transparent 62%),
@@ -180,20 +180,11 @@
 
 /* ---- 무대 캡션 + 안심 카피 ---- */
 .caption {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;   /* 두 줄 줄간격 살짝 축소(sp-xs 4px → 2px) */
+  margin: 0;
   text-align: center;
-}
-.captionMain {
   font-size: var(--fs-sm);
   font-weight: var(--fw-semibold);
   color: var(--text);
-}
-.captionSub {
-  font-size: var(--fs-sm);
-  color: var(--text-dim);
   line-height: var(--lh-snug);
   text-wrap: pretty;
 }

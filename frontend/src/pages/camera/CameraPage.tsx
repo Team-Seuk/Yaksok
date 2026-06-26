@@ -257,30 +257,17 @@ export default function CameraPage() {
         </div>
 
         {cam !== 'denied' && (
-          <div className={styles.caption}>
-            <span className={styles.captionMain}>
-              {stageShot
-                ? '알약을 인식하고 있어요'
-                : cam === 'live'
-                  ? scanning
-                    ? '알약을 살펴보고 있어요'
-                    : notFound
-                      ? '약을 찾지 못했어요'
-                      : '가운데 칸에 알약을 맞춰 주세요'
-                  : '카메라를 준비하고 있어요'}
-            </span>
-            <span className={styles.captionSub}>
-              {stageShot
-                ? '잠시만 기다려 주세요. 곧 알려드릴게요.'
-                : cam === 'live'
-                  ? scanning
-                    ? '잠시만 기다려 주세요. 곧 알려드릴게요.'
-                    : notFound
-                      ? '조금 더 가까이서 다시 촬영해 주세요.'
-                      : '아래 셔터 버튼을 눌러 촬영해요.'
-                  : '잠시만 기다려 주세요. 곧 켜집니다.'}
-            </span>
-          </div>
+          <p className={styles.caption}>
+            {stageShot
+              ? '알약을 인식하고 있어요'
+              : cam === 'live'
+                ? scanning
+                  ? '알약을 살펴보고 있어요'
+                  : notFound
+                    ? '약을 못 찾았어요. 더 가까이서 다시 찍어 주세요'
+                    : '가운데에 알약을 맞춰 주세요'
+                : '카메라를 준비하고 있어요'}
+          </p>
         )}
       </div>
 
