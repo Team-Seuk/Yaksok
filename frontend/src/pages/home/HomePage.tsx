@@ -1,11 +1,12 @@
 /* 홈 = AI가 정리해주는 맞춤 대시보드 (스텁).
    상단 '오늘의 한마디'(LLM 한 줄)가 주인공, 그 아래 복약·이번 주 요약 카드.
    본격 대시보드(실데이터/통계)는 후속 스펙. 지금은 더미 + 건강정보로 가볍게 개인화. */
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PillImage from '../../components/PillImage'
 import { ChevronRight } from '../../components/icons'
 import { loadMedications } from '../../lib/storage'
+import { SplashReadyContext } from '../../lib/splash'
 import styles from './HomePage.module.css'
 
 /* 편집 버튼 아이콘 — icons.tsx는 건드리지 않고 인라인(연필). */
@@ -22,12 +23,14 @@ function PencilGlyph() {
 /* 이번 주 복약률(%) — 실데이터 연결 지점(현재 더미). 값만 바꾸면 그래프가 그에 맞게 찬다. */
 const ADHERENCE = 80
 
-/* 복약률 원형 그래프 — 홈 진입마다 0에서 현재 수치까지 차오른다(reduced-motion이면 즉시). */
+/* 복약률 원형 그래프 — 홈 진입마다 0에서 현재 수치까지 차오른다(reduced-motion이면 즉시).
+   첫 로드 시엔 스플래시가 끝나 홈이 실제로 보일 때(ready) 시작해, 애니메이션이 가려진 채 끝나지 않게 한다. */
 function AdherenceRing({ percent }: { percent: number }) {
+  const ready = useContext(SplashReadyContext)
   const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
   const [shown, setShown] = useState(reduce ? percent : 0)
   useEffect(() => {
-    if (reduce) return
+    if (reduce || !ready) return
     let raf = 0
     let start = 0
     const dur = 900
@@ -40,7 +43,7 @@ function AdherenceRing({ percent }: { percent: number }) {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [percent, reduce])
+  }, [percent, reduce, ready])
   const r = 34
   const circ = 2 * Math.PI * r
   const offset = circ * (1 - shown / 100)

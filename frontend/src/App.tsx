@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import Splash from './components/Splash'
 import TabBar from './components/TabBar'
+import { SplashReadyContext } from './lib/splash'
 import styles from './App.module.css'
 
 /* 탭 순서(좌→우) — 슬라이드 방향 판단용. 알약사전·카메라·홈·대화·기타, 홈이 가운데. */
@@ -143,8 +144,9 @@ export default function App() {
   const [splashing, setSplashing] = useState(true)
   return (
     <BrowserRouter>
-      {splashing && <Splash onDone={() => setSplashing(false)} />}
-      <Routes>
+      <SplashReadyContext.Provider value={!splashing}>
+        {splashing && <Splash onDone={() => setSplashing(false)} />}
+        <Routes>
         <Route element={<RootLayout />}>
           <Route element={<TabLayout />}>
             <Route path="/cabinet" element={<CabinetRoute />} />
@@ -163,7 +165,8 @@ export default function App() {
           <Route path="/profile" element={<ProfileRoute />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
-      </Routes>
+        </Routes>
+      </SplashReadyContext.Provider>
     </BrowserRouter>
   )
 }
