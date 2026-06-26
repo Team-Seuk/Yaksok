@@ -3,12 +3,13 @@ import { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import PillImage from '../../components/PillImage'
 import { ArrowUp } from '../../components/icons'
-import type { IdentifyResponse } from '../../lib/api'
+import type { IdentifyResponse, PillDetailInfo } from '../../lib/api'
 import styles from './ChatPage.module.css'
 import {
   createConversation,
   sendMessage,
   identifyPill,
+  getPillDetail,
   ApiError,
   type HealthInfoPayload,
 } from '../../lib/api'
@@ -25,8 +26,9 @@ const SCAN_AUTO_PROMPT =
   '방금 사진으로 찍은 이 약이 무슨 약인지 먼저 알려주고, 복용법·용량·주의사항 등 꼭 필요한 정보를 ' +
   '간단하고 명확하게 설명해줘. 마지막에 더 궁금한 점이 있는지 한 줄로 물어봐.'
 
-/* 인식 결과를 LLM 에 넘길 맥락 문자열로 요약 — 사용자의 '이 약/이게' 를 LLM 이 알게 한다. */
-function scanContextSummary(result: IdentifyResponse): string {
+/* 인식 결과 + 상위 후보의 식약처 공식 정보(효능·용법·주의)를 LLM 맥락 문자열로 요약한다.
+   detail 이 있으면 LLM 이 자체 지식 대신 이 데이터를 근거로 답하게 한다. */
+function scanContextSummary(result: IdentifyResponse, detail: PillDetailInfo | null): string {
   const a = result.attributes
   const parts: string[] = []
   if (a.product_name) parts.push(`포장 제품명: ${a.product_name}`)
@@ -36,7 +38,13 @@ function scanContextSummary(result: IdentifyResponse): string {
   if (phys) parts.push(`알약 속성: ${phys}`)
   const names = result.candidates.slice(0, 3).map((c) => c.item_name)
   if (names.length) parts.push(`매칭 후보(점수순): ${names.join(', ')}`)
-  return parts.length ? parts.join(' / ') : '사진에서 약을 또렷이 식별하지 못함(후보 없음)'
+  if (detail) {
+    parts.push(`확인된 약: ${detail.item_name}`)
+    if (detail.efcy) parts.push(`효능(공식): ${detail.efcy}`)
+    if (detail.use_method) parts.push(`용법(공식): ${detail.use_method}`)
+    if (detail.caution) parts.push(`주의(공식): ${detail.caution.slice(0, 700)}`)
+  }
+  return parts.length ? parts.join('\n') : '사진에서 약을 또렷이 식별하지 못함(후보 없음)'
 }
 
 const DEMO_PHOTO = '/demo/pill.jpg'
@@ -107,7 +115,18 @@ export default function ChatPage() {
         const file = new File([blob], 'scan.jpg', { type: 'image/jpeg' })
         const result = await identifyPill(file)
         if (!alive) return
-        const ctx = scanContextSummary(result)
+        // 상위 후보의 식약처 공식 정보(효능·용법·주의)를 가져와 맥락에 포함(있으면).
+        let detail: PillDetailInfo | null = null
+        const topSeq = result.candidates[0]?.item_seq
+        if (topSeq) {
+          try {
+            detail = await getPillDetail(topSeq)
+          } catch {
+            /* 상세 조회 실패 — 후보 이름만으로 진행 */
+          }
+        }
+        if (!alive) return
+        const ctx = scanContextSummary(result, detail)
         scanCtxRef.current = ctx
 
         const conv = await createConversation()
