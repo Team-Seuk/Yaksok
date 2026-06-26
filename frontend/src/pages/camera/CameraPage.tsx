@@ -1,5 +1,6 @@
 /* 카메라 모드 = 실제 기기 카메라(getUserMedia)를 뷰파인더로 라이브 표시.
    화면에 들어오면(=탭 진입) 바로 카메라를 요청한다. 최초 1회 권한 허용 후엔 즉시 켜진다.
+   인식은 셔터 버튼을 눌렀을 때 그 순간의 프레임 1장을 캡처해 진행한다(자동 스캔 아님).
    ※ getUserMedia는 보안 컨텍스트(HTTPS 또는 localhost)에서만 동작.
 
    연출(서류 캡처용): /camera?stage=shot — 실제 카메라 대신 데모 알약 사진을 띄워 "촬영·인식 중" 모습을 보여준다. */
@@ -12,9 +13,6 @@ type CamState = 'loading' | 'live' | 'denied'
 type FocusCaps = MediaTrackCapabilities & { focusMode?: string[] }
 
 const DEMO_PHOTO = '/demo/pill.jpg'
-
-/* 스캔 한 번 돌리고 다음 시도까지의 간격(ms). Gemini Vision 호출이 끝난 뒤 추가로 쉬는 시간. */
-const SCAN_GAP_MS = 1200
 
 /* 인식 성공 판정 — 알약 모양이 잡혔으면 프레임 안에 약이 또렷이 들어온 것으로 보고 진행한다.
    (실데이터 적재 전이라 후보 0개여도 진행. 적재 후엔 needs_retry/점수 기준으로 조일 수 있다.) */
@@ -95,10 +93,10 @@ export default function CameraPage() {
   const [cam, setCam] = useState<CamState>('loading')
   const [attempt, setAttempt] = useState(0)
   const [scanning, setScanning] = useState(false)
+  /* 직전 촬영에서 약을 찾지 못했을 때 재촬영을 안내하기 위한 플래그 */
+  const [notFound, setNotFound] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
-  /* 인식 성공 후 대화창으로 넘어가면 스캔 루프를 멈추기 위한 1회성 플래그 */
-  const navigatedRef = useRef(false)
 
   /* 탭에 들어오면 카메라 시작, 떠나면(언마운트) 트랙을 멈춰 카메라를 끈다. attempt를 올리면 재시도.
      연출 모드(stageShot)에선 실제 카메라를 켜지 않는다. */
@@ -156,58 +154,46 @@ export default function CameraPage() {
     }
   }, [attempt, stageShot])
 
-  /* 자동 스캔 루프 — 카메라가 켜지면(live) QR처럼 프레임을 계속 캡처해 인식 시도.
-     Gemini Vision 응답을 기다리는 동안은 다음 시도를 멈춰(순차) 호출이 겹치지 않게 한다.
-     약이 또렷이 잡히면 캡처 사진과 인식 결과를 들고 대화창으로 넘어간다. */
-  useEffect(() => {
-    if (cam !== 'live' || stageShot) return
-    let active = true
+  /* 셔터 — 버튼을 누른 순간의 프레임 1장을 캡처해 인식한다.
+     약이 또렷이 잡히면 캡처 사진과 인식 결과를 들고 대화창으로 넘어가고,
+     못 찾으면 재촬영을 안내한다. 인식 중에는 중복 호출을 막는다. */
+  async function captureFrame(): Promise<{ blob: Blob; dataUrl: string } | null> {
+    const video = videoRef.current
+    if (!video || !video.videoWidth) return null
+    const canvas = document.createElement('canvas')
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return null
+    ctx.drawImage(video, 0, 0)
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.9)
+    const blob = await new Promise<Blob | null>((res) =>
+      canvas.toBlob(res, 'image/jpeg', 0.9),
+    )
+    return blob ? { blob, dataUrl } : null
+  }
 
-    async function captureFrame(): Promise<{ blob: Blob; dataUrl: string } | null> {
-      const video = videoRef.current
-      if (!video || !video.videoWidth) return null
-      const canvas = document.createElement('canvas')
-      canvas.width = video.videoWidth
-      canvas.height = video.videoHeight
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return null
-      ctx.drawImage(video, 0, 0)
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.9)
-      const blob = await new Promise<Blob | null>((res) =>
-        canvas.toBlob(res, 'image/jpeg', 0.9),
-      )
-      return blob ? { blob, dataUrl } : null
-    }
-
-    async function loop() {
-      while (active && !navigatedRef.current) {
-        const frame = await captureFrame()
-        if (frame && active) {
-          setScanning(true)
-          try {
-            const file = new File([frame.blob], 'scan.jpg', { type: 'image/jpeg' })
-            const result = await identifyPill(file)
-            if (!active) return
-            if (looksLikePill(result)) {
-              navigatedRef.current = true
-              navigate('/chat', { state: { scan: { image: frame.dataUrl, result } } })
-              return
-            }
-          } catch {
-            /* 네트워크·서버 오류 — 잠시 후 재시도 */
-          } finally {
-            if (active) setScanning(false)
-          }
-        }
-        await new Promise((res) => setTimeout(res, SCAN_GAP_MS))
+  async function handleShutter() {
+    if (scanning) return
+    setNotFound(false)
+    const frame = await captureFrame()
+    if (!frame) return
+    setScanning(true)
+    try {
+      const file = new File([frame.blob], 'scan.jpg', { type: 'image/jpeg' })
+      const result = await identifyPill(file)
+      if (looksLikePill(result)) {
+        navigate('/chat', { state: { scan: { image: frame.dataUrl, result } } })
+        return
       }
+      setNotFound(true)
+    } catch {
+      /* 네트워크·서버 오류 — 재촬영 안내 */
+      setNotFound(true)
+    } finally {
+      setScanning(false)
     }
-
-    void loop()
-    return () => {
-      active = false
-    }
-  }, [cam, stageShot, navigate])
+  }
 
   return (
     <div className={styles.home}>
@@ -275,23 +261,41 @@ export default function CameraPage() {
             <span className={styles.shutter}>카메라 다시 시도</span>
           </button>
         ) : (
-          <div className={styles.caption}>
-            <span className={styles.captionMain}>
-              {stageShot
-                ? '알약을 인식하고 있어요'
-                : cam === 'live'
-                  ? scanning
-                    ? '알약을 살펴보고 있어요'
-                    : '가운데 칸에 알약을 맞춰 주세요'
-                  : '카메라를 준비하고 있어요'}
-            </span>
-            <span className={styles.captionSub}>
-              {stageShot
-                ? '잠시만 기다려 주세요. 곧 알려드릴게요.'
-                : cam === 'live'
-                  ? '알약을 비추고 있으면 자동으로 알아봐요.'
-                  : '잠시만 기다려 주세요. 곧 켜집니다.'}
-            </span>
+          <div className={styles.actions}>
+            <div className={styles.caption}>
+              <span className={styles.captionMain}>
+                {stageShot
+                  ? '알약을 인식하고 있어요'
+                  : cam === 'live'
+                    ? scanning
+                      ? '알약을 살펴보고 있어요'
+                      : notFound
+                        ? '약을 찾지 못했어요'
+                        : '가운데 칸에 알약을 맞춰 주세요'
+                    : '카메라를 준비하고 있어요'}
+              </span>
+              <span className={styles.captionSub}>
+                {stageShot
+                  ? '잠시만 기다려 주세요. 곧 알려드릴게요.'
+                  : cam === 'live'
+                    ? scanning
+                      ? '잠시만 기다려 주세요. 곧 알려드릴게요.'
+                      : notFound
+                        ? '조금 더 가까이서 다시 촬영해 주세요.'
+                        : '준비되면 아래 버튼을 눌러 촬영해요.'
+                    : '잠시만 기다려 주세요. 곧 켜집니다.'}
+              </span>
+            </div>
+            {!stageShot && cam === 'live' && (
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={handleShutter}
+                disabled={scanning}
+              >
+                <span className={styles.shutter}>{scanning ? '인식 중…' : '촬영'}</span>
+              </button>
+            )}
           </div>
         )}
       </div>
