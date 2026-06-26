@@ -4,7 +4,7 @@
 import { useState } from 'react'
 import PillImage from '../../components/PillImage'
 import { BookIcon, ChevronLeft, PlusIcon } from '../../components/icons'
-import { CABINET_ENTRIES } from '../../lib/cabinet'
+import { loadCabinet } from '../../lib/cabinet'
 import { ApiError, listPills, type PillSummary } from '../../lib/api'
 import { DEV_PROFILE_ID, loadHealth, loadMedications, saveHealth } from '../../lib/storage'
 import type { DoseTiming, DoseWhen, ID, Medication } from '../../lib/types'
@@ -310,7 +310,7 @@ export default function TodayEditPage({ onBack }: { onBack: () => void }) {
             <div className={styles.picker}>
               <p className={styles.pickerTitle}>내 알약사전</p>
               <div className={styles.pickList}>
-                {CABINET_ENTRIES.map((e) => (
+                {loadCabinet().map((e) => (
                   <button key={e.id} type="button" className={styles.pickItem} onClick={() => addByName(e.name)}>
                     <span className={styles.pickThumb} aria-hidden="true">
                       <PillImage look={e.look} size={36} />
