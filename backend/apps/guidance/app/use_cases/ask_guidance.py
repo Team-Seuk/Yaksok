@@ -32,6 +32,7 @@ class AskGuidanceUseCase:
             current_medications=request.health_info.current_medications,
             age=request.health_info.age,
             sex=request.health_info.sex,
+            pill_context=request.pill_context,
         )
 
         # Gemini 호출

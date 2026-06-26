@@ -92,18 +92,23 @@ export async function createConversation(): Promise<ConversationResponse> {
   return (await res.json()) as ConversationResponse
 }
 
-/** 대화방에 메시지를 보내고 AI 답변을 받는다. */
+/** 대화방에 메시지를 보내고 AI 답변을 받는다. pillContext 는 카메라 인식 결과 요약(있으면). */
 export async function sendMessage(
   conversationId: string,
   message: string,
   healthInfo?: HealthInfoPayload,
+  pillContext?: string | null,
 ): Promise<MessageResponse> {
   let res: Response
   try {
     res = await fetch(`${API_BASE}/api/guidance/conversations/${conversationId}/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, health_info: healthInfo ?? {} }),
+      body: JSON.stringify({
+        message,
+        health_info: healthInfo ?? {},
+        pill_context: pillContext ?? null,
+      }),
     })
   } catch {
     throw new ApiError(0, '서버에 연결할 수 없어요.')

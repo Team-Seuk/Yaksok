@@ -18,10 +18,12 @@ class HealthInfoDto(BaseModel):
 
 
 class AskRequestDto(BaseModel):
-    """메시지 전송 요청 — 질문 내용 + 건강정보."""
+    """메시지 전송 요청 — 질문 내용 + 건강정보 (+ 카메라 인식 맥락)."""
 
     message: str
     health_info: HealthInfoDto = HealthInfoDto()
+    # 카메라로 약을 막 촬영해 들어온 경우의 인식 결과 요약(없으면 None).
+    pill_context: str | None = None
 
 
 class MessageResponseDto(BaseModel):
