@@ -1,7 +1,7 @@
 ---
 status: 개발
 updated: 2026-06-26
-summary: **통합 + 라이브 배포 완료 — 데모 작동 중.** **www.seuk.cloud(Vercel) → api(Railway) → Neon + Gemini(유료 키)** 라이브. 공유 Neon **27,330건**(낱알식별 25,315 + e약은요 전용 신규 2,015), 효능·용법·주의 채워짐 **4,770건**. **2026-06-26 개편(PR #27~#41)**: 카메라 자동스캔→**셔터 버튼**(원형·하단)·뷰파인더 **정사각 1:1**·셔터=즉시 정사각 촬영→대화창 핸드오프(인식은 대화창) · 상담 LLM에 **스캔 인식결과+식약처 공식 효능·용법·주의를 맥락 주입**(자동 설명)·`GeminiError`→503(CORS 누락 500 오인 해소)·면책 완화 · **박스 제품명 인식**(자동 감지→이름검색) · 홈 그래프 애니 스플래시 후 시작 · **e약은요 적재 스크립트**(`fetch_drug_info.py`). 검증 그린(backend ruff·format·mypy(125)·import-linter(5)·pytest(39+) / frontend tsc·lint·build). **남은 일**: DUR 병용금기 적재(키 403 — data.go.kr DUR 활용신청 필요) · 매칭 인식률 튜닝 · 멀티턴 대화 히스토리(guidance LLM은 메시지별 stateless) · 폰 카메라 실기기 시연. 재배포 시 §8 필독.
+summary: **통합 + 라이브 배포 완료 — 데모 작동 중.** **www.seuk.cloud(Vercel) → api(Railway) → Neon + Gemini(유료 키)** 라이브. 공유 Neon **27,330건**(낱알식별 25,315 + e약은요 전용 신규 2,015), 효능·용법·주의 채워짐 **4,770건**. **2026-06-26 개편(PR #27~#41)**: 카메라 자동스캔→**셔터 버튼**(원형·하단)·뷰파인더 **정사각 1:1**·셔터=즉시 정사각 촬영→대화창 핸드오프(인식은 대화창) · 상담 LLM에 **스캔 인식결과+식약처 공식 효능·용법·주의를 맥락 주입**(자동 설명)·`GeminiError`→503(CORS 누락 500 오인 해소)·면책 완화 · **박스 제품명 인식**(자동 감지→이름검색) · 홈 그래프 애니 스플래시 후 시작 · **e약은요 적재 스크립트**(`fetch_drug_info.py`) · **내 기록(내 알약사전) localStorage 영속**(인식 시 자동 저장). 검증 그린(backend ruff·format·mypy(125)·import-linter(5)·pytest(39+) / frontend tsc·lint·build). **남은 일**: DUR 병용금기 적재(키 403 — data.go.kr DUR 활용신청 필요) · 내 기록 마무리(삭제 UI·실상세 링크) · 멀티턴 대화 히스토리(guidance LLM은 메시지별 stateless) · 매칭 인식률 튜닝 · 홈 더미→실데이터 · 폰 실기기 시연. 재배포 시 §8 필독.
 repo: Team-Seuk/Yaksok
 ---
 
@@ -52,12 +52,17 @@ repo: Team-Seuk/Yaksok
 1. **DUR 병용금기 적재 (막힘)** — 같은 `DATA_GO_KR_KEY`로 DUR(`DURPrdlstInfoService03`) 호출이 **403 Forbidden**. data.go.kr은 API별 활용신청이 따로라 키가 DUR에 미신청 상태. **data.go.kr 로그인 → "의약품 안전사용서비스(DUR) 품목정보" 활용신청**(자동승인) 후 풀림. 그 다음 새 테이블(병용금기 쌍) 설계·적재 + 상담 경고 연동. (외부 계정 작업이라 AI가 못 함)
 2. **매칭 인식률 튜닝** — 각인 없는 흐릿한 사진은 모양+색만으론 변별 0(동점 다수→`item_seq` tie-break로 임의 1위). `pill_repository._score`·`identify.py`의 `_MIN_SCORE`·`VISION_PROMPT`. 자신 없으면 재촬영 유도하는 게이트도 검토.
 3. **멀티턴 대화 히스토리** — guidance LLM은 메시지별 `system_prompt + 현재 메시지`만 받아 **이전 대화를 기억 못 함**(`ask_guidance.execute` → `llm.ask`에 history 미전달). 스캔 맥락은 매 질문에 `pill_context`로 동봉해 유지 중. 멀티턴 기억이 필요하면 history를 LLM 호출에 포함하도록 개편.
-4. **폰 카메라 실기기 시연** — seuk.cloud(HTTPS)라 동작할 것. 헤드리스/데스크톱은 카메라 없어 미검증.
+4. **내 기록 마무리** — ① 카드 **삭제 버튼**(`removeFromCabinet` 구현돼 있음, UI만) ② 기록 클릭 시 더미 `/pill/:id` 대신 **실제 사전 상세 `/dictionary/:itemSeq`**(효능·용법·주의 실데이터) 연결. 작음.
+5. **홈 더미 → 실데이터** — 복약률(`HomePage` `ADHERENCE=80`)·'최근 대화'·'약속의 한마디' 전부 더미. 실수치/실요약은 복용 체크 기록 모델 필요(중간~큼).
+6. **멀티턴 대화 히스토리** — guidance LLM은 메시지별 `system_prompt + 현재 메시지`만 받아 **이전 대화를 기억 못 함**(`ask_guidance.execute` → `llm.ask`에 history 미전달). 스캔 맥락은 매 질문에 `pill_context`로 동봉해 유지 중. 멀티턴 기억이 필요하면 history를 LLM 호출에 포함하도록 개편.
+7. **매칭 인식률 튜닝** — 각인 없는 흐릿한 사진은 모양+색만으론 변별 0(동점 다수→`item_seq` tie-break로 임의 1위). `pill_repository._score`·`identify.py`의 `_MIN_SCORE`·`VISION_PROMPT`. 자신 없으면 재촬영 유도 게이트 검토.
+8. **폰 카메라 실기기 시연** — seuk.cloud(HTTPS)라 동작할 것. 헤드리스/데스크톱은 카메라 없어 미검증.
 
 ## 5. 더미(연출용) vs 실데이터 — 시연 참고
 
 - **실데이터/실LLM**: 대화(상담), 알약사전 목록·상세·검색(`/all-pills`·`/dictionary/:itemSeq`), 카메라 인식 결과.
-- **더미(연출/스크린샷용)**: 홈 '최근 대화'·복약률 수치(원그래프는 `HomePage` `ADHERENCE` 상수), 내 기록(`/cabinet`) 약 카드. → 화면 채우기용.
+- **내 기록(실연결)**: `/cabinet` 내 알약사전이 **localStorage `yaksok:cabinet`에 영속**(`cabinet.loadCabinet`). 카메라로 약을 인식하면 자동 저장돼 쌓인다. 비었을 때 기본 약으로 시드. CabinetPage·'오늘의 약속' 내 사전이 공유. (클릭→상세는 아직 더미 `/pill/:id` — §4-4 후속)
+- **더미(연출/스크린샷용)**: 홈 '최근 대화'·복약률 수치(원그래프는 `HomePage` `ADHERENCE` 상수)·'약속의 한마디'. → 화면 채우기용.
 - **'오늘의 약속'(실연결)**: 홈 카드 → `/today` 편집(복용 시점/타이밍/횟수/용량 수정·삭제, 새 약 추가)이 **localStorage `medications`에 저장**. 비었으면 기본 약 시드(`storage.loadMedications`, 홈·편집 공유). 새 약 '전체 사전'은 `/api/pill/dictionary` 실검색.
 - 건강정보는 브라우저 **localStorage**(기기별 1인) — DB 아님. 계정/로그인 없음. **단일 사용자 시연 모델**(의도된 임시 구조).
 
