@@ -51,6 +51,9 @@ class _FakeRepo(PillRepositoryPort):
         hits = [p for p in _PILLS if kw in p.item_name.lower()] if kw else list(_PILLS)
         return hits[:limit]
 
+    def search_candidates(self, keyword: str, limit: int = 10) -> list[PillCandidate]:
+        return []
+
     def filter_candidates(self, attrs: PillAttrs, limit: int = 10) -> list[PillCandidate]:
         return []
 

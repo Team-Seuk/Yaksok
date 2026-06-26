@@ -22,6 +22,7 @@ class AttributesSchema(BaseModel):
     line_front: str | None = None
     line_back: str | None = None
     form: str | None = None
+    product_name: str | None = None
 
 
 class CandidateSchema(BaseModel):
@@ -63,6 +64,7 @@ class IdentifyResponse(BaseModel):
                 line_front=attrs.line_front.value if attrs.line_front else None,
                 line_back=attrs.line_back.value if attrs.line_back else None,
                 form=attrs.form.value if attrs.form else None,
+                product_name=attrs.product_name,
             ),
             candidates=[
                 CandidateSchema(

@@ -15,6 +15,8 @@ export interface IdentifiedAttributes {
   line_front: string | null
   line_back: string | null
   form: string | null
+  /** 포장(상자·라벨)에 인쇄된 약 제품명 — 낱알이 아니라 포장을 찍었을 때만 채워진다. */
+  product_name?: string | null
 }
 
 /** 매칭 후보 약 한 건 (score 높을수록 일치). */

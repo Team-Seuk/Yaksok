@@ -43,6 +43,17 @@ def test_blank_imprint_normalised_to_none() -> None:
     assert attrs.imprint_front is None
 
 
+def test_parses_product_name_from_packaging() -> None:
+    attrs = parse_attributes('{"shape":null,"product_name":"타이레놀정500밀리그람"}')
+    assert attrs.product_name == "타이레놀정500밀리그람"
+    assert attrs.shape is None
+
+
+def test_missing_product_name_is_none() -> None:
+    attrs = parse_attributes('{"shape":"원형","imprint_front":"T"}')
+    assert attrs.product_name is None
+
+
 def test_extract_wraps_core_gemini(monkeypatch: pytest.MonkeyPatch) -> None:
     """extract 가 core.gemini 래퍼를 호출하고 응답 JSON 을 속성으로 변환하는지(키 불필요)."""
     captured: dict[str, object] = {}

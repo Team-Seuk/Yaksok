@@ -48,6 +48,26 @@ class FakePillRepository(PillRepositoryPort):
     def search(self, keyword: str, limit: int = 20) -> list[Pill]:
         return []
 
+    def search_candidates(self, keyword: str, limit: int = 10) -> list[PillCandidate]:
+        # 포장 인식 경로 — 키워드를 담은 더미 후보 1건(이름검색이 호출됐음을 드러낸다).
+        if not keyword.strip():
+            return []
+        return [
+            PillCandidate(
+                item_seq="900000001",
+                item_name=f"{keyword}정",
+                entp_name="더미제약",
+                shape=None,
+                color_front=None,
+                color_back=None,
+                print_front=None,
+                print_back=None,
+                image_url=None,
+                is_otc=True,
+                score=10.0,
+            )
+        ][:limit]
+
     def filter_candidates(self, attrs: PillAttrs, limit: int = 10) -> list[PillCandidate]:
         return _DUMMY[:limit]
 

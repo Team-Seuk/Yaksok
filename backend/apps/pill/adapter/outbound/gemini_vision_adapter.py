@@ -33,17 +33,21 @@ _COLORS = " · ".join(c.value for c in Color)
 _LINES = " · ".join(s.value for s in ScoreLine)
 _FORMS = " · ".join(f.value for f in Form)
 
-VISION_PROMPT = f"""당신은 한국 의약품 낱알식별 보조원입니다.
-주어진 알약 사진 1장을 보고 물리적 속성만 객관적으로 판별하세요. 약 이름·효능은 추측하지 마세요.
+VISION_PROMPT = f"""당신은 한국 의약품 식별 보조원입니다.
+주어진 사진 1장을 보고 아래 항목을 판별하세요. 맨 알약의 약 이름·효능은 추측하지 마세요
+(단, 포장에 인쇄된 제품명은 product_name 으로 그대로 옮겨 적습니다).
 
-반드시 아래 정해진 값 중에서만 고르고, 알아볼 수 없으면 null 을 쓰세요(추측 금지).
+[1] 맨 알약(낱알)이 보이면 물리적 속성을 정해진 값 중에서만 고르세요(알아볼 수 없으면 null).
 - shape(모양): {_SHAPES}
 - color_front / color_back(색, 앞/뒤): {_COLORS}
 - line_front / line_back(분할선, 앞/뒤): {_LINES} (가로 분할선=`-`, 십자=`+`). 분할선이 없으면 null.
 - form(제형 추정): {_FORMS}
 - imprint_front / imprint_back(각인, 앞/뒤): 알약에 새겨진 글자·숫자·기호를 그대로. 없으면 null.
+한쪽 면만 보이면 보이는 면을 front 로, 반대 면은 null 로 두세요.
 
-한쪽 면만 보이면 보이는 면을 front 로, 반대 면은 null 로 두세요."""
+[2] 포장(상자·블리스터·라벨 등)에 약 제품명이 인쇄돼 있으면 product_name 에 그 제품명을 그대로
+적으세요(가장 크고 분명한 제품명 한 개, 인쇄된 글자만 — 추측·번역 금지). 용량/제조사/효능 문구는
+빼고 제품명 위주로. 포장이 없거나 제품명 글자가 안 보이면 product_name 은 null."""
 
 
 class _VisionAttrsSchema(BaseModel):
@@ -57,6 +61,7 @@ class _VisionAttrsSchema(BaseModel):
     line_front: str | None = None
     line_back: str | None = None
     form: str | None = None
+    product_name: str | None = None
 
 
 def _to_enum[E: Enum](enum_cls: type[E], raw: Any) -> E | None:
@@ -93,6 +98,7 @@ def parse_attributes(raw_json: str) -> PillAttributes:
         line_front=_to_enum(ScoreLine, data.get("line_front")),
         line_back=_to_enum(ScoreLine, data.get("line_back")),
         form=_to_enum(Form, data.get("form")),
+        product_name=_to_imprint(data.get("product_name")),
     )
 
 

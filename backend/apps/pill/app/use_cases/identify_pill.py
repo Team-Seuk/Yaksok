@@ -42,5 +42,13 @@ class IdentifyPillUseCase(IdentifyPillPort):
 
     def execute(self, image_bytes: bytes, mime_type: str) -> IdentifyResult:
         attributes = self._vision.extract(image_bytes, mime_type)
+
+        # 포장 인식: Vision 이 인쇄된 제품명을 읽었으면 물리속성 대신 이름검색으로 분기.
+        # 이름 후보가 있으면 그걸 쓰고, 없으면 낱알 속성 매칭으로 떨어진다(자동 감지).
+        if attributes.product_name:
+            named = self._repo.search_candidates(attributes.product_name, limit=_MATCH_LIMIT)
+            if named:
+                return IdentifyResult(attributes=attributes, candidates=named)
+
         candidates = self._repo.filter_candidates(_to_pill_attrs(attributes), limit=_MATCH_LIMIT)
         return IdentifyResult(attributes=attributes, candidates=candidates)

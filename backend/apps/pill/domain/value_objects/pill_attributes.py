@@ -85,3 +85,6 @@ class PillAttributes:
     line_front: ScoreLine | None = None
     line_back: ScoreLine | None = None
     form: Form | None = None
+    # 포장(상자·블리스터·라벨)에 인쇄된 약 제품명 — 낱알이 아니라 포장을 찍었을 때만 채워진다.
+    # 값이 있으면 매칭은 물리속성 대신 이름검색으로 분기한다.
+    product_name: str | None = None
