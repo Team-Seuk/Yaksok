@@ -20,16 +20,10 @@ type Msg = { id: number; role: 'me' | 'bot'; text?: string; image?: string }
    인식(비전 호출)은 이 화면에서 수행한다. */
 type ScanHandoff = { image: string }
 
-/* 인식 직후 임시 안내 — 실제 상담 답변(LLM)은 팀원3의 guidance 연동으로 대체된다. */
-function scanIntro(result: IdentifyResponse): string {
-  const top = result.candidates[0]?.item_name
-  if (top) return `사진 속 약은 ${top}로 보여요. 복용법이나 주의사항 등 궁금한 점을 물어보세요.`
-  const a = result.attributes
-  const seen = [a.shape, a.color_front].filter(Boolean).join(' · ')
-  return seen
-    ? `${seen} 형태의 알약으로 보여요. 약 이름이나 증상을 알려주시면 더 자세히 도와드릴게요.`
-    : '알약을 살펴봤어요. 궁금한 점을 편하게 물어보세요.'
-}
+/* 인식 직후 자동으로 LLM 에 보내는 기본 질문 — 사용자가 묻기 전에 약 설명을 바로 띄운다. */
+const SCAN_AUTO_PROMPT =
+  '방금 사진으로 찍은 이 약이 무슨 약인지 먼저 알려주고, 복용법·용량·주의사항 등 꼭 필요한 정보를 ' +
+  '간단하고 명확하게 설명해줘. 마지막에 더 궁금한 점이 있는지 한 줄로 물어봐.'
 
 /* 인식 결과를 LLM 에 넘길 맥락 문자열로 요약 — 사용자의 '이 약/이게' 를 LLM 이 알게 한다. */
 function scanContextSummary(result: IdentifyResponse): string {
@@ -102,7 +96,8 @@ export default function ChatPage() {
     if (stickToBottom.current) bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [msgs, typing])
 
-  /* 카메라 스캔으로 진입 — 캡처 사진을 비전 모델로 보내 인식하고 결과 안내를 잇는다(마운트 1회). */
+  /* 카메라 스캔으로 진입 — 사진을 비전 인식한 뒤, 사용자가 묻기 전에 LLM 에게 약 설명을
+     자동으로 요청해 바로 답을 띄운다(마운트 1회). 인식 맥락은 이후 질문에도 계속 동봉된다. */
   useEffect(() => {
     if (!scan) return
     let alive = true
@@ -112,9 +107,16 @@ export default function ChatPage() {
         const file = new File([blob], 'scan.jpg', { type: 'image/jpeg' })
         const result = await identifyPill(file)
         if (!alive) return
-        scanCtxRef.current = scanContextSummary(result)
+        const ctx = scanContextSummary(result)
+        scanCtxRef.current = ctx
+
+        const conv = await createConversation()
+        if (!alive) return
+        setConversationId(conv.id)
+        const reply = await sendMessage(conv.id, SCAN_AUTO_PROMPT, buildHealthInfo(), ctx)
+        if (!alive) return
         setTyping(false)
-        setMsgs((m) => [...m, { id: m.length + 1, role: 'bot', text: scanIntro(result) }])
+        setMsgs((m) => [...m, { id: m.length + 1, role: 'bot', text: reply.content }])
       } catch (e) {
         if (!alive) return
         setTyping(false)

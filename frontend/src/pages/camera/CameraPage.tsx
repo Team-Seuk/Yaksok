@@ -125,12 +125,16 @@ export default function CameraPage() {
   function handleShutter() {
     const video = videoRef.current
     if (!video || !video.videoWidth) return
+    // 뷰파인더(정사각 center-crop)와 동일하게 중앙 정사각으로 잘라 저장한다.
+    const side = Math.min(video.videoWidth, video.videoHeight)
+    const sx = (video.videoWidth - side) / 2
+    const sy = (video.videoHeight - side) / 2
     const canvas = document.createElement('canvas')
-    canvas.width = video.videoWidth
-    canvas.height = video.videoHeight
+    canvas.width = side
+    canvas.height = side
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-    ctx.drawImage(video, 0, 0)
+    ctx.drawImage(video, sx, sy, side, side, 0, 0, side, side)
     const image = canvas.toDataURL('image/jpeg', 0.9)
     navigate('/chat', { state: { scan: { image } } })
   }
