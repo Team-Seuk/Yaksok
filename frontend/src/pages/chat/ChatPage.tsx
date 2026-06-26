@@ -14,6 +14,7 @@ import {
   type HealthInfoPayload,
 } from '../../lib/api'
 import { loadHealth } from '../../lib/storage'
+import { addToCabinet, lookFrom } from '../../lib/cabinet'
 
 type Msg = { id: number; role: 'me' | 'bot'; text?: string; image?: string }
 
@@ -128,6 +129,19 @@ export default function ChatPage() {
         if (!alive) return
         const ctx = scanContextSummary(result, detail)
         scanCtxRef.current = ctx
+
+        // 인식된 약을 '내 기록'(내 알약사전)에 저장 — 그동안 알아본 약이 쌓인다.
+        const top = result.candidates[0]
+        if (top) {
+          addToCabinet({
+            itemSeq: top.item_seq,
+            name: detail?.item_name ?? top.item_name,
+            ingredient: '',
+            category: detail?.class_name ?? '약',
+            summary: detail?.efcy ?? '대화에서 알아본 약',
+            look: lookFrom(top.shape, top.color_front),
+          })
+        }
 
         const conv = await createConversation()
         if (!alive) return

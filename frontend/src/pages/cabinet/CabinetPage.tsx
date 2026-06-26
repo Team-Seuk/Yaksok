@@ -1,10 +1,11 @@
 import PillImage from '../../components/PillImage'
 import { BookIcon, ChevronRight, ChatIcon } from '../../components/icons'
-import { CABINET_ENTRIES } from '../../lib/cabinet'
+import { loadCabinet } from '../../lib/cabinet'
 import styles from './CabinetPage.module.css'
 
 export default function CabinetPage({ onOpen }: { onOpen: (id: number) => void }) {
-  const isEmpty = CABINET_ENTRIES.length === 0
+  const entries = loadCabinet()
+  const isEmpty = entries.length === 0
 
   return (
     <div className="screen screen--scroll">
@@ -29,7 +30,7 @@ export default function CabinetPage({ onOpen }: { onOpen: (id: number) => void }
         </div>
       ) : (
         <div className={styles.list}>
-          {CABINET_ENTRIES.map((e) => (
+          {entries.map((e) => (
             <button key={e.id} className={styles.card} onClick={() => onOpen(e.id)} aria-label={e.name}>
               <div className={styles.thumb}>
                 <PillImage look={e.look} size={44} />
@@ -44,7 +45,7 @@ export default function CabinetPage({ onOpen }: { onOpen: (id: number) => void }
                 </div>
 
                 <div className={styles.tags}>
-                  <span className={styles.ingredient}>{e.ingredient}</span>
+                  {e.ingredient && <span className={styles.ingredient}>{e.ingredient}</span>}
                   <span className={styles.category}>{e.category}</span>
                 </div>
 
