@@ -5,13 +5,20 @@ import PillImage from '../../components/PillImage'
 import { ArrowUp } from '../../components/icons'
 import type { IdentifyResponse } from '../../lib/api'
 import styles from './ChatPage.module.css'
-import { createConversation, sendMessage, ApiError, type HealthInfoPayload } from '../../lib/api'
+import {
+  createConversation,
+  sendMessage,
+  identifyPill,
+  ApiError,
+  type HealthInfoPayload,
+} from '../../lib/api'
 import { loadHealth } from '../../lib/storage'
 
 type Msg = { id: number; role: 'me' | 'bot'; text?: string; image?: string }
 
-/* 카메라 스캔으로 넘어올 때 전달되는 인식 결과 (CameraPage → navigate state). */
-type ScanHandoff = { image: string; result: IdentifyResponse }
+/* 카메라 스캔으로 넘어올 때 전달되는 캡처 사진 (CameraPage → navigate state).
+   인식(비전 호출)은 이 화면에서 수행한다. */
+type ScanHandoff = { image: string }
 
 /* 인식 직후 임시 안내 — 실제 상담 답변(LLM)은 팀원3의 guidance 연동으로 대체된다. */
 function scanIntro(result: IdentifyResponse): string {
@@ -79,14 +86,27 @@ export default function ChatPage() {
     if (stickToBottom.current) bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [msgs, typing])
 
-  /* 카메라 스캔으로 진입했으면 사진 메시지 뒤에 안내 답변을 한 번 잇는다(마운트 1회). */
+  /* 카메라 스캔으로 진입 — 캡처 사진을 비전 모델로 보내 인식하고 결과 안내를 잇는다(마운트 1회). */
   useEffect(() => {
     if (!scan) return
-    const t = setTimeout(() => {
-      setTyping(false)
-      setMsgs((m) => [...m, { id: m.length + 1, role: 'bot', text: scanIntro(scan.result) }])
-    }, 800)
-    return () => clearTimeout(t)
+    let alive = true
+    ;(async () => {
+      try {
+        const blob = await (await fetch(scan.image)).blob()
+        const file = new File([blob], 'scan.jpg', { type: 'image/jpeg' })
+        const result = await identifyPill(file)
+        if (!alive) return
+        setTyping(false)
+        setMsgs((m) => [...m, { id: m.length + 1, role: 'bot', text: scanIntro(result) }])
+      } catch (e) {
+        if (!alive) return
+        setTyping(false)
+        setError(e instanceof ApiError ? e.message : '사진을 인식하지 못했어요. 다시 찍어 주세요.')
+      }
+    })()
+    return () => {
+      alive = false
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

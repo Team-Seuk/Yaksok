@@ -147,36 +147,6 @@
   text-wrap: pretty;
 }
 
-/* 스캔 중 배지 — 뷰파인더 상단에 떠서 인식 진행을 알린다 */
-.scanBadge {
-  position: absolute;
-  top: var(--sp-md);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 3;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-xs);
-  padding: var(--sp-xs) var(--sp-md);
-  border-radius: var(--radius-pill);
-  background: rgba(15, 20, 19, 0.55);
-  backdrop-filter: blur(6px);
-  color: #fff;
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-semibold);
-}
-.scanDot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--accent);
-  animation: scanPulse 1s var(--ease-out) infinite;
-}
-@keyframes scanPulse {
-  0%, 100% { opacity: 0.35; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.15); }
-}
-
 /* ---- 무대 캡션 + 안심 카피 ---- */
 .caption {
   margin: 0;
@@ -229,21 +199,9 @@
   opacity: 0.5;
   cursor: default;
 }
-/* 인식 중 — 코어 자리에 회전 스피너 */
-.shutterSpin {
-  width: 30px;
-  height: 30px;
-  border: 3px solid var(--accent-soft);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.9s linear infinite;
-}
 @media (prefers-reduced-motion: reduce) {
   .shutterCore {
     transition: none;
-  }
-  .shutterSpin {
-    animation-duration: 1.6s;
   }
 }
 .err {

@@ -6,19 +6,12 @@
    연출(서류 캡처용): /camera?stage=shot — 실제 카메라 대신 데모 알약 사진을 띄워 "촬영·인식 중" 모습을 보여준다. */
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { identifyPill, type IdentifyResponse } from '../../lib/api'
 import styles from './CameraPage.module.css'
 
 type CamState = 'loading' | 'live' | 'denied'
 type FocusCaps = MediaTrackCapabilities & { focusMode?: string[] }
 
 const DEMO_PHOTO = '/demo/pill.jpg'
-
-/* 인식 성공 판정 — 알약 모양이 잡혔으면 프레임 안에 약이 또렷이 들어온 것으로 보고 진행한다.
-   (실데이터 적재 전이라 후보 0개여도 진행. 적재 후엔 needs_retry/점수 기준으로 조일 수 있다.) */
-function looksLikePill(result: IdentifyResponse): boolean {
-  return result.attributes.shape !== null
-}
 
 function LockIcon({ size = 26 }: { size?: number }) {
   return (
@@ -68,9 +61,6 @@ export default function CameraPage() {
   const stageShot = new URLSearchParams(location.search).get('stage') === 'shot'
   const [cam, setCam] = useState<CamState>('loading')
   const [attempt, setAttempt] = useState(0)
-  const [scanning, setScanning] = useState(false)
-  /* 직전 촬영에서 약을 찾지 못했을 때 재촬영을 안내하기 위한 플래그 */
-  const [notFound, setNotFound] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
 
@@ -130,45 +120,19 @@ export default function CameraPage() {
     }
   }, [attempt, stageShot])
 
-  /* 셔터 — 버튼을 누른 순간의 프레임 1장을 캡처해 인식한다.
-     약이 또렷이 잡히면 캡처 사진과 인식 결과를 들고 대화창으로 넘어가고,
-     못 찾으면 재촬영을 안내한다. 인식 중에는 중복 호출을 막는다. */
-  async function captureFrame(): Promise<{ blob: Blob; dataUrl: string } | null> {
+  /* 셔터 — 버튼을 누른 순간의 프레임 1장을 찍어 바로 대화창으로 넘긴다.
+     비전 인식은 대화창에서 처리하므로 여기선 카메라가 멈추거나 기다리지 않는다. */
+  function handleShutter() {
     const video = videoRef.current
-    if (!video || !video.videoWidth) return null
+    if (!video || !video.videoWidth) return
     const canvas = document.createElement('canvas')
     canvas.width = video.videoWidth
     canvas.height = video.videoHeight
     const ctx = canvas.getContext('2d')
-    if (!ctx) return null
+    if (!ctx) return
     ctx.drawImage(video, 0, 0)
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.9)
-    const blob = await new Promise<Blob | null>((res) =>
-      canvas.toBlob(res, 'image/jpeg', 0.9),
-    )
-    return blob ? { blob, dataUrl } : null
-  }
-
-  async function handleShutter() {
-    if (scanning) return
-    setNotFound(false)
-    const frame = await captureFrame()
-    if (!frame) return
-    setScanning(true)
-    try {
-      const file = new File([frame.blob], 'scan.jpg', { type: 'image/jpeg' })
-      const result = await identifyPill(file)
-      if (looksLikePill(result)) {
-        navigate('/chat', { state: { scan: { image: frame.dataUrl, result } } })
-        return
-      }
-      setNotFound(true)
-    } catch {
-      /* 네트워크·서버 오류 — 재촬영 안내 */
-      setNotFound(true)
-    } finally {
-      setScanning(false)
-    }
+    const image = canvas.toDataURL('image/jpeg', 0.9)
+    navigate('/chat', { state: { scan: { image } } })
   }
 
   return (
@@ -224,12 +188,6 @@ export default function CameraPage() {
           )}
 
           {(stageShot || cam === 'live') && <Reticle />}
-          {cam === 'live' && scanning && (
-            <span className={styles.scanBadge} role="status">
-              <span className={styles.scanDot} aria-hidden="true" />
-              인식 중
-            </span>
-          )}
         </div>
 
         {cam !== 'denied' && (
@@ -237,11 +195,7 @@ export default function CameraPage() {
             {stageShot
               ? '알약을 인식하고 있어요'
               : cam === 'live'
-                ? scanning
-                  ? '알약을 살펴보고 있어요'
-                  : notFound
-                    ? '약을 못 찾았어요. 더 가까이서 다시 찍어 주세요'
-                    : '가운데에 알약을 맞춰 주세요'
+                ? '가운데에 알약을 맞춰 주세요'
                 : '카메라를 준비하고 있어요'}
           </p>
         )}
@@ -262,15 +216,10 @@ export default function CameraPage() {
               type="button"
               className={styles.shutterBtn}
               onClick={handleShutter}
-              disabled={cam !== 'live' || scanning}
+              disabled={cam !== 'live'}
               aria-label="사진 촬영"
-              aria-busy={scanning}
             >
-              {scanning ? (
-                <span className={styles.shutterSpin} aria-hidden="true" />
-              ) : (
-                <span className={styles.shutterCore} aria-hidden="true" />
-              )}
+              <span className={styles.shutterCore} aria-hidden="true" />
             </button>
           )}
         </div>
