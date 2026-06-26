@@ -1,7 +1,7 @@
 ---
 status: 개발
-updated: 2026-06-25
-summary: **통합 + 라이브 배포 완료 — 데모 작동 중 (2026-06-25).** 팀원 1·2·3·4 작업 전부 main 머지 + 충돌해소(프로미 명칭 유지). 공유 Neon에 낱알식별 25,315건 적재. **www.seuk.cloud(Vercel 프론트) → api(yaksok-production-9631.up.railway.app, Railway 백엔드) → Neon + Gemini** 체인이 라이브로 동작. 검증 그린: backend ruff·format·mypy(124)·import-linter(5)·pytest(31) / frontend tsc·lint·build. **후속 완료(2026-06-25, PR #23·#24·#25)**: db URL psycopg 자동 정규화 · Alembic 활성화 · 매칭 각인 우선 보정 · '오늘의 약속' 편집 화면(홈 카드→전체화면 모핑) · 홈 복약률 원그래프 · 인트로 개편 · 전역 드래그 방지 · 복약 상담 호칭 개인화(나이·성별 반영, '어르신' 단정 제거). **남은 일**: 폰 카메라 실기기 시연 · PR #22 닫기 · 매칭 실데이터 튜닝. 재배포 시 §8의 환경변수·함정 필독.
+updated: 2026-06-26
+summary: **통합 + 라이브 배포 완료 — 데모 작동 중.** **www.seuk.cloud(Vercel) → api(Railway) → Neon + Gemini(유료 키)** 라이브. 공유 Neon **27,330건**(낱알식별 25,315 + e약은요 전용 신규 2,015), 효능·용법·주의 채워짐 **4,770건**. **2026-06-26 개편(PR #27~#41)**: 카메라 자동스캔→**셔터 버튼**(원형·하단)·뷰파인더 **정사각 1:1**·셔터=즉시 정사각 촬영→대화창 핸드오프(인식은 대화창) · 상담 LLM에 **스캔 인식결과+식약처 공식 효능·용법·주의를 맥락 주입**(자동 설명)·`GeminiError`→503(CORS 누락 500 오인 해소)·면책 완화 · **박스 제품명 인식**(자동 감지→이름검색) · 홈 그래프 애니 스플래시 후 시작 · **e약은요 적재 스크립트**(`fetch_drug_info.py`). 검증 그린(backend ruff·format·mypy(125)·import-linter(5)·pytest(39+) / frontend tsc·lint·build). **남은 일**: DUR 병용금기 적재(키 403 — data.go.kr DUR 활용신청 필요) · 매칭 인식률 튜닝 · 멀티턴 대화 히스토리(guidance LLM은 메시지별 stateless) · 폰 카메라 실기기 시연. 재배포 시 §8 필독.
 repo: Team-Seuk/Yaksok
 ---
 
@@ -23,7 +23,9 @@ repo: Team-Seuk/Yaksok
 - **라이브 배포 작동 중**:
   - 프론트(Vercel): **https://www.seuk.cloud** (= seuk.cloud)
   - 백엔드(Railway): **https://yaksok-production-9631.up.railway.app** (Railway 프로젝트 `empathetic-acceptance`)
-  - DB: **공유 Neon Postgres** — `pills` 25,315건 적재됨, `conversations`·`messages` 준비됨.
+  - DB: **공유 Neon Postgres** — `pills` **27,330건**(낱알식별 25,315 + e약은요 전용 신규 2,015), 효능·용법·주의 채워짐 4,770건. `conversations`·`messages` 준비됨.
+  - **Gemini = 유료 키** (Railway `GOOGLE_API_KEY`). 무료 키였을 때 일일 쿼터(20/day) 소진으로 상담이 503→프론트 '서버 연결 불가'로 보이던 이슈 해소.
+- **인식 흐름**: 카메라 셔터 누르면 정사각 1장 촬영 → `/chat` 이동 → 대화창에서 `identifyPill`(비전) → 상위 후보의 식약처 공식 효능·용법·주의를 맥락에 담아 LLM이 자동 설명. 포장 박스는 제품명 OCR→이름검색으로 자동 분기.
 - **검증됨(배포본)**: 복약 상담 = 실 Gemini 답변 렌더 ✅ / 알약사전 검색·상세 = 실데이터 ✅ / `/health` 200 ✅.
 - **로컬 실행**: `backend`에서 `uv sync` → `uv run uvicorn main:app --reload`(8000), `frontend`에서 `npm run dev`(5173·HTTPS). `backend/.env`에 키 3개 필요(§8).
 
@@ -47,11 +49,10 @@ repo: Team-Seuk/Yaksok
 
 ## 4. 남은 일 (후속 — 데모엔 지장 없음)
 
-> 이전 후속 ②③④(db URL 정규화·Alembic·매칭 보정)는 2026-06-25 완료(PR #23·#24) → §3·§7 반영. 아래는 남은 항목.
-
-1. **폰 카메라 실기기 시연 테스트** — seuk.cloud(HTTPS)라 폰 카메라 인식이 동작할 것. 헤드리스론 카메라가 없어 미검증. 인식 백엔드(`/api/pill/identify`)는 검증됨(데모 사진→후보 10건). ※ 데스크톱엔 수동 업로드 버튼 없음(팀원2가 자동스캔만 남김) — 인식은 카메라 있는 기기에서.
-2. **(정리) PR #22** — base가 `feat/pill-identify`로 잘못 머지됨(내용은 이미 main 통합). GitHub에서 닫으면 됨.
-3. **매칭 정렬 실데이터 튜닝** — 각인 가중치 5.0은 역전 방지 최소값(PR #24). 정확한 최적값은 실데이터로 후속 튜닝. `pill_repository._score`·`identify.py` `_MIN_SCORE`·`VISION_PROMPT`.
+1. **DUR 병용금기 적재 (막힘)** — 같은 `DATA_GO_KR_KEY`로 DUR(`DURPrdlstInfoService03`) 호출이 **403 Forbidden**. data.go.kr은 API별 활용신청이 따로라 키가 DUR에 미신청 상태. **data.go.kr 로그인 → "의약품 안전사용서비스(DUR) 품목정보" 활용신청**(자동승인) 후 풀림. 그 다음 새 테이블(병용금기 쌍) 설계·적재 + 상담 경고 연동. (외부 계정 작업이라 AI가 못 함)
+2. **매칭 인식률 튜닝** — 각인 없는 흐릿한 사진은 모양+색만으론 변별 0(동점 다수→`item_seq` tie-break로 임의 1위). `pill_repository._score`·`identify.py`의 `_MIN_SCORE`·`VISION_PROMPT`. 자신 없으면 재촬영 유도하는 게이트도 검토.
+3. **멀티턴 대화 히스토리** — guidance LLM은 메시지별 `system_prompt + 현재 메시지`만 받아 **이전 대화를 기억 못 함**(`ask_guidance.execute` → `llm.ask`에 history 미전달). 스캔 맥락은 매 질문에 `pill_context`로 동봉해 유지 중. 멀티턴 기억이 필요하면 history를 LLM 호출에 포함하도록 개편.
+4. **폰 카메라 실기기 시연** — seuk.cloud(HTTPS)라 동작할 것. 헤드리스/데스크톱은 카메라 없어 미검증.
 
 ## 5. 더미(연출용) vs 실데이터 — 시연 참고
 
@@ -112,7 +113,8 @@ npm run build && npm run lint
 | `backend/core/{db,gemini,config}.py` | DB세션·Gemini래퍼·설정 |
 | `backend/apps/pill/` | 인식(identify)·매칭(pill_repository)·사전(dictionary·search_pills) |
 | `backend/apps/guidance/` | 복약 상담(LLM) + fake·테스트 |
-| `backend/scripts/fetch_pills.py` | 공공데이터 적재(v03, upsert 청크) |
+| `backend/scripts/fetch_pills.py` | 낱알식별 적재(v03, upsert 청크) |
+| `backend/scripts/fetch_drug_info.py` | e약은요 적재 — 효능·용법·주의 부분갱신 + 전용품목 신규삽입 |
 | `backend/railway.toml` | Railway 배포 설정 |
 | `vercel.json` | Vercel 빌드/SPA 설정 |
 | `frontend/src/lib/api.ts` | 백엔드 클라이언트(identify·dictionary·guidance) |
